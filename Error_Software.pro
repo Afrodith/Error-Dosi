@@ -54,3 +54,20 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     resources.qrc
+
+DISTFILES += \
+    data/I123_MIBG/phantom_001.txt \
+    data/I123_MIBG/time_activity_curves_I123_MIBG.txt \
+    data/I131_INa1/phantom_001.txt \
+    data/I131_INa1/time_activity_curves_I131_INa1.txt \
+    data/I131_INa2/phantom_001.txt \
+    data/I131_INa2/time_activity_curves_I131_INa2.txt \
+    data/I131_MIBG/phantom_001.txt \
+    data/I131_MIBG/time_activity_curves_I131_MIBG.txt \
+    data/Sm153_EDTMP/phantom_001.txt \
+    data/Sm153_EDTMP/time_activity_curves_Sm153_EDTMP.txt \
+    data/Tc99m_MDP/phantom_001.txt \
+    data/Tc99m_MDP/time_activity_curves_Tc99m_MDP.txt \
+    data/excel_files/ERROR_Updated_db.xlsx \
+    data/excel_files/Tc-99m_doses.xlsx \
+    data/excel_files/Time activity curves.xlsx

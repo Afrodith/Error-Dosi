@@ -19,11 +19,13 @@ void LoadTimeAndActivityFraction(std::ifstream* p_file, double* p_time,double** 
 void LoadSADRs(std::ifstream* p_file, double** p_sadrs, uint32_t* p_n_organs_to_study);
 
 
-integradeDose::integradeDose(QObject *parent) : QObject(parent)
+integradeDose::integradeDose(QObject *parent,QString timeActivityCurves,QString matchedPhantom) : QObject(parent)
 {
-    p_time_activity_curves_filename = "qrc:/data/Tc99m_MDP/phantom_001.txt";
-    p_sadrs_filename = "qrc:/data/Tc99m_MDP/phantom_001.txt";
 
+    QByteArray ba = timeActivityCurves.toLocal8Bit();
+    QByteArray ba2= matchedPhantom.toLocal8Bit();
+    p_time_activity_curves_filename = ba.data();
+    p_sadrs_filename =ba2.data();
 }
 
 

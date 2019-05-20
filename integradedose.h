@@ -8,7 +8,7 @@ class integradeDose : public QObject
 {
     Q_OBJECT
 public:
-    explicit integradeDose(QObject *parent = nullptr);
+    explicit integradeDose(QObject *parent = nullptr,QString="",QString="");
 
     char* p_time_activity_curves_filename = nullptr;
     char* p_sadrs_filename = nullptr;

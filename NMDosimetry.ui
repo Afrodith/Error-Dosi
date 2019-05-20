@@ -103,6 +103,36 @@
      <height>21</height>
     </rect>
    </property>
+   <item>
+    <property name="text">
+     <string>131I_NaI_p1</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>131I_NaI_p2</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>153Sm_EDTMP</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>131I_mIBG</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>I123_mIBG</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Tc99m_MDP</string>
+    </property>
+   </item>
   </widget>
   <widget class="QGraphicsView" name="graphicsView">
    <property name="geometry">
