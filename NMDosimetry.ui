@@ -103,6 +103,9 @@
      <height>21</height>
     </rect>
    </property>
+   <property name="currentIndex">
+    <number>-1</number>
+   </property>
    <item>
     <property name="text">
      <string>131I_NaI_p1</string>

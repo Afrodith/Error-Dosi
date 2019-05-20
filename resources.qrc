@@ -1,5 +1,8 @@
-<!DOCTYPE RCC><RCC version="1.0">
-<qresource>
-   <file>pushbuttton.qss</file>
-   </qresource>
+<RCC>
+    <qresource prefix="/">
+        <file>pushbuttton.qss</file>
+    </qresource>
+    <qresource prefix="/icons">
+        <file>icons/error.png</file>
+    </qresource>
 </RCC>

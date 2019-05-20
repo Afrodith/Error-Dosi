@@ -19,8 +19,8 @@ public:
     ~NMDosimetry();
     integradeDose *phantom_match;
     QString currentDir;
-    QString linux_activityCurves;
-    QString linux_sadr;
+    QString activityCurves;
+    QString sadr;
 
 
 private slots:

@@ -19,13 +19,27 @@ void LoadTimeAndActivityFraction(std::ifstream* p_file, double* p_time,double** 
 void LoadSADRs(std::ifstream* p_file, double** p_sadrs, uint32_t* p_n_organs_to_study);
 
 
-integradeDose::integradeDose(QObject *parent,QString timeActivityCurves,QString matchedPhantom) : QObject(parent)
+integradeDose::integradeDose(QObject *parent) : QObject(parent)
+{
+  dialog=nullptr;
+
+}
+
+void integradeDose::getFileNames(QString timeActivityCurves,QString matchedPhantom)
 {
 
     QByteArray ba = timeActivityCurves.toLocal8Bit();
     QByteArray ba2= matchedPhantom.toLocal8Bit();
     p_time_activity_curves_filename = ba.data();
     p_sadrs_filename =ba2.data();
+
+}
+
+integradeDose::~integradeDose()
+{
+     if(dialog!=nullptr)
+         delete dialog;
+
 }
 
 
@@ -253,7 +267,227 @@ uint32_t GetNumberOrgansFromFile(std::ifstream* p_file)
            // Filling SADRs values
            LoadSADRs(&p_sadrs_file, p_sadrs, &n_organs_to_study);
 
-           if (is_verbose) {
+           auto path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+           path =path.append("/Error-Dosi/Exports");
+           QDir d(path);
+
+#ifdef Q_OS_LINUX
+           //linux code goes here
+           if(!d.exists())
+           {
+                d.mkpath(".");
+           }
+#elif Q_OS_WIN32
+           // windows code goes here
+           if(!QDir("Error-Dosi").exists())
+           {
+               d.mkdir("Error-Dosi\Exports");
+           }
+#else
+
+#endif
+
+
+
+//                      ///// get device details for the report
+//
+
+//                          QString date =ui->dE_studyDate->date().toString();
+//                          QString age = ui->age->text();
+//                          QString Project = ui->project->text();
+
+//                          QString studyName = ui->Sname->text();
+//                          QString inj_path = ui->InPath->text();
+
+
+//                          QString ID = sID;
+//                          QString activity = ui->initialActivity->text();
+//                          QString inj_activity = ui->injActivity->text();
+//                          QString inj_volume = ui->InjVol->text();
+//                          QString weight = ui->weight->text();
+//                          QString nuclide = ui->nuclide->text();
+//                          QString species = ui->species->text();
+
+
+//                          QString comments = ui->comments->toPlainText();
+//                          QString breed = ui->breed->text();
+//                          QString frame = ui->LE_frame->text();
+
+//                          QString expDur = ui->LE_expDuration->text();
+
+
+
+//                          ////////////////// html structure of the document
+
+
+
+
+
+           auto* editor = new QTextEdit;
+           auto* doc = new QTextDocument(editor);
+           QString html_script;
+           QTextCursor cursor(doc);
+           QString filename;
+           if(dialog==nullptr)
+             dialog =new QWidget();
+
+           ///// open file dialog for the user to name the expoted report
+           filename = QFileDialog::getSaveFileName(dialog, "Save file", d.path(), tr("PDF(*.pdf)"));
+           /// store directory is the users documents every time
+
+
+           if (is_verbose&&!filename.isNull()) {
+              editor->setDocumentTitle("Organ Dosimetry Report");
+                         html_script =
+                                           "<html>"
+                                           "<head>"
+                                           "</head>"
+                                           "<body>"
+                                           "<div >"
+                                           "<p><img src=':/icons/icons/error.png' alt ='Logo' border=='3'/></p>"
+                                            "</div>"
+                                            "<pre>\n\n\n\n\n " + QDateTime::currentDateTime().toString("MMM-ddd-yyyy hh:mm:ss") + "</pre>"
+                                            "<pre>\n\n\n\n                 <b>Organ Dosimetry Report</b>\n\n</pre>"
+                                            "<pre>\n\n<u><b>----- INFOS -----</b></u>\n\n:</pre>";
+
+
+//                                            " <table style='border:1px solid black;'>"
+//                                            " <tr> "
+//                                            " <td><b>Organ1:</b></td>"
+//                                            " <td>" + date + "  </td>"
+//                                            "<td>\n\n<b>Study Title:</b></td>  "
+//                                            "<td>" + studyName + "  </td>  "
+//                                            "</tr>"
+//                                            " <tr> "
+//                                            "<td>\n\n<b>Study ID:</b></td> "
+//                                            "<td>" + ID + "</td> "
+//                                            "<td>\n\n<b>Project:</b> </td>  "
+//                                            "<td>" + Project + "</td>  "
+//                                            "</tr>"
+//                                            " <tr> "
+//                                            "<td>\n\n<b>Frame Duration:</b></td> "
+//                                            "<td>" + frame + "</td> "
+//                                            "<td>\n\n<b>Exp. Duration:</b></td> "
+//                                            "<td>" + expDur + "</td> "
+//                                            "</tr>"
+//                                            " <tr> "
+//                                            "<td>\n\n<b>Species:</b></td>   "
+//                                            "<td>" + species + "</td>   "
+//                                            "<td><b>Breed:</b></td> "
+//                                            "<td>" + breed + "</td> "
+//                                            "</tr>"
+//                                            " <tr> "
+//                                            "<td>\n\n<b>Weight:</b> </td>    "
+//                                            "<td>" + weight + "</td> " ;
+//                                            if(ui->age->isEnabled())
+//                                            {
+//                                             html_script +=
+//                                             " <td>\n\n<b>Age:</b></td>"
+//                                             " <td>" + age + "</td>";
+
+//                                            }
+//                                            html_script +=
+//                                            "</tr>"
+//                                            " <tr> "
+//                                            "<td>\n\n<b>Radionuclide:</b></td>  "
+//                                            "<td>" + nuclide + "</td>  "
+//                                            "<td><b>Injected Volume:</b></td> "
+//                                            "<td>" + inj_volume + "</td> "
+//                                            "</tr>";
+//                                            if(ui->initialActivity->isEnabled()|| ui->cB_InjActivity->isEnabled())
+//                                            {
+//                                                html_script += " <tr> ";
+//                                                if(ui->initialActivity->isEnabled())
+//                                                {
+//                                                    html_script +=
+//                                                      "<td>\n\n<b>Initial Activity:</b></td>  "
+//                                                      "<td>" + activity + "</td> ";
+
+//                                                }
+//                                                if(ui->injActivity->isEnabled())
+//                                                {
+//                                                    html_script +=
+//                                                     "<td><b>\n\nInjected Activity:</b> </td>  "
+//                                                     "<td>" + inj_activity + "</td>  ";
+
+//                                                }
+//                                                html_script += "</tr>";
+//                                            }
+//                                            html_script +=
+//                                            " <tr> "
+//                                            "<td>\n\n<b>Injection Path:</b></td> "
+//                                            "<td>" + inj_path + "\n\n </td> "
+//                                            "</tr>"
+//                                            " <tr> "
+//                                            "<td>\n\n<b>Comments:</b></td> "
+//                                            "<td>" + comments + "</td> "
+//                                            "</tr>"
+
+
+
+//                                            " </table>";
+//                                           html_script += "</body></html>";
+
+
+
+
+
+              //                   QString css =  "table,td{border:1px solid black; border-right:1px solid Tomato;"
+              //                                             "border-colapse: colapse;}";
+
+
+              //                    //cursor.insertHtml(html_script);
+
+
+              //                      //////////////////////////////////////
+
+              //                      cursor.insertBlock();
+              //                      QString html;
+
+              //                      html_script += " </div>\n\n\n";
+
+              //                      html_script +=  "\n\n\n<div > ";
+
+              //                      html_script += " </div>";
+
+              //                     html_script += " <p style='clear: both;'>";
+              //                     html_script += "</body></html>";
+
+              //                      cursor.insertHtml(html_script);
+
+
+              //                      QPixmap pixmap;
+              //                      pixmap.load(":/icons/BIOEMTECH_GREY.png");
+              //              #ifdef QT5
+              //                      QPalette palette;
+              //                      palette.setBrush(editor->backgroundRole(), QBrush(pixmap));
+              //                      editor->setPalette(palette);
+              //              #else
+              //                      //editor->setP(pixmap);
+              //              #endif
+              //                      doc->setDefaultStyleSheet(css);
+              //                      editor->setDocument(doc);			   /// save te document in pdf format
+
+              //                      QPrinter printer(QPrinter::HighResolution);
+              //                      printer.setPageSize(QPrinter::A4);
+
+              //                      if(!filename.contains(".pdf"))
+              //                          filename.append(".pdf");
+
+              //                      printer.setOutputFileName(filename);
+              //                      doc->print(&printer);
+
+              //                      QDesktopServices::openUrl(QUrl::fromLocalFile(filename));		// dipslay the pdf report
+              //                      selectedSlices.clear();
+
+
+              //              }
+
+
+
+
+
+
              std::fprintf(stdout, "----- INFOS -----\n");
               std::fprintf(stdout, "Total Activity:                          %4.2f [MBq]\n",
                total_activity);

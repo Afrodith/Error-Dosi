@@ -70,4 +70,5 @@ DISTFILES += \
     data/Tc99m_MDP/time_activity_curves_Tc99m_MDP.txt \
     data/excel_files/ERROR_Updated_db.xlsx \
     data/excel_files/Tc-99m_doses.xlsx \
-    data/excel_files/Time activity curves.xlsx
+    data/excel_files/Time activity curves.xlsx \
+    icons/error.png

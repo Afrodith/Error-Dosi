@@ -94,6 +94,7 @@ DIST          = data/I123_MIBG/phantom_001.txt \
 		data/excel_files/Time \
 		activity \
 		curves.xlsx \
+		icons/error.png \
 		../Qt/5.12.2/gcc_64/mkspecs/features/spec_pre.prf \
 		../Qt/5.12.2/gcc_64/mkspecs/common/unix.conf \
 		../Qt/5.12.2/gcc_64/mkspecs/common/linux.conf \
@@ -767,7 +768,8 @@ compiler_rcc_clean:
 	-$(DEL_FILE) qrc_resources.cpp
 qrc_resources.cpp: resources.qrc \
 		../Qt/5.12.2/gcc_64/bin/rcc \
-		pushbuttton.qss
+		pushbuttton.qss \
+		icons/error.png
 	/home/afrodith/Qt/5.12.2/gcc_64/bin/rcc -name resources resources.qrc -o qrc_resources.cpp
 
 compiler_qmlcache_make_all:
@@ -1112,6 +1114,19 @@ moc_NMDosimetry.cpp: NMDosimetry.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/qfileinfo.h \
 		integradedose.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/QObject \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QTextEdit \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qtextedit.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qabstractscrollarea.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qframe.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextdocument.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextoption.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextcursor.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextformat.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpen.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QFileDialog \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qfiledialog.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/QStandardPaths \
+		../Qt/5.12.2/gcc_64/include/QtCore/qstandardpaths.h \
 		moc_predefs.h \
 		../Qt/5.12.2/gcc_64/bin/moc
 	/home/afrodith/Qt/5.12.2/gcc_64/bin/moc $(DEFINES) --include /home/afrodith/Error-Dosi/moc_predefs.h -I/home/afrodith/Qt/5.12.2/gcc_64/mkspecs/linux-g++ -I/home/afrodith/Error-Dosi -I/home/afrodith/Qt/5.12.2/gcc_64/include -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtWidgets -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtGui -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtCore -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include NMDosimetry.h -o moc_NMDosimetry.cpp
@@ -1167,6 +1182,75 @@ moc_integradedose.cpp: integradedose.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/qvarlengtharray.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/qcontainerfwd.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/qobject_impl.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QTextEdit \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qtextedit.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qtwidgetsglobal.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtguiglobal.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtgui-config.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qtwidgets-config.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qabstractscrollarea.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qframe.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qwidget.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qwindowdefs.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qwindowdefs_win.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qmargins.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpaintdevice.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qrect.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qsize.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qpoint.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpalette.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qcolor.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qrgb.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qrgba64.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qbrush.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qvector.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qmatrix.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpolygon.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qregion.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qdatastream.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qiodevice.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qline.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtransform.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpainterpath.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qimage.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpixelformat.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpixmap.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qsharedpointer.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qshareddata.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qhash.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qsharedpointer_impl.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qfont.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qfontmetrics.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qfontinfo.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qsizepolicy.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qcursor.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qkeysequence.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qevent.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qvariant.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qmap.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qdebug.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qtextstream.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qlocale.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qset.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qcontiguouscache.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qurl.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qurlquery.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qfile.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qfiledevice.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qvector2d.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtouchdevice.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextdocument.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextoption.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextcursor.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextformat.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpen.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QFileDialog \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qfiledialog.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qdir.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qfileinfo.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qdialog.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/QStandardPaths \
+		../Qt/5.12.2/gcc_64/include/QtCore/qstandardpaths.h \
 		moc_predefs.h \
 		../Qt/5.12.2/gcc_64/bin/moc
 	/home/afrodith/Qt/5.12.2/gcc_64/bin/moc $(DEFINES) --include /home/afrodith/Error-Dosi/moc_predefs.h -I/home/afrodith/Qt/5.12.2/gcc_64/mkspecs/linux-g++ -I/home/afrodith/Error-Dosi -I/home/afrodith/Qt/5.12.2/gcc_64/include -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtWidgets -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtGui -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtCore -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include integradedose.h -o moc_integradedose.cpp
@@ -1288,6 +1372,19 @@ moc_mainwindow.cpp: mainwindow.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/qfileinfo.h \
 		integradedose.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/QObject \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QTextEdit \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qtextedit.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qabstractscrollarea.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qframe.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextdocument.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextoption.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextcursor.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextformat.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpen.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QFileDialog \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qfiledialog.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/QStandardPaths \
+		../Qt/5.12.2/gcc_64/include/QtCore/qstandardpaths.h \
 		Brachytherapy.h \
 		moc_predefs.h \
 		../Qt/5.12.2/gcc_64/bin/moc
@@ -1431,7 +1528,44 @@ Brachytherapy.o: Brachytherapy.cpp Brachytherapy.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/qfiledevice.h \
 		../Qt/5.12.2/gcc_64/include/QtGui/qvector2d.h \
 		../Qt/5.12.2/gcc_64/include/QtGui/qtouchdevice.h \
-		ui_Brachytherapy.h
+		ui_Brachytherapy.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/QVariant \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QApplication \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qapplication.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qcoreapplication.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qeventloop.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qdesktopwidget.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qguiapplication.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qinputmethod.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QComboBox \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qcombobox.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qabstractitemdelegate.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qstyleoption.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qabstractspinbox.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qvalidator.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qregularexpression.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qicon.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qslider.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qabstractslider.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qstyle.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qtabbar.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qtabwidget.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qrubberband.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qframe.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qabstractitemmodel.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QGraphicsView \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qgraphicsview.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpainter.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextoption.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpen.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qscrollarea.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qabstractscrollarea.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qgraphicsscene.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QLabel \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qlabel.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QPushButton \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qpushbutton.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qabstractbutton.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Brachytherapy.o Brachytherapy.cpp
 
 CTDosimetry.o: CTDosimetry.cpp CTDosimetry.h \
@@ -1539,7 +1673,48 @@ CTDosimetry.o: CTDosimetry.cpp CTDosimetry.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/qfiledevice.h \
 		../Qt/5.12.2/gcc_64/include/QtGui/qvector2d.h \
 		../Qt/5.12.2/gcc_64/include/QtGui/qtouchdevice.h \
-		ui_CTDosimetry.h
+		ui_CTDosimetry.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/QVariant \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QApplication \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qapplication.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qcoreapplication.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qeventloop.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qdesktopwidget.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qguiapplication.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qinputmethod.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QComboBox \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qcombobox.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qabstractitemdelegate.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qstyleoption.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qabstractspinbox.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qvalidator.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qregularexpression.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qicon.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qslider.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qabstractslider.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qstyle.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qtabbar.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qtabwidget.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qrubberband.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qframe.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qabstractitemmodel.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QGraphicsView \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qgraphicsview.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpainter.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextoption.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpen.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qscrollarea.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qabstractscrollarea.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qgraphicsscene.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QLabel \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qlabel.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QLineEdit \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qlineedit.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextcursor.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextformat.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QPushButton \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qpushbutton.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qabstractbutton.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o CTDosimetry.o CTDosimetry.cpp
 
 NMDosimetry.o: NMDosimetry.cpp NMDosimetry.h \
@@ -1652,7 +1827,55 @@ NMDosimetry.o: NMDosimetry.cpp NMDosimetry.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/qfileinfo.h \
 		integradedose.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/QObject \
-		ui_NMDosimetry.h
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QTextEdit \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qtextedit.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qabstractscrollarea.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qframe.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextdocument.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextoption.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextcursor.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextformat.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpen.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QFileDialog \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qfiledialog.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/QStandardPaths \
+		../Qt/5.12.2/gcc_64/include/QtCore/qstandardpaths.h \
+		ui_NMDosimetry.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/QVariant \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QApplication \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qapplication.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qcoreapplication.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qeventloop.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qdesktopwidget.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qguiapplication.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qinputmethod.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QComboBox \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qcombobox.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qabstractitemdelegate.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qstyleoption.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qabstractspinbox.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qvalidator.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qregularexpression.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qicon.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qslider.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qabstractslider.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qstyle.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qtabbar.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qtabwidget.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qrubberband.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qabstractitemmodel.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QGraphicsView \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qgraphicsview.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpainter.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qscrollarea.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qgraphicsscene.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QLabel \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qlabel.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QLineEdit \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qlineedit.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QPushButton \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qpushbutton.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qabstractbutton.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o NMDosimetry.o NMDosimetry.cpp
 
 integradedose.o: integradedose.cpp integradedose.h \
@@ -1706,6 +1929,75 @@ integradedose.o: integradedose.cpp integradedose.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/qvarlengtharray.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/qcontainerfwd.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/qobject_impl.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QTextEdit \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qtextedit.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qtwidgetsglobal.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtguiglobal.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtgui-config.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qtwidgets-config.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qabstractscrollarea.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qframe.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qwidget.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qwindowdefs.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qwindowdefs_win.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qmargins.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpaintdevice.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qrect.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qsize.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qpoint.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpalette.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qcolor.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qrgb.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qrgba64.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qbrush.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qvector.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qmatrix.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpolygon.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qregion.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qdatastream.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qiodevice.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qline.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtransform.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpainterpath.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qimage.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpixelformat.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpixmap.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qsharedpointer.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qshareddata.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qhash.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qsharedpointer_impl.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qfont.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qfontmetrics.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qfontinfo.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qsizepolicy.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qcursor.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qkeysequence.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qevent.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qvariant.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qmap.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qdebug.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qtextstream.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qlocale.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qset.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qcontiguouscache.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qurl.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qurlquery.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qfile.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qfiledevice.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qvector2d.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtouchdevice.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextdocument.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextoption.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextcursor.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextformat.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpen.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QFileDialog \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qfiledialog.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qdir.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qfileinfo.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qdialog.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/QStandardPaths \
+		../Qt/5.12.2/gcc_64/include/QtCore/qstandardpaths.h \
 		interp.hh
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o integradedose.o integradedose.cpp
 
@@ -1829,6 +2121,19 @@ main.o: main.cpp mainwindow.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/qfileinfo.h \
 		integradedose.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/QObject \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QTextEdit \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qtextedit.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qabstractscrollarea.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qframe.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextdocument.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextoption.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextcursor.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextformat.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpen.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QFileDialog \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qfiledialog.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/QStandardPaths \
+		../Qt/5.12.2/gcc_64/include/QtCore/qstandardpaths.h \
 		Brachytherapy.h \
 		../Qt/5.12.2/gcc_64/include/QtWidgets/QApplication \
 		../Qt/5.12.2/gcc_64/include/QtWidgets/qapplication.h \
@@ -1956,8 +2261,46 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/qfileinfo.h \
 		integradedose.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/QObject \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QTextEdit \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qtextedit.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qabstractscrollarea.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qframe.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextdocument.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextoption.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextcursor.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qtextformat.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpen.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QFileDialog \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qfiledialog.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/QStandardPaths \
+		../Qt/5.12.2/gcc_64/include/QtCore/qstandardpaths.h \
 		Brachytherapy.h \
-		ui_mainwindow.h
+		ui_mainwindow.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/QVariant \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QAction \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qaction.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qactiongroup.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QApplication \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qapplication.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qcoreapplication.h \
+		../Qt/5.12.2/gcc_64/include/QtCore/qeventloop.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qdesktopwidget.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qguiapplication.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qinputmethod.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QLabel \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qlabel.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QMenu \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qmenu.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QMenuBar \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qmenubar.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QPushButton \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qpushbutton.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qabstractbutton.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QStatusBar \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qstatusbar.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QToolBar \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/qtoolbar.h \
+		../Qt/5.12.2/gcc_64/include/QtWidgets/QWidget
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o mainwindow.cpp
 
 qrc_resources.o: qrc_resources.cpp 
