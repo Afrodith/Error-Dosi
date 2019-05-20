@@ -1,0 +1,53 @@
+QPushButton#pb_CT {
+    background-color: gray;
+    border-style: outset;
+    border-width: 2px;
+    border-radius: 10px;
+    border-color: beige;
+    font: bold 14px;
+    min-width: 10em;
+    padding: 6px;
+    border: 1px solid red; 
+}
+
+QPushButton#pb_CT:pressed {
+    background-color: rgb(76, 74, 74);
+    border-style: inset;
+}
+
+QPushButton#pb_NM {
+    background-color: gray;
+    border-style: outset;
+    border-width: 2px;
+    border-radius: 10px;
+    border-color: beige;
+    font: bold 14px;
+    min-width: 10em;
+    padding: 6px;
+    border: 1px solid red; 
+}
+
+QPushButton#pb_NM:pressed {
+    background-color: rgb(76, 74, 74);
+    border-style: inset;
+}
+
+QPushButton#pb_brachy {
+    background-color: gray;
+    border-style: outset;
+    border-width: 2px;
+    border-radius: 10px;
+    border-color: beige;
+    font: bold 14px;
+    min-width: 10em;
+    padding: 6px;
+    border: 1px solid red; 
+}
+
+QPushButton#pb_brachy:pressed {
+    background-color: rgb(76, 74, 74);
+    border-style: inset;
+}
+
+
+
