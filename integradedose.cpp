@@ -21,8 +21,8 @@ void LoadSADRs(std::ifstream* p_file, double** p_sadrs, uint32_t* p_n_organs_to_
 
 integradeDose::integradeDose(QObject *parent) : QObject(parent)
 {
-    p_time_activity_curves_filename = "/home/afrodith/Error_Software/data/Tc99m_MDP/time_activity_curves_Tc99m_MDP.txt";
-    p_sadrs_filename = "/home/afrodith/Error_Software/data/Tc99m_MDP/phantom_001.txt";
+    p_time_activity_curves_filename = "qrc:/data/Tc99m_MDP/phantom_001.txt";
+    p_sadrs_filename = "qrc:/data/Tc99m_MDP/phantom_001.txt";
 
 }
 
