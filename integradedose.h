@@ -6,6 +6,8 @@
 #include <QFileDialog>
 #include <QStandardPaths>
 #include <QDateTime>
+#include <QPrinter>
+#include <QDesktopServices>
 
 
 

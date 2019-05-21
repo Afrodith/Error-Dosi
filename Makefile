@@ -14,10 +14,10 @@ EQ            = =
 
 CC            = gcc
 CXX           = g++
-DEFINES       = -DQT_DEPRECATED_WARNINGS -DQT_QML_DEBUG -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
+DEFINES       = -DQT_DEPRECATED_WARNINGS -DQT_QML_DEBUG -DQT_NO_DEBUG -DQT_PRINTSUPPORT_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_SQL_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -O2 -g -Wall -W -D_REENTRANT -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -O2 -g -std=gnu++11 -Wall -W -D_REENTRANT -fPIC $(DEFINES)
-INCPATH       = -I. -I../Qt/5.12.2/gcc_64/include -I../Qt/5.12.2/gcc_64/include/QtWidgets -I../Qt/5.12.2/gcc_64/include/QtGui -I../Qt/5.12.2/gcc_64/include/QtCore -I. -isystem /usr/include/libdrm -I. -I../Qt/5.12.2/gcc_64/mkspecs/linux-g++
+INCPATH       = -I. -I../Qt/5.12.2/gcc_64/include -I../Qt/5.12.2/gcc_64/include/QtPrintSupport -I../Qt/5.12.2/gcc_64/include/QtWidgets -I../Qt/5.12.2/gcc_64/include/QtGui -I../Qt/5.12.2/gcc_64/include/QtSql -I../Qt/5.12.2/gcc_64/include/QtNetwork -I../Qt/5.12.2/gcc_64/include/QtCore -I. -isystem /usr/include/libdrm -I. -I../Qt/5.12.2/gcc_64/mkspecs/linux-g++
 QMAKE         = /home/afrodith/Qt/5.12.2/gcc_64/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -40,7 +40,7 @@ DISTNAME      = Error_Software1.0.0
 DISTDIR = /home/afrodith/Error-Dosi/Error_Software1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-rpath,/home/afrodith/Qt/5.12.2/gcc_64/lib
-LIBS          = $(SUBLIBS) -L/home/afrodith/Qt/5.12.2/gcc_64/lib -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread   
+LIBS          = $(SUBLIBS) -L/home/afrodith/Qt/5.12.2/gcc_64/lib -lQt5PrintSupport -lQt5Widgets -lQt5Gui -lQt5Sql -lQt5Network -lQt5Core -lGL -lpthread   
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -515,8 +515,11 @@ Makefile: Error_Software.pro ../Qt/5.12.2/gcc_64/mkspecs/linux-g++/qmake.conf ..
 		../Qt/5.12.2/gcc_64/mkspecs/features/lex.prf \
 		Error_Software.pro \
 		resources.qrc \
+		../Qt/5.12.2/gcc_64/lib/libQt5PrintSupport.prl \
 		../Qt/5.12.2/gcc_64/lib/libQt5Widgets.prl \
 		../Qt/5.12.2/gcc_64/lib/libQt5Gui.prl \
+		../Qt/5.12.2/gcc_64/lib/libQt5Sql.prl \
+		../Qt/5.12.2/gcc_64/lib/libQt5Network.prl \
 		../Qt/5.12.2/gcc_64/lib/libQt5Core.prl
 	$(QMAKE) -o Makefile Error_Software.pro -spec linux-g++ CONFIG+=qml_debug CONFIG+=qtquickcompiler CONFIG+=force_debug_info CONFIG+=separate_debug_info
 ../Qt/5.12.2/gcc_64/mkspecs/features/spec_pre.prf:
@@ -718,8 +721,11 @@ Makefile: Error_Software.pro ../Qt/5.12.2/gcc_64/mkspecs/linux-g++/qmake.conf ..
 ../Qt/5.12.2/gcc_64/mkspecs/features/lex.prf:
 Error_Software.pro:
 resources.qrc:
+../Qt/5.12.2/gcc_64/lib/libQt5PrintSupport.prl:
 ../Qt/5.12.2/gcc_64/lib/libQt5Widgets.prl:
 ../Qt/5.12.2/gcc_64/lib/libQt5Gui.prl:
+../Qt/5.12.2/gcc_64/lib/libQt5Sql.prl:
+../Qt/5.12.2/gcc_64/lib/libQt5Network.prl:
 ../Qt/5.12.2/gcc_64/lib/libQt5Core.prl:
 qmake: FORCE
 	@$(QMAKE) -o Makefile Error_Software.pro -spec linux-g++ CONFIG+=qml_debug CONFIG+=qtquickcompiler CONFIG+=force_debug_info CONFIG+=separate_debug_info
@@ -893,7 +899,7 @@ moc_Brachytherapy.cpp: Brachytherapy.h \
 		../Qt/5.12.2/gcc_64/include/QtGui/qtouchdevice.h \
 		moc_predefs.h \
 		../Qt/5.12.2/gcc_64/bin/moc
-	/home/afrodith/Qt/5.12.2/gcc_64/bin/moc $(DEFINES) --include /home/afrodith/Error-Dosi/moc_predefs.h -I/home/afrodith/Qt/5.12.2/gcc_64/mkspecs/linux-g++ -I/home/afrodith/Error-Dosi -I/home/afrodith/Qt/5.12.2/gcc_64/include -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtWidgets -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtGui -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtCore -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include Brachytherapy.h -o moc_Brachytherapy.cpp
+	/home/afrodith/Qt/5.12.2/gcc_64/bin/moc $(DEFINES) --include /home/afrodith/Error-Dosi/moc_predefs.h -I/home/afrodith/Qt/5.12.2/gcc_64/mkspecs/linux-g++ -I/home/afrodith/Error-Dosi -I/home/afrodith/Qt/5.12.2/gcc_64/include -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtPrintSupport -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtWidgets -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtGui -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtSql -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtNetwork -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtCore -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include Brachytherapy.h -o moc_Brachytherapy.cpp
 
 moc_CTDosimetry.cpp: CTDosimetry.h \
 		../Qt/5.12.2/gcc_64/include/QtWidgets/QDialog \
@@ -1002,7 +1008,7 @@ moc_CTDosimetry.cpp: CTDosimetry.h \
 		../Qt/5.12.2/gcc_64/include/QtGui/qtouchdevice.h \
 		moc_predefs.h \
 		../Qt/5.12.2/gcc_64/bin/moc
-	/home/afrodith/Qt/5.12.2/gcc_64/bin/moc $(DEFINES) --include /home/afrodith/Error-Dosi/moc_predefs.h -I/home/afrodith/Qt/5.12.2/gcc_64/mkspecs/linux-g++ -I/home/afrodith/Error-Dosi -I/home/afrodith/Qt/5.12.2/gcc_64/include -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtWidgets -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtGui -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtCore -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include CTDosimetry.h -o moc_CTDosimetry.cpp
+	/home/afrodith/Qt/5.12.2/gcc_64/bin/moc $(DEFINES) --include /home/afrodith/Error-Dosi/moc_predefs.h -I/home/afrodith/Qt/5.12.2/gcc_64/mkspecs/linux-g++ -I/home/afrodith/Error-Dosi -I/home/afrodith/Qt/5.12.2/gcc_64/include -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtPrintSupport -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtWidgets -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtGui -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtSql -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtNetwork -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtCore -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include CTDosimetry.h -o moc_CTDosimetry.cpp
 
 moc_NMDosimetry.cpp: NMDosimetry.h \
 		../Qt/5.12.2/gcc_64/include/QtWidgets/QDialog \
@@ -1129,9 +1135,18 @@ moc_NMDosimetry.cpp: NMDosimetry.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/qstandardpaths.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/QDateTime \
 		../Qt/5.12.2/gcc_64/include/QtCore/qdatetime.h \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/QPrinter \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/qprinter.h \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/qtprintsupportglobal.h \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/qtprintsupport-config.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpagedpaintdevice.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpagelayout.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpagesize.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/QDesktopServices \
+		../Qt/5.12.2/gcc_64/include/QtGui/qdesktopservices.h \
 		moc_predefs.h \
 		../Qt/5.12.2/gcc_64/bin/moc
-	/home/afrodith/Qt/5.12.2/gcc_64/bin/moc $(DEFINES) --include /home/afrodith/Error-Dosi/moc_predefs.h -I/home/afrodith/Qt/5.12.2/gcc_64/mkspecs/linux-g++ -I/home/afrodith/Error-Dosi -I/home/afrodith/Qt/5.12.2/gcc_64/include -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtWidgets -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtGui -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtCore -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include NMDosimetry.h -o moc_NMDosimetry.cpp
+	/home/afrodith/Qt/5.12.2/gcc_64/bin/moc $(DEFINES) --include /home/afrodith/Error-Dosi/moc_predefs.h -I/home/afrodith/Qt/5.12.2/gcc_64/mkspecs/linux-g++ -I/home/afrodith/Error-Dosi -I/home/afrodith/Qt/5.12.2/gcc_64/include -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtPrintSupport -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtWidgets -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtGui -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtSql -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtNetwork -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtCore -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include NMDosimetry.h -o moc_NMDosimetry.cpp
 
 moc_integradedose.cpp: integradedose.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/QObject \
@@ -1255,9 +1270,18 @@ moc_integradedose.cpp: integradedose.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/qstandardpaths.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/QDateTime \
 		../Qt/5.12.2/gcc_64/include/QtCore/qdatetime.h \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/QPrinter \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/qprinter.h \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/qtprintsupportglobal.h \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/qtprintsupport-config.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpagedpaintdevice.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpagelayout.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpagesize.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/QDesktopServices \
+		../Qt/5.12.2/gcc_64/include/QtGui/qdesktopservices.h \
 		moc_predefs.h \
 		../Qt/5.12.2/gcc_64/bin/moc
-	/home/afrodith/Qt/5.12.2/gcc_64/bin/moc $(DEFINES) --include /home/afrodith/Error-Dosi/moc_predefs.h -I/home/afrodith/Qt/5.12.2/gcc_64/mkspecs/linux-g++ -I/home/afrodith/Error-Dosi -I/home/afrodith/Qt/5.12.2/gcc_64/include -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtWidgets -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtGui -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtCore -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include integradedose.h -o moc_integradedose.cpp
+	/home/afrodith/Qt/5.12.2/gcc_64/bin/moc $(DEFINES) --include /home/afrodith/Error-Dosi/moc_predefs.h -I/home/afrodith/Qt/5.12.2/gcc_64/mkspecs/linux-g++ -I/home/afrodith/Error-Dosi -I/home/afrodith/Qt/5.12.2/gcc_64/include -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtPrintSupport -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtWidgets -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtGui -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtSql -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtNetwork -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtCore -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include integradedose.h -o moc_integradedose.cpp
 
 moc_mainwindow.cpp: mainwindow.h \
 		../Qt/5.12.2/gcc_64/include/QtWidgets/QMainWindow \
@@ -1391,10 +1415,19 @@ moc_mainwindow.cpp: mainwindow.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/qstandardpaths.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/QDateTime \
 		../Qt/5.12.2/gcc_64/include/QtCore/qdatetime.h \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/QPrinter \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/qprinter.h \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/qtprintsupportglobal.h \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/qtprintsupport-config.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpagedpaintdevice.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpagelayout.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpagesize.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/QDesktopServices \
+		../Qt/5.12.2/gcc_64/include/QtGui/qdesktopservices.h \
 		Brachytherapy.h \
 		moc_predefs.h \
 		../Qt/5.12.2/gcc_64/bin/moc
-	/home/afrodith/Qt/5.12.2/gcc_64/bin/moc $(DEFINES) --include /home/afrodith/Error-Dosi/moc_predefs.h -I/home/afrodith/Qt/5.12.2/gcc_64/mkspecs/linux-g++ -I/home/afrodith/Error-Dosi -I/home/afrodith/Qt/5.12.2/gcc_64/include -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtWidgets -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtGui -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtCore -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include mainwindow.h -o moc_mainwindow.cpp
+	/home/afrodith/Qt/5.12.2/gcc_64/bin/moc $(DEFINES) --include /home/afrodith/Error-Dosi/moc_predefs.h -I/home/afrodith/Qt/5.12.2/gcc_64/mkspecs/linux-g++ -I/home/afrodith/Error-Dosi -I/home/afrodith/Qt/5.12.2/gcc_64/include -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtPrintSupport -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtWidgets -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtGui -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtSql -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtNetwork -I/home/afrodith/Qt/5.12.2/gcc_64/include/QtCore -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include mainwindow.h -o moc_mainwindow.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -1848,6 +1881,15 @@ compiler_clean: compiler_rcc_clean compiler_moc_predefs_clean compiler_moc_heade
 		../Qt/5.12.2/gcc_64/include/QtCore/qstandardpaths.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/QDateTime \
 		../Qt/5.12.2/gcc_64/include/QtCore/qdatetime.h \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/QPrinter \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/qprinter.h \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/qtprintsupportglobal.h \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/qtprintsupport-config.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpagedpaintdevice.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpagelayout.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpagesize.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/QDesktopServices \
+		../Qt/5.12.2/gcc_64/include/QtGui/qdesktopservices.h \
 		ui_NMDosimetry.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/QVariant \
 		../Qt/5.12.2/gcc_64/include/QtWidgets/QApplication \
@@ -2008,6 +2050,15 @@ compiler_clean: compiler_rcc_clean compiler_moc_predefs_clean compiler_moc_heade
 		../Qt/5.12.2/gcc_64/include/QtCore/qstandardpaths.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/QDateTime \
 		../Qt/5.12.2/gcc_64/include/QtCore/qdatetime.h \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/QPrinter \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/qprinter.h \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/qtprintsupportglobal.h \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/qtprintsupport-config.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpagedpaintdevice.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpagelayout.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpagesize.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/QDesktopServices \
+		../Qt/5.12.2/gcc_64/include/QtGui/qdesktopservices.h \
 		interp.hh
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ./integradedose.o integradedose.cpp
 
@@ -2146,6 +2197,15 @@ compiler_clean: compiler_rcc_clean compiler_moc_predefs_clean compiler_moc_heade
 		../Qt/5.12.2/gcc_64/include/QtCore/qstandardpaths.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/QDateTime \
 		../Qt/5.12.2/gcc_64/include/QtCore/qdatetime.h \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/QPrinter \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/qprinter.h \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/qtprintsupportglobal.h \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/qtprintsupport-config.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpagedpaintdevice.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpagelayout.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpagesize.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/QDesktopServices \
+		../Qt/5.12.2/gcc_64/include/QtGui/qdesktopservices.h \
 		Brachytherapy.h \
 		../Qt/5.12.2/gcc_64/include/QtWidgets/QApplication \
 		../Qt/5.12.2/gcc_64/include/QtWidgets/qapplication.h \
@@ -2288,6 +2348,15 @@ compiler_clean: compiler_rcc_clean compiler_moc_predefs_clean compiler_moc_heade
 		../Qt/5.12.2/gcc_64/include/QtCore/qstandardpaths.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/QDateTime \
 		../Qt/5.12.2/gcc_64/include/QtCore/qdatetime.h \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/QPrinter \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/qprinter.h \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/qtprintsupportglobal.h \
+		../Qt/5.12.2/gcc_64/include/QtPrintSupport/qtprintsupport-config.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpagedpaintdevice.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpagelayout.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/qpagesize.h \
+		../Qt/5.12.2/gcc_64/include/QtGui/QDesktopServices \
+		../Qt/5.12.2/gcc_64/include/QtGui/qdesktopservices.h \
 		Brachytherapy.h \
 		ui_mainwindow.h \
 		../Qt/5.12.2/gcc_64/include/QtCore/QVariant \

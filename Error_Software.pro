@@ -5,6 +5,11 @@
 #-------------------------------------------------
 
 QT       += core gui
+QT += widgets
+QT += sql
+QT += network
+QT += printsupport
+QTPLUGIN += qsqlmysql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
