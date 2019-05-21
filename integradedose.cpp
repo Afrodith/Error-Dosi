@@ -200,6 +200,26 @@ uint32_t GetNumberOrgansFromFile(std::ifstream* p_file)
      // Loop while there is an argument
      int32_t c = 0;
 
+     auto path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+     path =path.append("/Error-Dosi_Documents/Exports");
+     QDir d(path);
+
+#ifdef Q_OS_LINUX
+     //linux code goes here
+     if(!d.exists())
+     {
+          d.mkpath(".");
+     }
+#elif defined(Q_OS_WIN32)
+     // windows code goes here
+     if(!QDir("Error-Dosi_Documents").exists())
+     {
+         d.mkdir("Error-Dosi_Documents\Exports");
+     }
+#else
+
+#endif
+
 
      // Checking the activity
        if (total_activity == 0.0) {
@@ -267,25 +287,25 @@ uint32_t GetNumberOrgansFromFile(std::ifstream* p_file)
            // Filling SADRs values
            LoadSADRs(&p_sadrs_file, p_sadrs, &n_organs_to_study);
 
-           auto path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-           path =path.append("/Error-Dosi/Exports");
-           QDir d(path);
+//           auto path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+//           path =path.append("/Error-Dosi_Documents/Exports");
+//           QDir d(path);
 
-#ifdef Q_OS_LINUX
-           //linux code goes here
-           if(!d.exists())
-           {
-                d.mkpath(".");
-           }
-#elif Q_OS_WIN32
-           // windows code goes here
-           if(!QDir("Error-Dosi").exists())
-           {
-               d.mkdir("Error-Dosi\Exports");
-           }
-#else
+//#ifdef Q_OS_LINUX
+//           //linux code goes here
+//           if(!d.exists())
+//           {
+//                d.mkpath(".");
+//           }
+//#elif defined(Q_OS_WIN32)
+//           // windows code goes here
+//           if(!QDir("Error-Dosi_Documents").exists())
+//           {
+//               d.mkdir("Error-Dosi_Documents\Exports");
+//           }
+//#else
 
-#endif
+//#endif
 
 
 

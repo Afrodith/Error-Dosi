@@ -40,11 +40,11 @@ void NMDosimetry::on_cB_radiopharma_currentIndexChanged(int index)
         activityCurves.append("/data/I131_INa1/time_activity_curves_I131_INa1.txt");
         sadr = currentDir;
         sadr.append("/data/I131_INa1/phantom_001.txt");
-#elif Q_OS_WIN32
+#elif defined(Q_OS_WIN32)
         activityCurves = currentDir;
         activityCurves.append("\data\I131_INa1\time_activity_curves_I131_INa1.txt");
         sadr = currentDir;
-        sadr.append("\data/I131_INa1\phantom_001.txt");
+        sadr.append("\data\I131_INa1\phantom_001.txt");
 #else
 
 #endif
@@ -58,7 +58,7 @@ void NMDosimetry::on_cB_radiopharma_currentIndexChanged(int index)
         activityCurves.append("/data/I131_INa2/time_activity_curves_I131_INa2.txt");
         sadr = currentDir;
         sadr.append("/data/I131_INa2/phantom_001.txt");
-#elif Q_OS_WIN32
+#elif defined(Q_OS_WIN32)
         activityCurves = currentDir;
         activityCurves.append("\data\I131_INa2\time_activity_curves_I131_INa2.txt");
         sadr = currentDir;
@@ -76,7 +76,7 @@ void NMDosimetry::on_cB_radiopharma_currentIndexChanged(int index)
         activityCurves.append("/data/Sm153_EDTMP/time_activity_curves_Sm153_EDTMP.txt");
         sadr = currentDir;
         sadr.append("/data/Sm153_EDTMP/phantom_001.txt");
-#elif Q_OS_WIN32
+#elif defined(Q_OS_WIN32)
         activityCurves = currentDir;
         activityCurves.append("\data\Sm153_EDTMP\time_activity_curves_Sm153_EDTMP.txt");
         sadr = currentDir;
@@ -95,7 +95,7 @@ void NMDosimetry::on_cB_radiopharma_currentIndexChanged(int index)
         activityCurves.append("/data/I131_MIBG/time_activity_curves_I131_MIBG.txt");
         sadr = currentDir;
         sadr.append("/data/I131_MIBG/phantom_001.txt");
-#elif Q_OS_WIN32
+#elif defined(Q_OS_WIN32)
         activityCurves = currentDir;
         activityCurves.append("\data\I131_MIBG\time_activity_curves_I131_MIBG.txt");
         sadr = currentDir;
@@ -114,7 +114,7 @@ void NMDosimetry::on_cB_radiopharma_currentIndexChanged(int index)
         activityCurves.append("/data/I123_MIBG/time_activity_curves_I123_MIBG.txt");
         sadr = currentDir;
         sadr.append("/data/I123_MIBG/phantom_001.txt");
-#elif Q_OS_WIN32
+#elif defined(Q_OS_WIN32)
         activityCurves = currentDir;
         activityCurves.append("\data\I123_MIBG\time_activity_curves_I123_MIBG.txt");
         sadr = currentDir;
@@ -132,11 +132,11 @@ void NMDosimetry::on_cB_radiopharma_currentIndexChanged(int index)
         activityCurves.append("/data/Tc99m_MDP/time_activity_curves_Tc99m_MDP.txt");
         sadr = currentDir;
         sadr.append("/data/Tc99m_MDP/phantom_001.txt");
-#elif Q_OS_WIN32
-        activityCurves = currentDir;
-        activityCurves.append("\data\Tc99m_MDP\time_activity_curves_Tc99m_MDP.txt");
-        sadr = currentDir;
-        sadr.append("\data\Tc99m_MDP\phantom_001.txt");
+#elif defined(Q_OS_WIN32)
+        activityCurves = "C:\\Users\\Aphrodite\\Documents\\Error-Dosi\\data\\Tc99m_MDP\\time_activity_curves_Tc99m_MDP.txt";
+        //activityCurves.append("\data\Tc99m_MDP\time_activity_curves_Tc99m_MDP.txt");
+        sadr =  "C:\\Users\\Aphrodite\\Documents\\Error-Dosi\\data\\Tc99m_MDP\\phantom_001.txt";
+        //sadr.append("\data\Tc99m_MDP\phantom_001.txt");
 #else
 
 #endif
