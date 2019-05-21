@@ -192,20 +192,24 @@ uint32_t GetNumberOrgansFromFile(std::ifstream* p_file)
 
 
      auto path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-     path =path.append("/Error-Dosi_Documents/Exports");
-     QDir d(path);
+
 
 #ifdef Q_OS_LINUX
      //linux code goes here
+     path =path.append("/Error-Dosi_Documents/Exports");
+     QDir d(path);
+
      if(!d.exists())
      {
          d.mkpath(".");
      }
 #elif defined(Q_OS_WIN32)
      // windows code goes here
-     if(!QDir("Error-Dosi_Documents").exists())
+      path.push_back("\\Error-Dosi_Documents\\Exports");
+      QDir d(path);
+     if(!d.exists())
      {
-         d.mkdir("Error-Dosi_Documents\Exports");
+         d.mkpath(".");
      }
 #else
 
