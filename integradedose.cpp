@@ -28,10 +28,10 @@ integradeDose::integradeDose(QObject *parent) : QObject(parent)
 void integradeDose::getFileNames(QString timeActivityCurves,QString matchedPhantom)
 {
 
-    QByteArray ba = timeActivityCurves.toLocal8Bit();
-    QByteArray ba2= matchedPhantom.toLocal8Bit();
-    p_time_activity_curves_filename = ba.data();
-    p_sadrs_filename =ba2.data();
+    ba = timeActivityCurves.toLocal8Bit();
+    ba2= matchedPhantom.toLocal8Bit();
+   // p_time_activity_curves_filename = ba.data();
+    //p_sadrs_filename =ba2.data();
 
 }
 
@@ -228,22 +228,22 @@ uint32_t GetNumberOrgansFromFile(std::ifstream* p_file)
        }
 
        // Checking the time activity curves file
-       if (p_time_activity_curves_filename == nullptr) {
+       if (ba.data() == nullptr) {
          std::cerr << "A time activity curves file has to be set!!!" << std::endl;
          exit(EXIT_FAILURE);
        }
 
        // Checking the SADRs file
-       if (p_sadrs_filename == nullptr) {
+       if (ba2.data() == nullptr) {
          std::cerr << "A SADRs file has to be set!!!" << std::endl;
          exit(EXIT_FAILURE);
        }
 
 
        // Opening the time activity curve file
-         std::ifstream p_time_activity_curves_file(p_time_activity_curves_filename);
+         std::ifstream p_time_activity_curves_file(ba.data());
          if (!p_time_activity_curves_file.is_open()) {
-           std::cerr << "Error opening file '" << p_time_activity_curves_filename
+           std::cerr << "Error opening file '" << ba.data()
              << "': " << strerror(errno) << std::endl;
            exit(EXIT_FAILURE);
          }
@@ -268,9 +268,9 @@ uint32_t GetNumberOrgansFromFile(std::ifstream* p_file)
 
 
          // Opening the SADRs file
-           std::ifstream p_sadrs_file(p_sadrs_filename);
+           std::ifstream p_sadrs_file(ba2.data());
            if (!p_sadrs_file.is_open()) {
-             std::cerr << "Error opening file '" << p_sadrs_filename
+             std::cerr << "Error opening file '" << ba2.data()
                << "': " << strerror(errno) << std::endl;
              exit(EXIT_FAILURE);
            }

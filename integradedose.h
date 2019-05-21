@@ -19,6 +19,8 @@ public:
     char* p_time_activity_curves_filename = nullptr;
     char* p_sadrs_filename = nullptr;
     QWidget* dialog;
+    QByteArray ba;
+    QByteArray ba2;
     void compute();
 
 
