@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -59,4 +59,13 @@ void MainWindow::on_pb_brachy_clicked()
       brachy = new Brachytherapy(this);
     }
      brachy->show();
+}
+
+/*noreturn : Indicates that the function does not return.
+This attribute applies to the name of the function being declared in function declarations only.
+The behavior is undefined if the function with this attribute actually returns. */
+
+[[ noreturn]] void MainWindow::on_actionExit_triggered()
+{
+    exit(EXIT_SUCCESS);
 }

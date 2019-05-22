@@ -313,35 +313,181 @@ uint32_t GetNumberOrgansFromFile(std::ifstream* p_file)
 
 
 
-         //                      ///// get device details for the report
-         //
+                               
+         // QByteArray pdfContents;
+         //QBuffer buffer(&pdfContents);
+          //buffer.open(QIODevice::WriteOnly);
+          QTextStream data_stream(&html_script);
+          data_stream.flush();
 
-         //                          QString date =ui->dE_studyDate->date().toString();
-         //                          QString age = ui->age->text();
-         //                          QString Project = ui->project->text();
+         if(filename.contains(".pdf"))
+         {
+             filename.remove(".pdf");
+             filename.append(".txt");
+         }
+         data_stream << "<p><img src=':/icons/icons/error.png' alt ='Logo' border=='3'/></p>";
+         data_stream <<"<pre>\n\n\n\n\n " + QDateTime::currentDateTime().toString("MMM-ddd-yyyy hh:mm:ss") + "</pre>";
+         data_stream <<  "<center><pre>\n\n\n<b>Organ Dosimetry Report</b>\n\n\n</pre></center>";
 
-         //                          QString studyName = ui->Sname->text();
-         //                          QString inj_path = ui->InPath->text();
+         QByteArray arr =filename.toLocal8Bit();
+         std::FILE* fp;
+         if((fp= std::fopen(arr.data(),"w")))
+         {
+
+         std::fprintf(fp, "----- INFOS -----\n");
+         data_stream << "<pre>----- INFORMATION ----\n</pre>";// << "<br>";
+         
+         std::fprintf(fp, "Total Activity:   %4.2f [MBq]\n",
+                      total_activity);
+         data_stream << "<pre>Total Activity:     "<< total_activity <<"[MBq]\n</pre>";// << "<br>";
+         
+         std::fprintf(fp, "Number of dose points:                   %u\n",
+                      n_dose_points);
+         data_stream << "<pre>Number of dose points:     "<< n_dose_points << " \n</pre>";// << "<br>";
+         
+         std::fprintf(fp, "Number of organs in activity curve:      %u\n",
+                      n_organs);
+         data_stream << "<pre>Number of organs in activity curve:      "<< n_organs << " \n</pre>";// << "<br>" ;
+         
+         
+         std::fprintf(fp, "Number of organs to study:               %u\n",
+                      n_organs_to_study);
+         data_stream << "<pre>Number of organs to study:      " << n_organs_to_study << " \n</pre>";//  "<br>" ;
+         
+         std::fprintf(fp, "Time (hours):\n");
+         data_stream << "<pre>Time (hours):\n ";// << "<br>";
+         for (uint32_t t = 0; t < n_dose_points; ++t) {
+             std::fprintf(fp, "    %4.7f ", p_time[t]);
+             data_stream << "    " << p_time[t] << " ";
+         }
+         std::fprintf(fp, "\n");
+         data_stream << " </pre>\n";
+
+         std::fprintf(fp, "Activity Fraction:\n");
+         data_stream << "<pre>Activity Fraction:   \n</pre>";// << "<br>";
+         data_stream.setRealNumberNotation(QTextStream::FixedNotation);
+
+         for (uint32_t i = 0; i < n_organs; ++i) {
+             std:: fprintf(fp, "    Organ #%u:\n", i);
+             data_stream << "<pre>    Organ#"<< i << ":\n";// << "<br>";
+             for (uint32_t t = 0; t < n_dose_points; ++t) {
+                 std::fprintf(fp, "        %4.7f ", p_activity_fraction[i][t]);
+                 data_stream << "     " << p_activity_fraction[i][t] << "  ";
+             }
+             std::fprintf(fp, "\n");
+             data_stream << " \n</pre>";
+         }
+         std::fprintf(fp, "SADRs:\n");
+         data_stream << "<pre>SADRs:   \n</pre>";// << "<br>";
+         for (uint32_t i = 0; i < n_organs_to_study; ++i) {
+             std::fprintf(fp, "    Organ #%u:\n", i);
+             data_stream << "<pre>    Organ #"<< i <<": \n</pre>";// "<br>";
+             for (uint32_t t = 0; t < n_dose_points; ++t) {
+                 std::fprintf(fp, "        %4.20f\n", p_sadrs[i][t]);
+                 data_stream << "<pre>      " << p_sadrs[i][t] <<" ";
+             }
+             std::fprintf(fp, "\n");
+             data_stream << " \n</pre>";
+         }
+         std::fprintf(fp, "-----------------\n");
+         data_stream << "<pre>-----------------\n</pre>";
 
 
-         //                          QString ID = sID;
-         //                          QString activity = ui->initialActivity->text();
-         //                          QString inj_activity = ui->injActivity->text();
-         //                          QString inj_volume = ui->InjVol->text();
-         //                          QString weight = ui->weight->text();
-         //                          QString nuclide = ui->nuclide->text();
-         //                          QString species = ui->species->text();
+
+         // Initialize linear interpolation
+         Interpolation** p_linear_inter_act_fraction = new Interpolation*[n_organs];
+         for (uint32_t t = 0; t < n_organs; ++t) {
+             p_linear_inter_act_fraction[t] = new Interpolation(p_time,
+                                                                p_activity_fraction[t], &n_dose_points, 2);
+         }
+
+         Interpolation** p_linear_inter_sadrs = new Interpolation*[n_organs_to_study];
+         for (uint32_t t = 0; t < n_organs_to_study; ++t) {
+             p_linear_inter_sadrs[t] = new Interpolation(p_time,
+                                                         p_sadrs[t], &n_dose_points, 2);
+         }
+
+         // Loop over each organs to study
+         for (uint32_t t = 0; t < n_organs_to_study; ++t) {
+             // Computing the number of steps to perform integration. Integration on the
+             // time, so the bound depends on the time
+             n_step = ( (p_time[n_dose_points-1] - p_time[0]) / step ) + 1;
+
+             // Loop over the activity organ
+             if (is_verbose) {
+                 std::fprintf(fp, "****\n");
+                 data_stream << "<pre>****\n</pre>";// << "<br>";
+             }
+             for (uint32_t j = 0; j < n_organs; ++j) {
+                 // Loop over the steps
+                 for (uint32_t i = 0; i < n_step - 1; ++i) {
+                     bin_min = p_time[0] + step * i;
+                     bin_medium = p_time[0] + step * (i + 0.5);
+                     bin_max = p_time[0] + step * (i + 1);
+
+                     // Computing SADRs in 3 points
+                     sadrs_min = p_linear_inter_sadrs[t]->LinearInterp(bin_min);
+                     sadrs_medium = p_linear_inter_sadrs[t]->LinearInterp(bin_medium);
+                     sadrs_max = p_linear_inter_sadrs[t]->LinearInterp(bin_max);
+
+                     // Computing Activity fraction in 3 points
+                     act_frac_min = p_linear_inter_act_fraction[j]->LinearInterp(bin_min);
+                     act_frac_medium = p_linear_inter_act_fraction[j]->LinearInterp(
+                                 bin_medium);
+                     act_frac_max = p_linear_inter_act_fraction[j]->LinearInterp(bin_max);
+
+                     // Apply fraction activity
+                     sadrs_min *= total_activity * act_frac_min * 3600.0;
+                     sadrs_medium *= total_activity * act_frac_medium * 3600.0;
+                     sadrs_max *= total_activity * act_frac_max * 3600.0;
+
+                     i_simpson += SimpsonMethod(&bin_min, &bin_max,
+                                                &sadrs_min, &sadrs_max, &sadrs_medium);
+                 }
+                 if (is_verbose) {
+                     std::fprintf(fp, "    Intermediate dose in organ #%u: %4.5f [Gy]\n", j,
+                                  i_simpson);
+                     data_stream << "<pre>    Intermediate dose in organ: " << j << " " << i_simpson <<"  [Gy]\n</pre>";//<< "<br>";
+                 }
+                 total_dose += i_simpson;
+                 i_simpson = 0.0;
+             }
+             std::fprintf(fp, "Total dose in organ #%u: %4.5f [Gy]\n", t,
+                          total_dose);
+             data_stream << "<pre>\nTotal dose in organ : " << t << " "  << total_dose << "[Gy]\n</pre>";// << "<br>";
+             total_dose = 0;
+
+         }
+
+         for (uint32_t t = 0; t < n_organs; ++t) {
+             delete p_linear_inter_act_fraction[t];
+         }
+         for (uint32_t t = 0; t < n_organs_to_study; ++t) {
+             delete p_linear_inter_sadrs[t];
+         }
+         delete[] p_linear_inter_act_fraction;
+         delete[] p_linear_inter_sadrs;
+
+     }
+         // Closing the time activity curve file
+         p_time_activity_curves_file.close();
+         p_sadrs_file.close();
+         std::fclose(fp);
+
+         // Freeing memory
+
+         for (uint32_t t = 0; t < n_organs_to_study; ++t) {
+             delete[] p_sadrs[t];
+         }
+         delete[] p_sadrs;
+         for (uint32_t t = 0; t < n_organs; ++t) {
+             delete[] p_activity_fraction[t];
+         }
+         delete[] p_activity_fraction;
+         delete[] p_time;
 
 
-         //                          QString comments = ui->comments->toPlainText();
-         //                          QString breed = ui->breed->text();
-         //                          QString frame = ui->LE_frame->text();
-
-         //                          QString expDur = ui->LE_expDuration->text();
-
-
-
-         //                          ////////////////// html structure of the document
+         //////////////////// html structure of the document
 
 
 
@@ -351,20 +497,21 @@ uint32_t GetNumberOrgansFromFile(std::ifstream* p_file)
 
 
          editor->setDocumentTitle("Organ Dosimetry Report");
-         html_script =
-                 "<html>"
-                 "<head>"
-                 "</head>"
-                 "<body>"
-                 "<div >"
-                 "<p><img src=':/icons/icons/error.png' alt ='Logo' border=='3'/></p>"
-                 "</div>"
-                 "<pre>\n\n\n\n\n " + QDateTime::currentDateTime().toString("MMM-ddd-yyyy hh:mm:ss") + "</pre>"
-                 "<pre>\n\n\n\n <b>Organ Dosimetry Report</b>\n\n</pre>"
-                 "<pre>\n\n<u><b>----- INFOS -----</b></u>\n\n:</pre>"
-                 " <table style='border:1px solid black;'>"
-                 " <tr> "
-                 " <td><b>Total Activity:"+QString::number(total_activity)+"</b></td>";
+         //html_script = pdfContents.data();
+//         html_script =
+//                 "<html>"
+//                 "<head>"
+//                 "</head>"
+//                 "<body>"
+//                 "<div >"
+//                 "<p><img src=':/icons/icons/error.png' alt ='Logo' border=='3'/></p>"
+//                 "</div>"
+//                 "<pre>\n\n\n\n\n " + QDateTime::currentDateTime().toString("MMM-ddd-yyyy hh:mm:ss") + "</pre>"
+//                 "<pre>\n\n\n\n <b>Organ Dosimetry Report</b>\n\n</pre>"
+//                 "<pre>\n\n<u><b>----- INFORMATION -----</b></u>\n\n:</pre>"
+//                 " <table style='border:1px solid black;'>"
+//                 " <tr> "
+//                 " <td><b>Total Activity:"+QString::number(total_activity)+"</b></td>";
 
 
          //
@@ -458,16 +605,17 @@ uint32_t GetNumberOrgansFromFile(std::ifstream* p_file)
          //                      //////////////////////////////////////
 
                                cursor.insertBlock();
+
          //                      QString html;
 
                              //  html_script += " </div>\n\n\n";
 
                              //  html_script +=  "\n\n\n<div > ";
 
-                               html_script += " </div>";
+                              // html_script += " </div>";
 
-                              html_script += " <p style='clear: both;'>";
-                              html_script += "</body></html>";
+                              //html_script += " <p style='clear: both;'>";
+                             // html_script += "</body></html>";
 
                                cursor.insertHtml(html_script);
 
@@ -497,144 +645,9 @@ uint32_t GetNumberOrgansFromFile(std::ifstream* p_file)
 
 
 
-         //              }
 
 
 
-
-
-         if(filename.contains(".pdf"))
-         {
-             filename.remove(".pdf");
-             filename.append(".txt");
-         }
-         QByteArray arr =filename.toLocal8Bit();
-         std::FILE* fp;
-         if((fp= std::fopen(arr.data(),"w")))
-         {
-
-         std::fprintf(fp, "----- INFOS -----\n");
-         std::fprintf(fp, "Total Activity:   %4.2f [MBq]\n",
-                      total_activity);
-         std::fprintf(fp, "Number of dose points:                   %u\n",
-                      n_dose_points);
-         std::fprintf(fp, "Number of organs in activity curve:      %u\n",
-                      n_organs);
-         std::fprintf(fp, "Number of organs to study:               %u\n",
-                      n_organs_to_study);
-         std::fprintf(fp, "Time (hours):\n");
-         for (uint32_t t = 0; t < n_dose_points; ++t) {
-             std::fprintf(fp, "    %4.7f ", p_time[t]);
-         }
-         std::fprintf(fp, "\n");
-         std::fprintf(fp, "Activity Fraction:\n");
-         for (uint32_t i = 0; i < n_organs; ++i) {
-             std:: fprintf(fp, "    Organ #%u:\n", i);
-             for (uint32_t t = 0; t < n_dose_points; ++t) {
-                 std::fprintf(fp, "        %4.7f ", p_activity_fraction[i][t]);
-             }
-             std::fprintf(fp, "\n");
-         }
-         std::fprintf(fp, "SADRs:\n");
-         for (uint32_t i = 0; i < n_organs_to_study; ++i) {
-             std::fprintf(fp, "    Organ #%u:\n", i);
-             for (uint32_t t = 0; t < n_dose_points; ++t) {
-                 std::fprintf(fp, "        %4.20f\n", p_sadrs[i][t]);
-             }
-             std::fprintf(fp, "\n");
-         }
-         std::fprintf(fp, "-----------------\n");
-
-
-
-         // Initialize linear interpolation
-         Interpolation** p_linear_inter_act_fraction = new Interpolation*[n_organs];
-         for (uint32_t t = 0; t < n_organs; ++t) {
-             p_linear_inter_act_fraction[t] = new Interpolation(p_time,
-                                                                p_activity_fraction[t], &n_dose_points, 2);
-         }
-
-         Interpolation** p_linear_inter_sadrs = new Interpolation*[n_organs_to_study];
-         for (uint32_t t = 0; t < n_organs_to_study; ++t) {
-             p_linear_inter_sadrs[t] = new Interpolation(p_time,
-                                                         p_sadrs[t], &n_dose_points, 2);
-         }
-
-         // Loop over each organs to study
-         for (uint32_t t = 0; t < n_organs_to_study; ++t) {
-             // Computing the number of steps to perform integration. Integration on the
-             // time, so the bound depends on the time
-             n_step = ( (p_time[n_dose_points-1] - p_time[0]) / step ) + 1;
-
-             // Loop over the activity organ
-             if (is_verbose) {
-                 std::fprintf(fp, "****\n");
-             }
-             for (uint32_t j = 0; j < n_organs; ++j) {
-                 // Loop over the steps
-                 for (uint32_t i = 0; i < n_step - 1; ++i) {
-                     bin_min = p_time[0] + step * i;
-                     bin_medium = p_time[0] + step * (i + 0.5);
-                     bin_max = p_time[0] + step * (i + 1);
-
-                     // Computing SADRs in 3 points
-                     sadrs_min = p_linear_inter_sadrs[t]->LinearInterp(bin_min);
-                     sadrs_medium = p_linear_inter_sadrs[t]->LinearInterp(bin_medium);
-                     sadrs_max = p_linear_inter_sadrs[t]->LinearInterp(bin_max);
-
-                     // Computing Activity fraction in 3 points
-                     act_frac_min = p_linear_inter_act_fraction[j]->LinearInterp(bin_min);
-                     act_frac_medium = p_linear_inter_act_fraction[j]->LinearInterp(
-                                 bin_medium);
-                     act_frac_max = p_linear_inter_act_fraction[j]->LinearInterp(bin_max);
-
-                     // Apply fraction activity
-                     sadrs_min *= total_activity * act_frac_min * 3600.0;
-                     sadrs_medium *= total_activity * act_frac_medium * 3600.0;
-                     sadrs_max *= total_activity * act_frac_max * 3600.0;
-
-                     i_simpson += SimpsonMethod(&bin_min, &bin_max,
-                                                &sadrs_min, &sadrs_max, &sadrs_medium);
-                 }
-                 if (is_verbose) {
-                     std::fprintf(fp, "    Intermediate dose in organ #%u: %4.5f [Gy]\n", j,
-                                  i_simpson);
-                 }
-                 total_dose += i_simpson;
-                 i_simpson = 0.0;
-             }
-             std::fprintf(fp, "Total dose in organ #%u: %4.5f [Gy]\n", t,
-                          total_dose);
-             total_dose = 0;
-
-         }
-
-         for (uint32_t t = 0; t < n_organs; ++t) {
-             delete p_linear_inter_act_fraction[t];
-         }
-         for (uint32_t t = 0; t < n_organs_to_study; ++t) {
-             delete p_linear_inter_sadrs[t];
-         }
-         delete[] p_linear_inter_act_fraction;
-         delete[] p_linear_inter_sadrs;
-
-     }
-         // Closing the time activity curve file
-         p_time_activity_curves_file.close();
-         p_sadrs_file.close();
-         std::fclose(fp);
-
-         // Freeing memory
-
-         for (uint32_t t = 0; t < n_organs_to_study; ++t) {
-             delete[] p_sadrs[t];
-         }
-         delete[] p_sadrs;
-         for (uint32_t t = 0; t < n_organs; ++t) {
-             delete[] p_activity_fraction[t];
-         }
-         delete[] p_activity_fraction;
-         delete[] p_time;
 
      }
 

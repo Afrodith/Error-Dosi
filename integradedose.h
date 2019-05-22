@@ -5,9 +5,11 @@
 #include <QTextEdit>
 #include <QFileDialog>
 #include <QStandardPaths>
+#include <QBuffer>
 #include <QDateTime>
 #include <QPrinter>
 #include <QDesktopServices>
+#include <QTextStream>
 
 
 

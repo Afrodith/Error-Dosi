@@ -22,12 +22,16 @@ public:
     NMDosimetry *NM;
     Brachytherapy *brachy;
 
+    [[noreturn]]void on_actionExit_triggered();
+
 private slots:
     void on_pb_CT_clicked();
 
     void on_pb_NM_clicked();
 
     void on_pb_brachy_clicked();
+
+
 
 private:
     Ui::MainWindow *ui;

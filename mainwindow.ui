@@ -109,6 +109,7 @@
      <string>About</string>
     </property>
     <addaction name="actionError_Dosi"/>
+    <addaction name="actionExit"/>
    </widget>
    <addaction name="menuAbout"/>
   </widget>
@@ -124,6 +125,11 @@
   <action name="actionError_Dosi">
    <property name="text">
     <string>ERROR-Dosi</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit ..</string>
    </property>
   </action>
  </widget>
