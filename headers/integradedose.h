@@ -26,12 +26,13 @@ public:
     QByteArray ba;
     QByteArray ba2;
     void compute();
+    double total_activity;
 
 
 signals:
 
 public slots:
-    void getFileNames(QString,QString);
+    void getFileNames(QString,QString,double activity);
 
 
 

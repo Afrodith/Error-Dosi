@@ -1,5 +1,5 @@
-#include "integradedose.h"
-#include "interp.hh"
+#include "headers/integradedose.h"
+#include "headers/interp.hh"
 #include <iostream>
 #include <getopt.h>
 #include <sstream>
@@ -22,14 +22,16 @@ void LoadSADRs(std::ifstream* p_file, double** p_sadrs, uint32_t* p_n_organs_to_
 integradeDose::integradeDose(QObject *parent) : QObject(parent)
 {
   dialog=nullptr;
+  total_activity=0.0;
 
 }
 
-void integradeDose::getFileNames(QString timeActivityCurves,QString matchedPhantom)
+void integradeDose::getFileNames(QString timeActivityCurves,QString matchedPhantom,double activity)
 {
 
     ba = timeActivityCurves.toLocal8Bit();
     ba2= matchedPhantom.toLocal8Bit();
+    total_activity = activity;
    // p_time_activity_curves_filename = ba.data();
     //p_sadrs_filename =ba2.data();
 
@@ -234,14 +236,13 @@ uint32_t GetNumberOrgansFromFile(std::ifstream* p_file)
          double bin_min, bin_medium, bin_max;
          double sadrs_min, sadrs_medium, sadrs_max;
          double act_frac_min, act_frac_medium, act_frac_max;
-         double i_simpson = 0.0;
-         double total_activity = 110; /* in MBq */
+         double i_simpson = 0.0; /* in MBq */
          double step = 0.1; /* the step of integration */
          double total_dose = 0;
 
          // Declaring all pointers
 
-         // Loop while there is an argument
+         // Loop while there is an ardouble total_activity = 110;gument
          int32_t c = 0;
 
 

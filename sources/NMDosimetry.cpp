@@ -1,4 +1,4 @@
-#include "NMDosimetry.h"
+#include "headers/NMDosimetry.h"
 #include "ui_NMDosimetry.h"
 
 NMDosimetry::NMDosimetry(QWidget *parent) :
@@ -6,6 +6,7 @@ NMDosimetry::NMDosimetry(QWidget *parent) :
     ui(new Ui::NMDosimetry)
 {
     ui->setupUi(this);
+    this->setWindowTitle("Nunclear Medicine Dosimetry");
     phantom_match = nullptr;
 
     currentDir=QDir::currentPath();
@@ -21,7 +22,8 @@ void NMDosimetry::on_pushButton_clicked()
 {
     if(phantom_match==nullptr)
         phantom_match=new integradeDose(this);
-    phantom_match->getFileNames(activityCurves,sadr);
+    double activity = ui->LE_activity->text().toDouble();
+    phantom_match->getFileNames(activityCurves,sadr,activity);
     phantom_match->compute();
     activityCurves.clear();
     sadr.clear();

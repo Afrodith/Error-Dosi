@@ -1,4 +1,4 @@
-﻿#include "mainwindow.h"
+﻿#include "headers/mainwindow.h"
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -14,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent) :
     file.open(QFile::ReadOnly);
     QString styleSheet = QLatin1String(file.readAll());
     this->setStyleSheet(styleSheet);
+    this->setWindowTitle("Error-Dosi");
 
 
 
@@ -65,7 +66,7 @@ void MainWindow::on_pb_brachy_clicked()
 This attribute applies to the name of the function being declared in function declarations only.
 The behavior is undefined if the function with this attribute actually returns. */
 
-[[ noreturn]] void MainWindow::on_actionExit_triggered()
+void MainWindow::on_actionExit_triggered()
 {
     exit(EXIT_SUCCESS);
 }

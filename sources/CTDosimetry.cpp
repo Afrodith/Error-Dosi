@@ -1,4 +1,4 @@
-#include "CTDosimetry.h"
+#include "headers/CTDosimetry.h"
 #include "ui_CTDosimetry.h"
 
 CTDosimetry::CTDosimetry(QWidget *parent) :
@@ -6,6 +6,7 @@ CTDosimetry::CTDosimetry(QWidget *parent) :
     ui(new Ui::CTDosimetry)
 {
     ui->setupUi(this);
+    this->setWindowTitle("Computed Tomography Dosimetry");
 }
 
 CTDosimetry::~CTDosimetry()

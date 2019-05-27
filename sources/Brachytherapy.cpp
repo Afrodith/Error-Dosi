@@ -1,4 +1,4 @@
-#include "Brachytherapy.h"
+#include "headers/Brachytherapy.h"
 #include "ui_Brachytherapy.h"
 
 Brachytherapy::Brachytherapy(QWidget *parent) :
@@ -6,6 +6,7 @@ Brachytherapy::Brachytherapy(QWidget *parent) :
     ui(new Ui::Brachytherapy)
 {
     ui->setupUi(this);
+    this->setWindowTitle("Brachytherapy");
 }
 
 Brachytherapy::~Brachytherapy()

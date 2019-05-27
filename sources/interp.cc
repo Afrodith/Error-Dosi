@@ -9,7 +9,7 @@
 #include <iostream>
 #include <cstdlib>
 
-#include "interp.hh"
+#include "headers/interp.hh"
 
 #define MIN(X,Y) (((X) < (Y)) ? (X) : (Y))
 #define MAX(X,Y) (((X) < (Y)) ? (Y) : (X))

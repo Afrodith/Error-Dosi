@@ -46,27 +46,30 @@ CONFIG(release, debug|release){
 }
 
 SOURCES += \
-        Brachytherapy.cpp \
-        CTDosimetry.cpp \
-        NMDosimetry.cpp \
-        integradedose.cpp \
-        interp.cc \
-        main.cpp \
-        mainwindow.cpp
+        sources/Brachytherapy.cpp \
+        sources/CTDosimetry.cpp \
+        sources/NMDosimetry.cpp \
+        sources/integradedose.cpp \
+        sources/interp.cc \
+        sources/main.cpp \
+        sources/mainwindow.cpp \
+
 
 HEADERS += \
-        Brachytherapy.h \
-        CTDosimetry.h \
-        NMDosimetry.h \
-        integradedose.h \
-        interp.hh \
-        mainwindow.h
+        headers/Brachytherapy.h \
+        headers/CTDosimetry.h \
+        headers/NMDosimetry.h \
+        headers/integradedose.h \
+        headers/interp.hh \
+        headers/mainwindow.h \
+
 
 FORMS += \
-        Brachytherapy.ui \
-        CTDosimetry.ui \
-        NMDosimetry.ui \
-        mainwindow.ui
+        forms/Brachytherapy.ui \
+        forms/CTDosimetry.ui \
+        forms/NMDosimetry.ui \
+        forms/mainwindow.ui \
+
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
