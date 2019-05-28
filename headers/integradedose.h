@@ -7,7 +7,7 @@
 #include <QStandardPaths>
 #include <QBuffer>
 #include <QDateTime>
-#include <QPrinter>
+#include <QtPrintSupport/QPrinter>
 #include <QDesktopServices>
 #include <QTextStream>
 

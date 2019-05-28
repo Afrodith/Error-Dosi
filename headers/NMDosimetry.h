@@ -2,6 +2,7 @@
 #define NMDOSIMETRY_H
 
 #include <QDialog>
+#include <QMainWindow>
 #include <QDir>
 #include "integradedose.h"
 
@@ -10,7 +11,7 @@ namespace Ui {
 class NMDosimetry;
 }
 
-class NMDosimetry : public QDialog
+class NMDosimetry : public QMainWindow
 {
     Q_OBJECT
 

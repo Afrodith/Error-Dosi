@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT += core gui
 QT += widgets
 QT += sql
 QT += network
@@ -29,21 +29,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 CONFIG += c++11
 
-CONFIG(debug, debug|release){
-    DESTDIR = ./
-    OBJECTS_DIR = ./
-    MOC_DIR = ./
-    RCC_DIR = ./
-    UI_DIR = ./
-}
 
-CONFIG(release, debug|release){
-    DESTDIR = ./
-    OBJECTS_DIR = ./
-    MOC_DIR = ./
-    RCC_DIR = ./
-    UI_DIR = ./
-}
+INCLUDEPATH+= /usr/local/include/vtk-7.1
+
+LIBS+=-L/usr/local/lib
 
 SOURCES += \
         sources/Brachytherapy.cpp \

@@ -1,0 +1,68 @@
+/*=========================================================================
+  Program:   vv                     http://www.creatis.insa-lyon.fr/rio/vv
+
+  Authors belong to: 
+  - University of LYON              http://www.universite-lyon.fr/
+  - Léon Bérard cancer center       http://www.centreleonberard.fr
+  - CREATIS CNRS laboratory         http://www.creatis.insa-lyon.fr
+
+  This software is distributed WITHOUT ANY WARRANTY; without even
+  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+  PURPOSE.  See the copyright notices for more information.
+
+  It is distributed under dual licence
+
+  - BSD        See included LICENSE.txt file
+  - CeCILL-B   http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
+===========================================================================**/
+#ifndef _vvLandmarksPanel_H
+#define _vvLandmarksPanel_H
+#include <iostream>
+#include <vector>
+#include "vvLandmarks.h"
+
+#include "ui_vvLandmarksPanel.h"
+
+//====================================================================
+class vvLandmarksPanel : public QWidget, private Ui::vvLandmarksPanel
+{
+
+    Q_OBJECT
+
+public:
+    // constructor - destructor
+    vvLandmarksPanel(QWidget * parent=0);
+    ~vvLandmarksPanel() {}
+    void SetCurrentLandmarks(vvLandmarks *lm, int time);
+    void SetCurrentPath(std::string path) {
+        mCurrentPath = path;
+    }
+    void SetCurrentImage(std::string filename);
+    double* GetSelectedPoint() { return mSelectedPoint; }
+
+public slots:
+    void Load();
+    bool LoadFromFile(std::vector<std::string> file);
+    void Save();
+    void UpdateTransform();
+    void RemoveSelectedPoints();
+    void RemoveAllPoints();
+    void AddPoint();
+    void SelectPoint();
+    void CommentsChanged(int row, int column);
+signals:
+    void UpdateRenderWindows();
+    void SelectedPointChanged();
+    void UpdateLandmarkTransform();
+
+private:
+    void AddPoint(int);
+
+    vvLandmarks* mCurrentLandmarks;
+    std::string mCurrentPath;
+    double mSelectedPoint[4];
+}; // end class vvLandmarksPanel
+//====================================================================
+
+#endif /* end #define _vvLandmarksPanel_H */
+

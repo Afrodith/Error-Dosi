@@ -2,7 +2,7 @@
 #include "ui_NMDosimetry.h"
 
 NMDosimetry::NMDosimetry(QWidget *parent) :
-    QDialog(parent),
+    QMainWindow(parent),
     ui(new Ui::NMDosimetry)
 {
     ui->setupUi(this);
