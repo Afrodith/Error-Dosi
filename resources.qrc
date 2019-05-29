@@ -1,6 +1,24 @@
 <RCC>
     <qresource prefix="/">
-        <file>pushbuttton.qss</file>
+        <file>StyleSheets/BlueGlass/blueglass.qss</file>
+        <file>StyleSheets/Minimalist/Minimalist.qss</file>
+        <file>StyleSheets/mainWindow.qss</file>
+        <file>StyleSheets/pushbuttton.qss</file>
+        <file>data/excel_files/ERROR_Updated_db.xlsx</file>
+        <file>data/excel_files/Tc-99m_doses.xlsx</file>
+        <file>data/excel_files/Time activity curves.xlsx</file>
+        <file>data/I123_MIBG/phantom_001.txt</file>
+        <file>data/I123_MIBG/time_activity_curves_I123_MIBG.txt</file>
+        <file>data/I131_INa1/phantom_001.txt</file>
+        <file>data/I131_INa1/time_activity_curves_I131_INa1.txt</file>
+        <file>data/I131_INa2/phantom_001.txt</file>
+        <file>data/I131_INa2/time_activity_curves_I131_INa2.txt</file>
+        <file>data/I131_MIBG/phantom_001.txt</file>
+        <file>data/I131_MIBG/time_activity_curves_I131_MIBG.txt</file>
+        <file>data/Sm153_EDTMP/phantom_001.txt</file>
+        <file>data/Sm153_EDTMP/time_activity_curves_Sm153_EDTMP.txt</file>
+        <file>data/Tc99m_MDP/phantom_001.txt</file>
+        <file>data/Tc99m_MDP/time_activity_curves_Tc99m_MDP.txt</file>
     </qresource>
     <qresource prefix="/icons">
         <file>icons/error.png</file>

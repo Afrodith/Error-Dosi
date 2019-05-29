@@ -11,7 +11,7 @@ namespace Ui {
 class NMDosimetry;
 }
 
-class NMDosimetry : public QMainWindow
+class NMDosimetry : public QDialog
 {
     Q_OBJECT
 

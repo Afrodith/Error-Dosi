@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>685</width>
-    <height>488</height>
+    <width>663</width>
+    <height>485</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,8 +22,8 @@
   <widget class="QPushButton" name="pushButton">
    <property name="geometry">
     <rect>
-     <x>180</x>
-     <y>380</y>
+     <x>120</x>
+     <y>400</y>
      <width>91</width>
      <height>41</height>
     </rect>
@@ -32,21 +32,11 @@
     <string>Submit</string>
    </property>
   </widget>
-  <widget class="QGraphicsView" name="graphicsView">
-   <property name="geometry">
-    <rect>
-     <x>420</x>
-     <y>10</y>
-     <width>241</width>
-     <height>451</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QComboBox" name="comboBox">
    <property name="geometry">
     <rect>
-     <x>60</x>
-     <y>140</y>
+     <x>20</x>
+     <y>130</y>
      <width>171</width>
      <height>21</height>
     </rect>
@@ -55,8 +45,8 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>180</x>
-     <y>30</y>
+     <x>190</x>
+     <y>10</y>
      <width>211</width>
      <height>17</height>
     </rect>
@@ -68,8 +58,8 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>60</x>
-     <y>120</y>
+     <x>20</x>
+     <y>100</y>
      <width>171</width>
      <height>17</height>
     </rect>
@@ -81,7 +71,7 @@
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>470</x>
+     <x>410</x>
      <y>460</y>
      <width>131</width>
      <height>17</height>
@@ -91,7 +81,35 @@
     <string>Source 3D Model</string>
    </property>
   </widget>
+  <widget class="QFrame" name="frame">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>50</y>
+     <width>291</width>
+     <height>391</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QVTKWidget" name="qvtkWidget"/>
+    </item>
+   </layout>
+  </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QVTKWidget</class>
+   <extends>QWidget</extends>
+   <header>QVTKWidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

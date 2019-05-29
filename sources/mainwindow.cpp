@@ -38,6 +38,11 @@ void MainWindow::on_pb_CT_clicked()
   {
     CT = new CTDosimetry(this);
   }
+  else {
+      delete CT;
+      CT = new CTDosimetry(this);
+
+  }
    CT->show();
 
 }
@@ -49,6 +54,10 @@ void MainWindow::on_pb_NM_clicked()
     {
       NM = new NMDosimetry(this);
     }
+    else {
+        delete NM;
+        NM = new NMDosimetry(this);
+    }
      NM->show();
 }
 
@@ -58,6 +67,10 @@ void MainWindow::on_pb_brachy_clicked()
     if(brachy==nullptr)
     {
       brachy = new Brachytherapy(this);
+    }
+    else {
+        delete brachy;
+        brachy = new Brachytherapy(this);
     }
      brachy->show();
 }
