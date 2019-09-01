@@ -36,10 +36,10 @@ class vtkRenderWindow;
 class vtkPolyData;
 
 // VV
-#include "clitkCommon.h"
-#include "vvImage.h"
-#include "vvMesh.h"
-#include "vvImageReader.h"
+#include "VV/common/clitkCommon.h"
+#include "VV/common/vvImage.h"
+#include "VV/vv/vvMesh.h"
+#include "VV/common/vvImageReader.h"
 
 class vvSlicer;
 class vvInteractorStyleNavigator;

@@ -19,7 +19,7 @@
 #ifndef VVSTRUCTURESETACTOR_H
 #define VVSTRUCTURESETACTOR_H
 
-#include "clitkDicomRT_StructureSet.h"
+#include "VV/common/clitkDicomRT_StructureSet.h"
 #include <QObject>
 #include <QSharedPointer>
 

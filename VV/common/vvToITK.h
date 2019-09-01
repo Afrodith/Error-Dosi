@@ -28,7 +28,7 @@
 // itk
 #include <itkImage.h>
 #include <itkJoinSeriesImageFilter.h>
-#include "itkVTKImageToImageFilter.h"
+#include "VV/itk/itkVTKImageToImageFilter.h"
 
 //--------------------------------------------------------------------
 ///Converts the vv image to itk, handling the 4D problem

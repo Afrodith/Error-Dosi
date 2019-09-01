@@ -1,0 +1,181 @@
+/*
+ *
+ * This file and its contents are the property of The MathWorks, Inc.
+ * 
+ * This file contains confidential proprietary information.
+ * The reproduction, distribution, utilization or the communication
+ * of this file or any part thereof is strictly prohibited.
+ * Offenders will be held liable for the payment of damages.
+ *
+ * Copyright 1999-2012 The MathWorks, Inc.
+ *
+ */
+#ifndef PST_STL_SSTREAM
+#define PST_STL_SSTREAM
+
+#include <iosfwd>
+#include <ios>
+#include <string>
+#include <streambuf>
+#include <iostream>
+
+namespace std
+{
+
+#ifdef PST_VISUAL
+#pragma pack(push, 8) /* push default value */
+#endif
+  
+  // template basic_stringbuf
+  
+  PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+  class basic_stringbuf : public basic_streambuf<charT, traits>
+  {
+  public:
+#ifdef PST_VISUAL
+    typedef PST_ALLOCATOR allocator_type; 
+#endif
+
+    typedef PST_TEMPLATE_CONTAINER_NAME2(basic_string,    charT, traits) __pst_basic_string_type ;
+    
+    // CONSTRUCTORS ////
+    __ps_explicit basic_stringbuf(ios_base::openmode which = ios_base::in | ios_base::out){}
+    __ps_explicit basic_stringbuf(const __pst_basic_string_type &str, 
+			     ios_base::openmode which = ios_base::in | ios_base::out) {}
+
+    // GET AND SET //
+    __pst_basic_string_type str() const
+    {
+      volatile unsigned int i = 0;
+      charT *str_temp;
+      str_temp = new charT[i];
+      return (__pst_basic_string_type(str_temp));	
+    }
+
+    void str(const __pst_basic_string_type &s) 
+    {
+      ;
+    }
+  };
+
+  // template basic_istringstream
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+  class basic_istringstream : public basic_istream<charT, traits>
+  {
+  public:
+#ifdef PST_VISUAL
+    typedef Allocator allocator_type;
+#endif
+ 
+    typedef PST_TEMPLATE_CONTAINER_NAME2(basic_stringbuf, charT, traits) __pst_basic_stringbuf_type ;
+    typedef PST_TEMPLATE_CONTAINER_NAME2(basic_string,    charT, traits) __pst_basic_string_type ;
+
+
+    // CONSTRUCTORS //
+    __ps_explicit basic_istringstream(ios_base::openmode which = ios_base::in) {}
+    __ps_explicit basic_istringstream(const __pst_basic_string_type &str,
+				 ios_base::openmode which = ios_base::in){}
+	
+    __pst_basic_stringbuf_type  *rdbuf() const
+    {
+      __pst_basic_stringbuf_type * volatile ret;
+      return ret;
+    }
+
+    __pst_basic_string_type str()   const
+    {
+      __pst_basic_string_type *volatile tmp;
+      return *tmp;
+    }	
+
+    void  str(const __pst_basic_string_type &s) 
+    {
+      ;
+    } 
+  }; 	
+
+  // template basic_ostringstream
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+  class basic_ostringstream : public basic_ostream<charT, traits>
+  {
+  public:  
+#ifdef PST_VISUAL
+    typedef Allocator allocator_type;
+#endif
+    typedef PST_TEMPLATE_CONTAINER_NAME2(basic_stringbuf, charT, traits) __pst_basic_stringbuf_type ;
+    typedef PST_TEMPLATE_CONTAINER_NAME2(basic_string,    charT, traits) __pst_basic_string_type ;
+
+    /// CONSTRUCTORS ///	
+    __ps_explicit basic_ostringstream(ios_base::openmode which = ios_base::out) {}
+    __ps_explicit basic_ostringstream(const __pst_basic_string_type &str, 
+				 ios_base::openmode which = ios_base::out){}
+
+    /// MEMBERS ////
+    __pst_basic_stringbuf_type  *rdbuf() const
+    {
+      __pst_basic_stringbuf_type * volatile ret;
+      return ret;
+    }
+
+    __pst_basic_string_type str()   const
+    {
+      __pst_basic_string_type *volatile tmp;
+      return *tmp;
+    }	
+
+    void  str(const __pst_basic_string_type &s) 
+    {
+      ;
+    } 
+ };
+
+  // template basic_stringstream
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+  class basic_stringstream : public basic_iostream<charT, traits>
+  {
+  public:
+#ifdef PST_VISUAL
+    typedef Allocator allocator_type;
+#endif
+    typedef PST_TEMPLATE_CONTAINER_NAME2(basic_stringbuf, charT, traits) __pst_basic_stringbuf_type ;
+    typedef PST_TEMPLATE_CONTAINER_NAME2(basic_string,    charT, traits) __pst_basic_string_type ;
+
+    /// CONSTRUCTORS ///
+    __ps_explicit basic_stringstream(ios_base::openmode which = ios_base::out | ios_base::in){}
+    __ps_explicit basic_stringstream(const __pst_basic_string_type &str, ios_base::openmode which = ios_base::out | ios_base::in) {} 	
+    
+    /// MEMBERS ////
+    __pst_basic_stringbuf_type  *rdbuf() const
+    {
+      __pst_basic_stringbuf_type * volatile ret;
+      return ret;
+    }
+
+    __pst_basic_string_type str()   const
+    {
+      __pst_basic_string_type *volatile tmp;
+      return *tmp;
+    }	
+
+    void  str(const __pst_basic_string_type &s) 
+    {
+      ;
+    } 
+  };
+
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+
+}
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+#endif /* PST_STL_SSTREAM */

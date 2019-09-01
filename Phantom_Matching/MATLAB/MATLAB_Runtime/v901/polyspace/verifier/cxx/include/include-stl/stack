@@ -1,0 +1,146 @@
+/*
+ *
+ * This file and its contents are the property of The MathWorks, Inc.
+ * 
+ * This file contains confidential proprietary information.
+ * The reproduction, distribution, utilization or the communication
+ * of this file or any part thereof is strictly prohibited.
+ * Offenders will be held liable for the payment of damages.
+ *
+ * Copyright 1999-2012 The MathWorks, Inc.
+ *
+ */
+#ifndef PST_STL_STACK
+#define PST_STL_STACK
+
+#include <deque> // default 
+
+namespace std
+{
+#ifdef PST_VISUAL
+#pragma pack(push, 8) /* push default value */
+#endif
+
+   template<class T, class Container = deque<T> >
+   class stack
+   {
+#ifdef PST_VISUAL
+   public:
+#else
+   protected:
+#endif
+      Container c ;
+   public:
+      
+      typedef __ps_typename Container::value_type value_type ;
+      typedef __ps_typename Container::size_type  size_type ;  
+#ifdef PST_VISUAL
+  #if _MSC_VER <= 1200
+      typedef __ps_typename Container::allocator_type allocator_type;
+  #endif
+#endif
+      typedef          Container             container_type ;
+ 
+      __ps_explicit stack(const Container& cont = Container() )
+       : c(cont)
+      {
+        ;
+      }
+#ifdef PST_VISUAL
+  #if _MSC_VER == 1200
+      allocator_type get_allocator() const { return c.get_allocator(); }
+  #endif
+#endif
+      __ps_bool empty() const
+      {
+         return c.empty() ;
+      }
+
+      size_type size() const
+      {
+         return c.size() ;
+      }
+
+      const value_type& top() const
+      {
+         return c.back() ;
+      }
+
+      value_type& top()
+      {
+         return c.back() ;
+      }
+
+      void push(const value_type& x)
+      {
+         c.push_back(x) ;
+      }
+
+      void pop()
+      {
+         c.pop_back() ;
+      }
+
+   } ;	
+
+   template<class T, class Container>
+   __ps_bool operator==(const stack<T, Container>& x,
+		   const stack<T, Container>& y)
+   {
+     volatile int rand = 0 ;
+     return (x.size() == y.size()) ? rand : __ps_false ;
+   }
+
+   template<class T, class Container>
+   __ps_bool operator!=(const stack<T, Container>& x,
+		   const stack<T, Container>& y)
+   {
+     return !(x==y) ;
+   }
+
+   template<class T, class Container>
+   __ps_bool operator<(const stack<T, Container>& x,
+		  const stack<T, Container>& y)
+   {
+     volatile int rand = 0 ;
+     return rand ;
+   }
+
+   template<class T, class Container>
+   __ps_bool operator<=(const stack<T, Container>& x,
+		   const stack<T, Container>& y)
+   {
+     volatile int rand = 0 ;
+     return rand ;
+   }
+
+   template<class T, class Container>
+   __ps_bool operator> (const stack<T, Container>& x,
+		   const stack<T, Container>& y)
+   {
+     volatile int rand = 0 ;
+     return rand ;
+   }
+
+   template<class T, class Container>
+   __ps_bool operator>=(const stack<T, Container>& x,
+		   const stack<T, Container>& y)
+   {
+     volatile int rand = 0 ;
+     return rand ;
+   }
+
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+
+}
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+
+#endif /* PST_STL_STACK */

@@ -1,0 +1,144 @@
+/* Edison Design Group, 1995-2014. */
+/*
+stdexcept -- Include file for exception handling (see 19.1.1)
+*/
+#ifndef _STDEXCEPT_STDH
+#define _STDEXCEPT_STDH
+
+#ifdef PST_HAS_EXCEPTION
+
+#if (!defined POLYSPACE_NO_STL_STUBS) || (defined PST_HAS_STRING) || ((defined __OS_VISUAL) && (defined PST_HAS_XSTRING)) 
+
+/* This lets users disable the EDG supplied exception classes. */
+#ifndef __NO_EDG_EXCEPTION_CLASSES
+
+#ifdef __EDG_RUNTIME_USES_NAMESPACES
+/* PST */
+
+#ifdef POLYSPACE_NO_STL_STUBS
+
+/* stl stubs are not used : find string 
+	with "shortest" dependencies      */
+
+#  ifdef PST_VISUAL
+#    include <xstring>
+#  else
+#    include <string>
+#  endif
+
+
+#else /* POLYSPACE_NO_STL_STUBS */
+
+/* stubs are used : use string from stubs */
+#  include <string>
+
+#endif /* POLYSPACE_NO_STL_STUBS */
+
+#include <exception>
+
+/* PST */
+
+#if (defined __EDG_RUNTIME_USES_NAMESPACES) && (defined PST_HAS_NAMESPACE)
+namespace std {
+#endif
+
+#ifdef PST_VISUAL
+#pragma pack(push, 8) /* push default value */
+#endif
+
+
+/* PST */
+
+  class logic_error : public exception {
+  public:
+    __ps_explicit logic_error(const string& what_arg);
+  };
+
+  class domain_error : public logic_error {
+  public:
+    __ps_explicit domain_error(const string& what_arg);
+  };
+
+  class invalid_argument : public logic_error {
+  public:
+    __ps_explicit invalid_argument(const string& what_arg);
+  };
+
+  class length_error : public logic_error {
+  public:
+    __ps_explicit length_error(const string& what_arg);
+  };
+
+  class out_of_range : public logic_error {
+  public:
+    __ps_explicit out_of_range(const string& what_arg);
+  };
+
+  class runtime_error : public exception {
+  public:
+    __ps_explicit runtime_error(const string& what_arg);
+  };
+  
+  class range_error : public runtime_error {
+  public:
+    __ps_explicit range_error(const string& what_arg);
+  };
+
+  class overflow_error : public runtime_error {
+  public:
+    __ps_explicit overflow_error(const string& what_arg);
+  };
+
+  class underflow_error : public runtime_error {
+  public:
+    __ps_explicit underflow_error(const string& what_arg);
+  };
+
+/* POLYSPACE : inline empty definitions */
+
+  inline logic_error::logic_error(const string& what_arg) {}
+
+  inline domain_error::domain_error(const string& what_arg) : logic_error(what_arg) {}
+
+  inline invalid_argument::invalid_argument(const string& what_arg) : logic_error(what_arg) {}
+
+  inline length_error::length_error(const string& what_arg) : logic_error(what_arg) {}
+
+  inline out_of_range::out_of_range(const string& what_arg) : logic_error(what_arg) {}
+
+  inline runtime_error::runtime_error(const string& what_arg) {}
+
+  inline range_error::range_error(const string& what_arg): runtime_error(what_arg) {}
+
+  inline overflow_error::overflow_error(const string& what_arg): runtime_error(what_arg) {}
+
+  inline underflow_error::underflow_error(const string& what_arg) : runtime_error(what_arg) {}
+
+/* POLYSPACE : end inline */
+
+#ifdef PST_VISUAL
+#pragma pack(pop) // pop back to default value
+#endif
+
+/* PST */
+
+#if (defined __EDG_RUNTIME_USES_NAMESPACES) && (defined PST_HAS_NAMESPACE)
+}  /* namespace std */
+#endif
+
+#if (defined __EDG_IMPLICIT_USING_STD) || (defined __PST_IMPLICIT_USING_STD)
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __EDG_IMPLICIT_USING_STD */
+
+#endif /* ifdef __EDG_RUNTIME_USES_NAMESPACES */
+
+#endif /* ifndef __NO_EDG_EXCEPTION_CLASSES */
+
+#endif /* if (!defined POLYSPACE_NO_STL_STUBS) || (defined PST_HAS_STRING) || ((defined PST_VISUAL) && (defined PST_HAS_XSTRING)) */
+
+#endif /* ifdef PST_HAS_EXCEPTION */
+
+#endif /* _STDEXCEPT_STDH */
+

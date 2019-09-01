@@ -21,7 +21,7 @@
 
 #include "vvBinaryImageOverlayActor.h"
 #include "vvImageContour.h"
-#include "clitkDicomRT_ROI.h"
+#include "VV/common/clitkDicomRT_ROI.h"
 
 #include <QObject>
 #include <QSharedPointer>

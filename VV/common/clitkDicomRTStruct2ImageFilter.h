@@ -25,7 +25,7 @@
 #include <vtkImageData.h>
 #include <vtkMatrix4x4.h>
 #include <itkImage.h>
-#include <itkVTKImageToImageFilter.h>
+#include "VV/itk/itkVTKImageToImageFilter.h"
 
 namespace clitk {
 

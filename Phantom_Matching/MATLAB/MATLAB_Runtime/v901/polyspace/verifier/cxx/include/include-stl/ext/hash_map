@@ -1,0 +1,911 @@
+/*
+ *
+ * This file and its contents are the property of The MathWorks, Inc.
+ * 
+ * This file contains confidential proprietary information.
+ * The reproduction, distribution, utilization or the communication
+ * of this file or any part thereof is strictly prohibited.
+ * Offenders will be held liable for the payment of damages.
+ *
+ * Copyright 1999-2012 The MathWorks, Inc.
+ *
+ */
+#ifndef PST_HASH_MAP
+#define PST_HASH_MAP
+
+#include <__polyspace__container.h>
+#include <ext/__polyspace__hash.h>
+
+#ifdef PST_VISUAL
+#pragma pack(push,8)
+#endif
+
+// pst verification macros
+
+#define VALID_SIZE_MAX(s,n) assert((s) < (n))
+
+// pst internal macros
+
+#define RESET_ELEMENTS()  { value_type* volatile random_element ; _pst_elements = new value_type(*random_element) ; }
+        // create "first" element
+#define CONSTCAST_ELEMENT(value) ((pair<Key, Tp>* ) value)
+#define ADD_ELEMENT(t) { volatile int random_alias = 0 ; if (random_alias) *CONSTCAST_ELEMENT(_pst_elements) = (pair<Key, Tp>&) t ; }
+#define ITERATOR_ELEMENT(i) i(_pst_elements)
+
+// pst compatibility with Visual 6&7.1 includes
+
+#ifdef PST_VISUAL
+  #define PST_HASH_MAP_ERASE_ITERATOR_RETURN_TYPE iterator
+  #define PST_HASH_MAP_ERASE_ITERATOR_RETURN_STAT return ITERATOR_ELEMENT(iterator) ;
+  #if _MSC_VER <= 1200
+    #define PST_HASH_MAP_NAMESPACE std
+  #else
+    #define PST_HASH_MAP_NAMESPACE stdext
+  #endif
+#else /* PST_VISUAL */ 
+  #define PST_HASH_MAP_ERASE_ITERATOR_RETURN_TYPE void
+  #define PST_HASH_MAP_ERASE_ITERATOR_RETURN_STAT
+  #define PST_HASH_MAP_NAMESPACE std 
+#endif /* PST_VISUAL */ 
+
+namespace PST_HASH_MAP_NAMESPACE
+{
+
+#ifdef PST_VISUAL
+  template <class Key, class Tp, 
+	    class HashComp = hash_compare<Key, less<Key> >, 
+            class Allocator = allocator<Tp> >
+#else
+  template <class Key, class Tp, 
+	    class HashFcn = hash<Key>, 
+	    class EqualKey = equal_to<Key>,
+            class Allocator = allocator<Tp> >
+#endif
+  class hash_map {
+  public:
+    typedef Key key_type;
+    typedef Tp data_type;
+    typedef Tp mapped_type;
+    typedef pair<Key, Tp> value_type;
+#ifdef PST_VISUAL
+    typedef Tp referent_type;
+    typedef HashComp key_compare;
+    enum {
+	bucket_size = key_compare::bucket_size,
+	min_buckets = key_compare::min_buckets };
+    class value_compare : public binary_function<value_type, value_type, __ps_bool> {
+    private:
+      key_compare m_comp;
+    public:
+      value_compare(const key_compare& _comp) : m_comp(_comp) { }
+      __ps_bool operator() (const value_type& x, const value_type& y) const {
+	return m_comp(x.first, y.first);
+      }
+    };
+#else
+    typedef HashFcn hasher;
+    typedef EqualKey key_equal;
+#endif
+    typedef size_t size_type;
+    typedef ptrdiff_t difference_type;
+    typedef value_type *pointer;
+    typedef const pointer const_pointer;
+    typedef value_type &reference;
+    typedef const reference const_reference;
+    typedef __pst__generic_iterator<forward_iterator_tag, value_type> iterator;
+    typedef iterator const_iterator;
+    typedef __pst__reverse_iterator<iterator> reverse_iterator;
+    typedef reverse_iterator const_reverse_iterator;
+    typedef Allocator allocator_type;
+private:
+    size_type _size;
+    size_type _max_size;
+    pointer _pst_elements;
+#ifdef PST_VISUAL
+    key_compare m_comp;
+#else
+    hasher m_hasher;
+    key_equal m_equal;
+#endif
+    allocator_type m_alloc;
+public:
+    hash_map()
+	: _size(0), _max_size(PST_CONTAINER_MAX_SIZE) { 
+	RESET_ELEMENTS();
+    }
+    template <class InputIterator>
+    hash_map(InputIterator it1, InputIterator it2)
+       : _size(0), _max_size(PST_CONTAINER_MAX_SIZE) {
+	RESET_ELEMENTS();
+	for (InputIterator temp = it1; temp != it2; ++temp) {
+	    VALID_SIZE_MAX(_size, _max_size);
+	    ADD_ELEMENT(*temp);
+	    _size++;
+    	}
+    }
+#ifdef PST_VISUAL
+    hash_map(const key_compare& _comp,
+	     const allocator_type& _alloc = allocator_type())
+       : _size(0), _max_size(PST_CONTAINER_MAX_SIZE), m_comp(_comp), m_alloc(_alloc) {
+	RESET_ELEMENTS(); 
+    }
+    template <class InputIterator>
+    hash_map(InputIterator it1, InputIterator it2,
+	     const key_compare& _comp, 
+	     const allocator_type& _alloc = allocator_type())
+       : _size(0), _max_size(PST_CONTAINER_MAX_SIZE), m_comp(_comp), m_alloc(_alloc) {
+	RESET_ELEMENTS(); 
+	for (InputIterator temp = it1; temp != it2; ++temp) {
+	    VALID_SIZE_MAX(_size, _max_size);
+	    ADD_ELEMENT(*temp);
+	    _size++;
+    	}
+    }
+#else
+    __ps_explicit hash_map(size_type n) 
+	: _size(0), _max_size(n) { 
+	RESET_ELEMENTS(); 
+    }
+    hash_map(size_type n, const hasher& _hasher) 
+	: _size(0), _max_size(n), m_hasher(_hasher) { 
+	RESET_ELEMENTS();
+    }
+    hash_map(size_type n, const hasher& _hasher, const key_equal& _equal, 
+	     const allocator_type& _alloc = allocator_type())
+       : _size(0), _max_size(n), m_hasher(_hasher), m_equal(_equal), m_alloc(_alloc) { 
+	RESET_ELEMENTS();
+    }
+    template <class InputIterator>
+    hash_map(InputIterator it1, InputIterator it2, size_type n) 
+	: _size(0), _max_size(n) {
+	RESET_ELEMENTS(); 
+	for (InputIterator temp = it1; temp != it2; ++temp) {
+	    VALID_SIZE_MAX(_size, _max_size);
+	    ADD_ELEMENT(*temp);
+	    _size++;
+    	}
+    }
+    template <class InputIterator>
+    hash_map(InputIterator it1, InputIterator it2, size_type n, 
+	     const hasher& _hasher)
+       : _size(0), _max_size(n), m_hasher(_hasher) { 
+	RESET_ELEMENTS(); 
+	for (InputIterator temp = it1; temp != it2; ++temp) {
+	    VALID_SIZE_MAX(_size, _max_size);
+	    ADD_ELEMENT(*temp);
+	    _size++;
+    	}
+    }
+    template <class InputIterator>
+    hash_map(InputIterator it1, InputIterator it2, size_type n,
+	     const hasher& _hasher, const key_equal& _equal, 
+	     const allocator_type& _alloc = allocator_type())
+       : _size(0), _max_size(n), m_hasher(_hasher), m_equal(_equal), m_alloc(_alloc) { 
+	RESET_ELEMENTS(); 
+	for (InputIterator temp = it1; temp != it2; ++temp) {
+	    VALID_SIZE_MAX(_size, _max_size);
+	    ADD_ELEMENT(*temp);
+	    _size++;
+    	}
+    }
+#endif
+
+    ~hash_map() {
+	_size = 0;
+	_pst_elements = 0;
+    }
+
+#ifdef PST_VISUAL
+    key_compare key_comp() const { return m_comp; }
+    value_compare value_comp() const { return value_compare(m_comp); }
+#else
+    hasher hash_funct() const { return m_hasher; }
+    key_equal key_eq() const { return m_equal; }
+#endif
+    allocator_type get_allocator() const { return m_alloc; }
+
+    size_type size() const { return _size; }
+    size_type max_size() const { return _max_size; }
+    __ps_bool empty() const { return _size == 0; }
+    void swap(hash_map& hs) { 
+	size_type tmp = _size;
+	_size = hs._size;
+	hs._size = tmp;
+ 	pointer tmp2 = hs._pst_elements;
+	hs._pst_elements = _pst_elements;
+	_pst_elements = tmp2;
+    }
+    pair<const_iterator, const_iterator> equal_range(const key_type& x) const {
+        key_type dummy(x);
+        return make_pair(lower_bound(x), upper_bound(x));
+    }
+    pair<iterator, iterator> equal_range(const key_type& x) {
+	key_type dummy(x);
+        return make_pair(lower_bound(x), upper_bound(x));
+    }
+    const_iterator find(const key_type& x) const {
+	key_type dummy(x);
+	return ITERATOR_ELEMENT(const_iterator);
+    }
+    iterator find(const key_type& x) {
+	key_type dummy(x);
+	return ITERATOR_ELEMENT(iterator);
+    }
+    size_type count(const key_type& x) const {
+        volatile size_type pst_random;
+        if (_size == 0)
+	    return 0;
+        return pst_random;
+    }
+    const_iterator begin() const { return ITERATOR_ELEMENT(const_iterator); }
+    const_iterator end() const { return ITERATOR_ELEMENT(const_iterator); }
+    iterator begin() { return ITERATOR_ELEMENT(iterator); }
+    iterator end() { return ITERATOR_ELEMENT(iterator); }
+    reverse_iterator rbegin() { return ITERATOR_ELEMENT(reverse_iterator); }
+    reverse_iterator rend() { return ITERATOR_ELEMENT(reverse_iterator); }
+    const_reverse_iterator rbegin() const { return ITERATOR_ELEMENT(const_reverse_iterator); }
+    const_reverse_iterator rend() const { return ITERATOR_ELEMENT(const_reverse_iterator); }
+    iterator lower_bound(const key_type& x) { 
+        key_type dummy(x);
+	return ITERATOR_ELEMENT(iterator);
+    }
+    const_iterator lower_bound(const key_type& x) const { 
+        key_type dummy(x);
+	return ITERATOR_ELEMENT(const_iterator);
+    }
+    iterator upper_bound(const key_type& x) {
+        key_type dummy(x);
+	return ITERATOR_ELEMENT(iterator);
+    }
+    const_iterator upper_bound(const key_type& x) const {
+        key_type dummy(x);
+	return ITERATOR_ELEMENT(const_iterator);
+    }
+    size_type erase(const key_type& x) {
+	key_type dummy(x);
+	volatile size_type pst_random;
+	size_type cpt = pst_random;
+	assert(cpt <= _size);
+	_size -= cpt;
+	return cpt;
+    }
+    PST_HASH_MAP_ERASE_ITERATOR_RETURN_TYPE erase(iterator it) { 
+	iterator dummy(it);
+	assert(_size > 0);
+	_size--;
+	PST_HASH_MAP_ERASE_ITERATOR_RETURN_STAT
+    }
+    PST_HASH_MAP_ERASE_ITERATOR_RETURN_TYPE erase(iterator it1, iterator it2) { 
+	for (iterator temp = it1; temp != it2; ++temp) {
+	    assert(_size > 0);
+	    _size--;
+	}
+	PST_HASH_MAP_ERASE_ITERATOR_RETURN_STAT
+    }
+    void clear() { 
+	_size = 0;
+	RESET_ELEMENTS();
+    }
+    void resize(size_type n) { 
+	assert(_size <= n);
+	_max_size = n;
+    }
+    size_type bucket_count() const {
+      volatile size_type pst_random;
+      return pst_random;
+    }
+    size_type max_bucket_count() const {
+      volatile size_type pst_random;
+      return pst_random;
+    }
+    size_type elems_in_bucket(size_type n) const {
+      volatile size_type pst_random;
+      return pst_random;
+    }
+
+    hash_map& operator= (const hash_map& x) { 
+	_size = x._size;
+	*CONSTCAST_ELEMENT(_pst_elements) = *x._pst_elements;
+	return *this; 
+    }
+    data_type& operator[] (const key_type& x) { 
+	key_type dummy(x);
+	volatile size_type pst_random;
+	if (pst_random) {
+	    VALID_SIZE_MAX(_size, _max_size);
+	    _size++;
+	}
+	iterator it = ITERATOR_ELEMENT(iterator);
+	return it->second;
+    }
+    pair<iterator, __ps_bool> insert(const value_type& x) {
+        volatile __ps_bool pst_random;
+        if (pst_random)
+	    return make_pair(ITERATOR_ELEMENT(iterator), __ps_false);
+	else {
+	    VALID_SIZE_MAX(_size, _max_size);
+	    _size++;
+	    ADD_ELEMENT(x);
+	    return make_pair(ITERATOR_ELEMENT(iterator), __ps_true);
+	}
+    }
+    template <class InputIterator>
+    void insert(InputIterator it1, InputIterator it2) { 
+	volatile __ps_bool pst_random;
+	for (InputIterator temp = it1; temp != it2; ++temp) {
+	    if (pst_random) {
+		VALID_SIZE_MAX(_size, _max_size);
+		_size++;
+		ADD_ELEMENT(*temp);
+	    }
+        }
+    }
+    iterator insert(iterator it, const value_type& x) {
+	volatile __ps_bool pst_random;
+	iterator dummy(it);
+	if (pst_random) {
+	    return ITERATOR_ELEMENT(iterator);
+	} else {
+	    VALID_SIZE_MAX(_size, _max_size);
+	    _size++;
+	    ADD_ELEMENT(x);
+	    return ITERATOR_ELEMENT(iterator);
+	}
+    }
+    pair<iterator, __ps_bool> insert_noresize(const value_type& x) { 
+        volatile __ps_bool pst_random;
+        if (pst_random)
+	    return make_pair(ITERATOR_ELEMENT(iterator), __ps_false);
+	else {
+	    VALID_SIZE_MAX(_size, _max_size);
+	    _size++;
+	    ADD_ELEMENT(x);
+	    return make_pair(ITERATOR_ELEMENT(iterator), __ps_true);
+	}
+    }
+  };
+
+#ifdef PST_VISUAL
+  template <class Key, class Tp, 
+	    class HashComp, class Allocator>
+  __ps_bool operator== (const hash_map<Key, Tp, HashComp, Allocator>& x,
+	           const hash_map<Key, Tp, HashComp, Allocator>& y)
+#else
+  template <class Key, class Tp, 
+	    class HashFcn, class EqualKey, class Allocator>
+  __ps_bool operator== (const hash_map<Key, Tp, HashFcn, EqualKey, Allocator>& x,
+	           const hash_map<Key, Tp, HashFcn, EqualKey, Allocator>& y)
+#endif
+  {
+    volatile __ps_bool pst_random;
+    return (x.size() == y.size()) ? pst_random : __ps_false;
+  }
+
+#ifdef PST_VISUAL
+  template <class Key, class Tp, 
+	    class HashComp, class Allocator>
+  __ps_bool operator!= (const hash_map<Key, Tp, HashComp, Allocator>& x,
+	           const hash_map<Key, Tp, HashComp, Allocator>& y)
+#else
+  template <class Key, class Tp, 
+	    class HashFcn, class EqualKey, class Allocator>
+  __ps_bool operator!= (const hash_map<Key, Tp, HashFcn, EqualKey, Allocator>& x,
+	           const hash_map<Key, Tp, HashFcn, EqualKey, Allocator>& y)
+#endif
+  {
+      return ! (x == y);
+  }
+
+#ifdef PST_VISUAL
+  template <class Key, class Tp, class HashComp, class Allocator>
+  __ps_bool operator< (const hash_map<Key, Tp, HashComp, Allocator>& x,
+                  const hash_map<Key, Tp, HashComp, Allocator>& y)
+  {
+    volatile __ps_bool pst_random;
+    return pst_random;
+  }
+
+  template <class Key, class Tp, class HashComp, class Allocator>
+  __ps_bool operator> (const hash_map<Key, Tp, HashComp, Allocator>& x,
+                  const hash_map<Key, Tp, HashComp, Allocator>& y)
+  {
+    volatile __ps_bool pst_random;
+    return pst_random;
+  }
+
+  template <class Key, class Tp, class HashComp, class Allocator>
+  __ps_bool operator<= (const hash_map<Key, Tp, HashComp, Allocator>& x,
+                   const hash_map<Key, Tp, HashComp, Allocator>& y)
+  {
+    volatile __ps_bool pst_random;
+    return pst_random;
+  }
+
+  template <class Key, class Tp, class HashComp, class Allocator>
+  __ps_bool operator>= (const hash_map<Key, Tp, HashComp, Allocator>& x,
+                   const hash_map<Key, Tp, HashComp, Allocator>& y)
+  {
+    volatile __ps_bool pst_random;
+    return pst_random;
+  }
+#endif 
+
+#ifdef PST_VISUAL
+  template <class Key, class Tp, 
+	    class HashComp, class Allocator>
+  void swap(hash_map<Key, Tp, HashComp, Allocator>& x,
+	    hash_map<Key, Tp, HashComp, Allocator>& y)
+#else
+  template <class Key, class Tp, 
+	    class HashFcn, class EqualKey, class Allocator>
+  void swap(hash_map<Key, Tp, HashFcn, EqualKey, Allocator>& x,
+	    hash_map<Key, Tp, HashFcn, EqualKey, Allocator>& y)
+#endif 
+  { 
+      x.swap(y);
+  }
+
+#ifndef PST_VISUAL
+  template <class Key, class Tp, 
+	    class HashFcn, class EqualKey, class Alloc>
+  class insert_iterator<hash_map<Key, Tp, HashFcn, EqualKey, Alloc> > {
+  public:
+    typedef output_iterator_tag iterator_category;
+    typedef void key_type;
+    typedef void value_type;
+    typedef void difference_type;
+    typedef void pointer;
+    typedef void reference;
+    typedef hash_map<Key, Tp, HashFcn, EqualKey, Alloc> container_type;
+  private:
+    container_type *m_cont;
+  public:
+    insert_iterator(container_type& x) : m_cont(&x) { }
+    insert_iterator(container_type& x, __ps_typename container_type::iterator)
+       : m_cont(&x) { }
+    insert_iterator<container_type>& operator= (const __ps_typename container_type::value_type& x) {
+      return *this;
+    }
+    insert_iterator<container_type>& operator* () { return *this; }
+    insert_iterator<container_type>& operator++() { return *this; }
+    insert_iterator<container_type>& operator++(int) { return *this; }
+  };
+#endif
+
+#ifdef PST_VISUAL
+  template <class Key, class Tp, 
+	    class HashComp = hash_compare<Key, less<Key> >, 
+            class Allocator = allocator<Tp> >
+#else
+  template <class Key, class Tp,
+  	    class HashFcn = hash<Key>, 
+	    class EqualKey = equal_to<Key>,
+            class Allocator = allocator<Tp> >
+#endif
+  class hash_multimap {
+  public:
+    typedef Key key_type;
+    typedef Tp data_type;
+    typedef Tp mapped_type;
+    typedef pair<Key, Tp> value_type;
+#ifdef PST_VISUAL
+    typedef Tp referent_type;
+    typedef HashComp key_compare;
+    enum {
+	bucket_size = key_compare::bucket_size,
+	min_buckets = key_compare::min_buckets };
+    class value_compare : public binary_function<value_type, value_type, __ps_bool> {
+    private:
+      key_compare m_comp;
+    public:
+      value_compare(const key_compare& _comp) : m_comp(_comp) { }
+      __ps_bool operator() (const value_type& x, const value_type& y) const {
+	return m_comp(x.first, y.first);
+      }
+    };
+#else
+    typedef HashFcn hasher;
+    typedef EqualKey key_equal;
+#endif
+    typedef size_t size_type;
+    typedef ptrdiff_t difference_type;
+    typedef value_type *pointer;
+    typedef const pointer const_pointer;
+    typedef value_type &reference;
+    typedef const reference const_reference;
+    typedef __pst__generic_iterator<forward_iterator_tag, value_type> iterator;
+    typedef iterator const_iterator;
+    typedef __pst__reverse_iterator<iterator> reverse_iterator;
+    typedef reverse_iterator const_reverse_iterator;
+    typedef Allocator allocator_type;
+private:
+    size_type _size;
+    size_type _max_size;
+    pointer _pst_elements;
+#ifdef PST_VISUAL
+    key_compare m_comp;
+#else
+    hasher m_hasher;
+    key_equal m_equal;
+#endif
+    allocator_type m_alloc;
+public:
+    hash_multimap() 
+	: _size(0), _max_size(PST_CONTAINER_MAX_SIZE) { 
+	RESET_ELEMENTS();
+    }
+    template <class InputIterator>
+    hash_multimap(InputIterator it1, InputIterator it2) 
+	: _size(0), _max_size(PST_CONTAINER_MAX_SIZE) { 
+	RESET_ELEMENTS();
+	for (InputIterator temp = it1; temp != it2; ++temp) {
+	    VALID_SIZE_MAX(_size, _max_size);
+	    ADD_ELEMENT(*temp);
+	    _size++;
+    	}	
+    }
+#ifdef PST_VISUAL
+    hash_multimap(const key_compare& _comp,
+	     const allocator_type& _alloc = allocator_type())
+       : _size(0), _max_size(PST_CONTAINER_MAX_SIZE), m_comp(_comp), m_alloc(_alloc) { 
+	RESET_ELEMENTS();
+    }
+    template <class InputIterator>
+    hash_multimap(InputIterator it1, InputIterator it2,
+	     const key_compare& _comp, 
+	     const allocator_type& _alloc = allocator_type())
+       : _size(0), _max_size(PST_CONTAINER_MAX_SIZE), m_comp(_comp), m_alloc(_alloc) { 
+	RESET_ELEMENTS(); 
+	for (InputIterator temp = it1; temp != it2; ++temp) {
+	    VALID_SIZE_MAX(_size, _max_size);
+	    ADD_ELEMENT(*temp);
+	    _size++;
+    	}
+    }
+#else
+    __ps_explicit hash_multimap(size_type n) 
+	: _size(0), _max_size(n) { 
+	RESET_ELEMENTS();
+    }
+    hash_multimap(size_type n, const hasher& _hasher) 
+	: _size(0), _max_size(n), m_hasher(_hasher) { 
+	RESET_ELEMENTS();
+    }
+    hash_multimap(size_type n, const hasher& _hasher, const key_equal& _equal, 
+	     const allocator_type& _alloc = allocator_type())
+        : _size(0), _max_size(n), m_hasher(_hasher), m_equal(_equal), m_alloc(_alloc) { 
+	RESET_ELEMENTS();
+    }
+    template <class InputIterator>
+    hash_multimap(InputIterator it1, InputIterator it2, size_type n) 
+	: _size(0), _max_size(n) {
+	RESET_ELEMENTS();
+        for (InputIterator temp = it1; temp != it2; ++temp) {
+            VALID_SIZE_MAX(_size, _max_size);
+            ADD_ELEMENT(*temp);
+            _size++;
+        } 
+    }
+    template <class InputIterator>
+    hash_multimap(InputIterator it1, InputIterator it2, size_type n, 
+	     const hasher& _hasher)
+       : _size(0), _max_size(n), m_hasher(_hasher) { 
+	RESET_ELEMENTS(); 
+	for (InputIterator temp = it1; temp != it2; ++temp) {
+	    VALID_SIZE_MAX(_size, _max_size);
+	    ADD_ELEMENT(*temp);
+	    _size++;
+    	}
+    }
+    template <class InputIterator>
+    hash_multimap(InputIterator it1, InputIterator it2, size_type n,
+	          const hasher& _hasher, const key_equal& _equal, 
+	          const allocator_type& _alloc = allocator_type())
+       : _size(0), _max_size(n), m_hasher(_hasher), m_equal(_equal), m_alloc(_alloc) { 
+	RESET_ELEMENTS(); 
+	for (InputIterator temp = it1; temp != it2; ++temp) {
+	    VALID_SIZE_MAX(_size, _max_size);
+	    ADD_ELEMENT(*temp);
+	    _size++;
+    	}
+    }
+#endif
+
+    ~hash_multimap() {
+	_size = 0;
+	_pst_elements = 0;
+    }
+	
+#ifdef PST_VISUAL
+    key_compare key_comp() const { return m_comp; }
+    value_compare value_comp() const { return value_compare(m_comp); }
+#else
+    hasher hash_funct() const { return m_hasher; }
+    key_equal key_eq() const { return m_equal; }
+#endif
+    allocator_type get_allocator() const { return m_alloc; }
+
+    size_type size() const { return _size; }
+    size_type max_size() const { return _max_size; }
+    __ps_bool empty() const { return _size == 0; }
+    void swap(hash_multimap& hs) { 
+	size_type tmp = _size;
+	_size = hs._size;
+	hs._size = tmp;
+ 	pointer tmp2 = hs._pst_elements;
+	hs._pst_elements = _pst_elements;
+	_pst_elements = tmp2;
+    }
+    pair<const_iterator, const_iterator> equal_range(const key_type& x) const {
+        key_type dummy(x);
+        return make_pair(lower_bound(x), upper_bound(x));
+    }
+    pair<iterator, iterator> equal_range(const key_type& x) {
+        key_type dummy(x);
+        return make_pair(lower_bound(x), upper_bound(x));
+    }
+    const_iterator find(const key_type& x) const {
+	key_type dummy(x);
+	return ITERATOR_ELEMENT(const_iterator);
+    }
+    iterator find(const key_type& x) {
+	key_type dummy(x);
+	return ITERATOR_ELEMENT(iterator);
+    }
+    size_type count(const key_type& x) const {
+        volatile size_type pst_random;
+        if (_size == 0)
+	    return 0;
+        return pst_random;
+    }
+    const_iterator begin() const { return ITERATOR_ELEMENT(const_iterator); }
+    const_iterator end() const { return ITERATOR_ELEMENT(const_iterator); }
+    iterator begin() { return ITERATOR_ELEMENT(iterator); }
+    iterator end() { return ITERATOR_ELEMENT(iterator); }
+    reverse_iterator rbegin() { return ITERATOR_ELEMENT(reverse_iterator); }
+    reverse_iterator rend() { return ITERATOR_ELEMENT(reverse_iterator); }
+    const_reverse_iterator rbegin() const { return ITERATOR_ELEMENT(const_reverse_iterator); }
+    const_reverse_iterator rend() const { return ITERATOR_ELEMENT(const_reverse_iterator); }
+    iterator lower_bound(const key_type& x) {
+        key_type dummy(x);
+	return ITERATOR_ELEMENT(iterator);
+    }
+    const_iterator lower_bound(const key_type& x) const { 
+        key_type dummy(x);
+        return ITERATOR_ELEMENT(const_iterator);
+    }
+    iterator upper_bound(const key_type& x) {
+        key_type dummy(x);
+        return ITERATOR_ELEMENT(iterator);
+    }
+    const_iterator upper_bound(const key_type& x) const {
+        key_type dummy(x);
+        return ITERATOR_ELEMENT(const_iterator);
+    }
+    size_type erase(const key_type& x) { 
+	key_type dummy(x);
+        volatile size_type pst_random;
+        size_type cpt = pst_random;
+        assert(cpt <= _size);
+        _size -= cpt;
+        return cpt;
+    }
+    PST_HASH_MAP_ERASE_ITERATOR_RETURN_TYPE erase(iterator it) { 
+	iterator dummy(it);
+	assert(_size > 0);
+	_size--;
+	PST_HASH_MAP_ERASE_ITERATOR_RETURN_STAT
+    }
+    PST_HASH_MAP_ERASE_ITERATOR_RETURN_TYPE erase(iterator it1, iterator it2) { 
+	for (iterator temp = it1; temp != it2; ++temp) {
+	    assert(_size > 0);
+	    _size--;
+	}
+	PST_HASH_MAP_ERASE_ITERATOR_RETURN_STAT
+    }
+    void clear() { 
+	_size = 0;
+	RESET_ELEMENTS();
+    }	
+    void resize(size_type n) { 
+	assert(_size <= n);
+	_max_size = n;
+    }
+    size_type bucket_count() const {
+      volatile size_type pst_random;
+      return pst_random;
+    }
+    size_type max_bucket_count() const {
+      volatile size_type pst_random;
+      return pst_random;
+    }
+    size_type elems_in_bucket(size_type n) const {
+      volatile size_type pst_random;
+      return pst_random;
+    }
+
+    hash_multimap& operator= (const hash_multimap& x) { 
+	_size = x._size;
+	*CONSTCAST_ELEMENT(_pst_elements) = *x._pst_elements;
+	return *this; 
+    }
+    data_type& operator[] (const key_type& x) { 
+	key_type dummy(x);
+        volatile size_type pst_random;
+        if (pst_random) {
+            VALID_SIZE_MAX(_size, _max_size);
+            _size++;
+        }
+        iterator it = ITERATOR_ELEMENT(iterator);
+        return it->second;
+    }
+    iterator insert(const value_type& x) { 
+	VALID_SIZE_MAX(_size, _max_size);
+        _size++ ;
+        ADD_ELEMENT(x) ; // read of x is done here
+        return ITERATOR_ELEMENT(iterator) ;
+    }
+    template <class InputIterator>
+    void insert(InputIterator it1, InputIterator it2) { 
+	volatile __ps_bool pst_random;
+	for (InputIterator temp = it1; temp != it2; ++temp) {
+	    if (pst_random) {
+		VALID_SIZE_MAX(_size, _max_size);
+		_size++;
+		ADD_ELEMENT(*temp);
+	    }
+        }
+    }
+    iterator insert(iterator it, const value_type& x) {
+	volatile __ps_bool pst_random;
+	iterator dummy(it);
+	if (pst_random) {
+	    return ITERATOR_ELEMENT(iterator);
+	} else {
+	    VALID_SIZE_MAX(_size, _max_size);
+	    _size++;
+	    ADD_ELEMENT(x);
+	    return ITERATOR_ELEMENT(iterator);
+	}
+    }
+    iterator insert_noresize(const value_type& x) {
+	VALID_SIZE_MAX(_size, _max_size);
+        _size++ ;
+        ADD_ELEMENT(x) ; // read of x is done here
+        return ITERATOR_ELEMENT(iterator) ;
+    }
+  };
+
+#ifdef PST_VISUAL
+  template <class Key, class Tp, 
+	    class HashComp, class Allocator>
+  __ps_bool operator== (const hash_multimap<Key, Tp, HashComp, Allocator>& x,
+	           const hash_multimap<Key, Tp, HashComp, Allocator>& y)
+#else
+  template <class Key, class Tp, 
+	    class HashFcn, class EqualKey, class Allocator>
+  __ps_bool operator== (const hash_multimap<Key, Tp, HashFcn, EqualKey, Allocator>& x,
+	           const hash_multimap<Key, Tp, HashFcn, EqualKey, Allocator>& y) 
+#endif
+  {
+    volatile __ps_bool pst_random;
+    return (x.size() == y.size()) ? pst_random : __ps_false;
+  }
+
+#ifdef PST_VISUAL
+  template <class Key, class Tp, 
+	    class HashComp, class Allocator>
+  __ps_bool operator!= (const hash_multimap<Key, Tp, HashComp, Allocator>& x,
+	           const hash_multimap<Key, Tp, HashComp, Allocator>& y)
+#else
+  template <class Key, class Tp, 
+	    class HashFcn, class EqualKey, class Allocator>
+  __ps_bool operator!= (const hash_multimap<Key, Tp, HashFcn, EqualKey, Allocator>& x,
+	           const hash_multimap<Key, Tp, HashFcn, EqualKey, Allocator>& y) 
+#endif
+  {
+      return ! (x == y);
+  }
+
+#ifdef PST_VISUAL
+  template <class Key, class Tp, class HashComp, class Allocator>
+  __ps_bool operator< (const hash_multimap<Key, Tp, HashComp, Allocator>& x,
+                  const hash_multimap<Key, Tp, HashComp, Allocator>& y)
+  {
+    volatile __ps_bool pst_random;
+    return pst_random;
+  }
+
+  template <class Key, class Tp, class HashComp, class Allocator>
+  __ps_bool operator> (const hash_multimap<Key, Tp, HashComp, Allocator>& x,
+                  const hash_multimap<Key, Tp, HashComp, Allocator>& y)
+  {
+    volatile __ps_bool pst_random;
+    return pst_random;
+  }
+
+  template <class Key, class Tp, class HashComp, class Allocator>
+  __ps_bool operator<= (const hash_multimap<Key, Tp, HashComp, Allocator>& x,
+                   const hash_multimap<Key, Tp, HashComp, Allocator>& y)
+  {
+    volatile __ps_bool pst_random;
+    return pst_random;
+  }
+
+  template <class Key, class Tp, class HashComp, class Allocator>
+  __ps_bool operator>= (const hash_multimap<Key, Tp, HashComp, Allocator>& x,
+                   const hash_multimap<Key, Tp, HashComp, Allocator>& y)
+  {
+    volatile __ps_bool pst_random;
+    return pst_random;
+  }
+#endif 
+
+#ifdef PST_VISUAL
+  template <class Key, class Tp, 
+	    class HashComp, class Allocator>
+  void swap(hash_multimap<Key, Tp, HashComp, Allocator>& x,
+	    hash_multimap<Key, Tp, HashComp, Allocator>& y)
+#else
+  template <class Key, class Tp, 
+	    class HashFcn, class EqualKey, class Allocator>
+  void swap(hash_multimap<Key, Tp, HashFcn, EqualKey, Allocator>& x,
+	    hash_multimap<Key, Tp, HashFcn, EqualKey, Allocator>& y) 
+#endif
+  { 
+	x.swap(y);
+  }
+
+#ifndef PST_VISUAL
+  template <class Key, class Tp, 
+	    class HashFcn, class EqualKey, class Alloc>
+  class insert_iterator<hash_multimap<Key, Tp, HashFcn, EqualKey, Alloc> > {
+  public:
+    typedef output_iterator_tag iterator_category;
+    typedef void key_type;
+    typedef void value_type;
+    typedef void difference_type;
+    typedef void pointer;
+    typedef void reference;
+    typedef hash_multimap<Key, Tp, HashFcn, EqualKey, Alloc> container_type;
+  private:
+    container_type *m_cont;
+  public:
+    insert_iterator(container_type& _cont) : m_cont(&_cont) { }
+    insert_iterator(container_type& _cont, __ps_typename container_type::iterator)
+       : m_cont(&_cont) { }
+    insert_iterator<container_type>& operator= (const __ps_typename container_type::value_type& x) {
+      return *this;
+    }
+    insert_iterator<container_type>& operator* () { return *this; }
+    insert_iterator<container_type>& operator++() { return *this; }
+    insert_iterator<container_type>& operator++(int) { return *this; }
+  };
+#endif
+
+}
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace PST_HASH_MAP_NAMESPACE ;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+#undef VALID_SIZE_MAX
+
+#undef RESET_ELEMENTS
+#undef CONSTCAST_ELEMENT
+#undef ADD_ELEMENT
+#undef ITERATOR_ELEMENT
+
+#undef PST_HASH_MAP_ERASE_ITERATOR_RETURN_TYPE
+#undef PST_HASH_MAP_ERASE_ITERATOR_RETURN_STAT
+#undef PST_HASH_MAP_NAMESPACE
+
+#ifdef PST_VISUAL
+#pragma pack(pop)
+#endif
+
+#endif
+
+

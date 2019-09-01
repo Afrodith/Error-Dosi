@@ -1,0 +1,303 @@
+/* Copyright 2012 The MathWorks, Inc. */
+
+#ifndef PST_STL_QUEUE
+#define PST_STL_QUEUE
+
+#if _MSC_VER >= 1400
+#include <algorithm>
+#endif
+#include <deque>
+#include <vector>
+#include <functional>
+
+
+namespace std
+{
+#ifdef PST_VISUAL
+#pragma pack(push, 8) /* push default value */
+#endif
+   template<class T, class Container = deque<T> >
+   class queue
+   {
+   protected:
+      Container c ;
+   public:
+      
+      typedef __ps_typename Container::value_type value_type ;
+      typedef __ps_typename Container::size_type  size_type ;  
+      typedef          Container             container_type ;
+ 
+      __ps_explicit queue(const Container& cont = Container() )
+       : c(cont)
+      {
+        ;
+      }
+
+      __ps_bool empty() const
+      {
+         return c.empty() ;
+      }
+
+      size_type size() const
+      {
+         return c.size() ;
+      }
+
+      const value_type& front() const
+      {
+         return c.front() ;
+      }
+
+      value_type& front()
+      {
+         return c.front() ;
+      }
+
+      const value_type& back() const
+      {
+         return c.back() ;
+      }
+
+      value_type& back()
+      {
+         return c.back() ;
+      }
+
+      void push(const value_type& x)
+      {
+         c.push_back(x) ;
+      }
+
+      void pop()
+      {
+         c.pop_front() ;
+      }
+
+   } ;
+
+   template<class T, class Container>
+   __ps_bool operator==(const queue<T, Container>& x,
+		   const queue<T, Container>& y)
+   {
+     volatile int rand = 0 ;
+     return (x.size() == y.size()) ? rand : __ps_false ;
+   }
+
+   template<class T, class Container>
+   __ps_bool operator!=(const queue<T, Container>& x,
+		   const queue<T, Container>& y)
+   {
+     return !(x==y) ;
+   }
+
+   template<class T, class Container>
+   __ps_bool operator<(const queue<T, Container>& x,
+		  const queue<T, Container>& y)
+   {
+     volatile int rand = 0 ;
+     return rand ;
+   }
+
+   template<class T, class Container>
+   __ps_bool operator<=(const queue<T, Container>& x,
+		   const queue<T, Container>& y)
+   {
+     volatile int rand = 0 ;
+     return rand ;
+   }
+
+   template<class T, class Container>
+   __ps_bool operator> (const queue<T, Container>& x,
+		   const queue<T, Container>& y)
+   {
+     volatile int rand = 0 ;
+     return rand ;
+   }
+
+   template<class T, class Container>
+   __ps_bool operator>=(const queue<T, Container>& x,
+		   const queue<T, Container>& y)
+   {
+     volatile int rand = 0 ;
+     return rand ;
+   }
+
+// heap facility for priority queue, with no dependance on algorithm
+
+template<class T, class Compare, class Container>
+struct __pst_heap_for_priority_queue
+{
+  typedef __ps_typename Container::iterator iterator_type ;
+
+  static void random_sort(iterator_type begin,
+ 			  iterator_type end)
+
+  {
+    typedef __ps_typename iterator_traits<iterator_type>::difference_type diff ;
+
+    diff n = end - begin ;
+    volatile int random=0 ;
+
+    for (diff i = 0; i<n; ++i)
+       for (diff j = 0; j<i; ++j)
+ 	  if (random)
+	  {
+	   T tmp = begin[i] ;
+	   begin[i] = begin[j] ;
+           begin[j] = tmp ;
+	}
+  }
+
+  static void make_heap(iterator_type begin,
+		        iterator_type end,
+		        const Compare& comp)
+  {
+    random_sort(begin, end) ;    
+  }
+
+  static void push_heap(iterator_type begin,
+		        iterator_type end,
+		        const Compare& comp)
+  {
+    random_sort(begin, end) ;    
+  }
+
+  static void pop_heap(iterator_type begin,
+		       iterator_type end,
+		       const Compare& comp)
+  {
+    random_sort(begin, end) ;    
+  }
+
+} ;
+
+template<class T, class Compare>
+struct __pst_heap_for_priority_queue<T, Compare, vector<T> >
+{
+   typedef __ps_typename vector<T>::iterator iterator_type ;
+
+   static void make_heap(iterator_type begin,
+                         iterator_type end,
+                         const Compare& comp)
+   {
+      ; // already random
+   }
+
+   static void pop_heap(iterator_type begin,
+                        iterator_type end,
+                        const Compare& comp)
+   {
+      ; // already random
+   }
+
+   static void push_heap(iterator_type begin,
+                         iterator_type end,
+                         const Compare& comp)
+   {
+      ; // already random
+   }
+
+} ;
+
+
+template<class T, class Compare>
+struct __pst_heap_for_priority_queue<T, Compare, deque<T> >
+{
+   typedef __ps_typename deque<T>::iterator iterator_type ;
+
+   static void make_heap(iterator_type begin,
+                         iterator_type end,
+                         const Compare& comp)
+   {
+      ; // already random
+   }
+
+   static void pop_heap(iterator_type begin,
+                        iterator_type end,
+                        const Compare& comp)
+   {
+      ; // already random
+   }
+
+   static void push_heap(iterator_type begin,
+                         iterator_type end,
+                         const Compare& comp)
+   {
+      ; // already random
+   }
+
+} ;
+
+
+   template<class T, class Container = vector<T>, 
+            class Compare = less < __ps_typename Container::value_type> >
+   class priority_queue
+   {
+   protected:
+      Container c ;
+      Compare  comp ;
+   public:
+      
+      typedef __ps_typename Container::value_type value_type ;
+      typedef __ps_typename Container::size_type  size_type ;  
+      typedef          Container             container_type ;
+ 
+      __ps_explicit priority_queue(const Compare&   x    = Compare(),
+                              const Container& cont = Container())
+       : c(cont), comp(x)
+      {
+	__pst_heap_for_priority_queue<T, Compare, Container>::make_heap(c.begin(), c.end(), comp) ;
+      }
+
+      template<class InputIterator>
+      priority_queue(InputIterator first, InputIterator last,
+                     const Compare&   x    = Compare(),
+                     const Container& cont = Container())
+       : c(cont), comp(x)
+      {
+        c.insert(c.end(), first, last) ;        
+        __pst_heap_for_priority_queue<T, Compare, Container>::make_heap(c.begin(), c.end(), comp) ;
+      }
+
+      __ps_bool empty() const
+      {
+         return c.empty() ;
+      }
+
+      size_type size() const
+      {
+         return c.size() ;
+      }
+
+      const value_type& top() const
+      {
+         return c.front() ;
+      }
+
+      void push(const value_type& x)
+      {
+         c.push_back(x) ;
+        __pst_heap_for_priority_queue<T, Compare, Container>::push_heap(c.begin(), c.end(), comp) ;
+      }
+
+      void pop()
+      {
+        __pst_heap_for_priority_queue<T, Compare, Container>::pop_heap(c.begin(), c.end(), comp) ;
+         c.pop_back() ;
+      }
+   } ;
+
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+
+}
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+
+#endif /* PST_STL_QUEUE */

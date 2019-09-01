@@ -1,0 +1,1627 @@
+/*
+ *
+ * This file and its contents are the property of The MathWorks, Inc.
+ * 
+ * This file contains confidential proprietary information.
+ * The reproduction, distribution, utilization or the communication
+ * of this file or any part thereof is strictly prohibited.
+ * Offenders will be held liable for the payment of damages.
+ *
+ * Copyright 1999-2012 The MathWorks, Inc.
+ *
+ */
+#ifndef PST_STL_ALGORITHM
+#define PST_STL_ALGORITHM
+
+
+#include <assert.h>
+#include <iterator>
+#include <type_traits>
+
+// Includes header <utility> for std::pair class definition
+#include <utility>
+
+#ifdef PST_VISUAL
+#pragma pack(push, 8)
+#endif
+
+#define _PST_EQUAL(val1, val2)  (val1==val2)
+#define _PST_DIFFER(val1, val2) (!_PST_EQUAL(val1, val2))
+
+namespace std {
+
+  // 25.1 Non-modifying sequence operations
+  
+  // 25.1.1 For_each
+  template <class InputIterator, class Function>
+  Function for_each(InputIterator first, InputIterator last, Function f) { 
+    while (first != last) {
+	f(*first);
+	++first;
+    }
+    return f; 
+  }
+  
+  // 25.1.2 Find
+  template <class InputIterator, class T>
+  InputIterator find (InputIterator first, InputIterator last, const T& value) {
+    while (first != last) {
+      if (_PST_EQUAL(*first, value))
+	break;
+      ++first;
+    }
+    return first;
+  }
+  
+  template <class InputIterator, class Predicate>
+  InputIterator find_if(InputIterator first, InputIterator last, Predicate pred) {
+    while (first != last) {
+      if (pred(*first) != __ps_false)
+        break;
+      ++first;
+    }
+    return first;
+  }
+
+
+  // 25.1.3 Find End
+  template <class ForwardIterator1, class ForwardIterator2>
+  ForwardIterator1
+  find_end (ForwardIterator1 first1, ForwardIterator1 last1,
+	    ForwardIterator2 first2, ForwardIterator2 last2) {
+    ForwardIterator1 retval = last1;
+    while (first1 != last1) {
+      ForwardIterator1 ptr1 = first1;
+      ForwardIterator2 ptr2 = first2;
+      while (ptr1 != last1 && ptr2 != last2) {
+	if (_PST_DIFFER(*ptr1, *ptr2))
+	  break;
+	++ptr1;
+	++ptr2;
+      }
+      if (ptr2 == last2)
+	retval = first1;
+      ++first1;
+    }
+    return retval;
+  }
+  
+  template <class ForwardIterator1, class ForwardIterator2, class BinaryPredicate>
+  ForwardIterator1
+  find_end (ForwardIterator1 first1, ForwardIterator1 last1,
+	    ForwardIterator2 first2, ForwardIterator2 last2, BinaryPredicate pred) {
+    ForwardIterator1 retval = last1;
+    while (first1 != last1) {
+      ForwardIterator1 ptr1 = first1;
+      ForwardIterator2 ptr2 = first2;
+      while (ptr1 != last1 && ptr2 != last2) {
+	if (pred(*ptr1, *ptr2) == __ps_false)
+	  break;
+	++ptr1;
+	++ptr2;
+      }
+      if (ptr2 == last2)
+	retval = first1;
+      ++first1;
+    }
+    return retval;
+  }
+
+  // 25.1.4 Find First
+  template <class ForwardIterator1, class ForwardIterator2>
+  ForwardIterator1
+  find_first_of (ForwardIterator1 first1, ForwardIterator1 last1,
+		 ForwardIterator2 first2, ForwardIterator2 last2) {
+    while (first1 != last1) {
+      ForwardIterator2 ptr = first2;
+      while (ptr != last2) {
+	if (_PST_EQUAL(*first1, *ptr))
+	  break;
+	++ptr;
+      }
+      if (ptr != last2)
+	break;
+      ++first1;
+    }
+    return first1;
+  }
+
+  template <class ForwardIterator1, class ForwardIterator2, class BinaryPredicate>
+  ForwardIterator1
+  find_first_of (ForwardIterator1 first1, ForwardIterator1 last1,
+		 ForwardIterator2 first2, ForwardIterator2 last2, BinaryPredicate pred) {
+    while (first1 != last1) {
+      ForwardIterator2 ptr = first2;
+      while (ptr != last2) {
+	if (pred(*first1, *ptr))
+	  break;
+	++ptr;
+      }
+      if (ptr != last2)
+	break;
+      ++first1;
+    }
+    return first1;
+  }
+
+
+  // 25.1.5 Adjacent Find
+  template <class ForwardIterator>
+  ForwardIterator adjacent_find(ForwardIterator first, ForwardIterator last) {
+    while (first != last) {
+       ForwardIterator tmp = first;
+       ++first;
+       if (first == last)
+	  break;
+       if (_PST_EQUAL(*tmp, *first))
+	  return tmp;
+    }
+    return first;
+  }
+
+  template <class ForwardIterator, class BinaryPredicate>
+  ForwardIterator adjacent_find(ForwardIterator first, ForwardIterator last, BinaryPredicate pred) {
+    while (first != last) {
+       ForwardIterator tmp = first;
+       ++first;
+       if (first == last)
+          break;
+       if (pred(*tmp, *first) != __ps_false)
+          return tmp;
+    }
+    return first;
+  }
+
+  // 25.1.6 Count
+  template <class InputIterator, class T>
+  __ps_typename iterator_traits<InputIterator>::difference_type
+  count(InputIterator first, InputIterator last, const T& value) {
+    __ps_typename iterator_traits<InputIterator>::difference_type cpt = 0;
+    while (first != last) {
+      if (_PST_EQUAL(*first, value))
+	++cpt;
+      ++first;
+    }
+    return cpt;
+  }
+
+  template <class InputIterator, class Predicate>
+  __ps_typename iterator_traits<InputIterator>::difference_type
+  count_if(InputIterator first, InputIterator last, const Predicate pred) {
+    __ps_typename iterator_traits<InputIterator>::difference_type cpt = 0;
+    while (first != last) {
+      if (pred(*first) != __ps_false)
+ 	++cpt;
+      ++first;
+    }
+    return cpt;
+  }
+
+  // 25.1.7 Mismatch 
+  template <class InputIterator1, class InputIterator2>
+  pair<InputIterator1,InputIterator2>
+  mismatch(InputIterator1 first1, InputIterator1 last1,
+	   InputIterator2 first2) {
+    while (first1 != last1) {
+	if (_PST_DIFFER(*first1, *first2))
+	    break;
+  	++first1;
+	++first2;
+    }
+    return pair<InputIterator1,InputIterator2>(first1, first2);
+  }
+
+  template <class InputIterator1, class InputIterator2, class BinaryPredicate>
+  pair<InputIterator1,InputIterator2>
+  mismatch(InputIterator1 first1, InputIterator1 last1,
+	   InputIterator2 first2, BinaryPredicate pred) {
+    while (first1 != last1) {
+        if (pred(*first1, *first2) == __ps_false)
+            break;
+        ++first1;
+        ++first2;
+    }
+    return pair<InputIterator1,InputIterator2>(first1, first2);
+  }
+
+
+  // 25.1.8 equal
+  template<class InputIterator1, class InputIterator2>
+  __ps_bool equal (InputIterator1 first1, InputIterator1 last1, 
+	      InputIterator2 first2)
+  {
+    while (first1 != last1) {
+	if (_PST_DIFFER(*first1, *first2))
+	    return __ps_false;
+	++first1;
+	++first2;
+    }
+    return __ps_true;
+  }
+
+
+  template<class InputIterator1, class InputIterator2, class BinaryPredicate>
+  __ps_bool equal (InputIterator1 first1, InputIterator1 last1, InputIterator2 first2, BinaryPredicate pred)
+  {
+    while (first1 != last1) {
+  	if (pred(*first1, *first2) == __ps_false)
+	    return __ps_false;
+	++first1;
+	++first2;
+    }
+    return __ps_true;
+  }
+
+  // 25.1.9 Search
+  template <class ForwardIterator1, class ForwardIterator2>
+  ForwardIterator1 search(ForwardIterator1 first1, ForwardIterator1 last1,
+			  ForwardIterator2 first2, ForwardIterator2 last2) {
+    while (first1 != last1) {
+      ForwardIterator1 ptr1 = first1;
+      ForwardIterator2 ptr2 = first2;
+      while (ptr1 != last1 && ptr2 != last2) {
+	if (_PST_DIFFER(*ptr1, *ptr2))
+	  break;
+	++ptr1;
+	++ptr2;
+      }
+      if (ptr2 == last2)
+	break;
+      ++first1;
+    }
+    return first1;
+  }
+
+  template <class ForwardIterator1, class ForwardIterator2, class BinaryPredicate>
+  ForwardIterator1 search(ForwardIterator1 first1, ForwardIterator1 last1,
+			  ForwardIterator2 first2, ForwardIterator2 last2,
+			  BinaryPredicate pred) {
+    while (first1 != last1) {
+      ForwardIterator1 ptr1 = first1;
+      ForwardIterator2 ptr2 = first2;
+      while (ptr1 != last1 && ptr2 != last2) {
+	if (pred(*ptr1, *ptr2) == __ps_false)
+	  break;
+	++ptr1;
+	++ptr2;
+      }
+      if (ptr2 == last2)
+	break;
+      ++first1;
+    }
+    return first1;
+  }
+
+
+  template <class ForwardIterator, class Size, class T, class BinaryPredicate>
+  ForwardIterator 
+  search_n(ForwardIterator first, ForwardIterator last, Size count, const T& value, BinaryPredicate pred) {
+    size_t count2;
+    count2 = count;
+    while ((count2 != 0) && (first != last)) {
+      if (pred(*first, value) == __ps_true)
+	 return first;
+      ++first;
+      count2--;
+    }
+    return last;
+  }
+
+  template <class ForwardIterator, class Size, class T>
+  ForwardIterator 
+  search_n(ForwardIterator first, ForwardIterator last, Size count, const T& value) {
+    size_t count2;
+    count2 = count;
+    while ((count2 != 0) && (first != last)) {
+      if (_PST_EQUAL(*first, value))
+         return first;
+      ++first;
+      count2--;
+    }
+    return last;
+  }
+
+
+
+  // 25.2 Mutating sequence operations
+
+  // 25.2.1 Copy
+  template <class InputIterator, class OutputIterator>
+  OutputIterator copy(InputIterator first, InputIterator last,
+		      OutputIterator result) {
+    while (first != last) {
+	*result = *first;
+	++result;
+	++first;
+    }
+    return result;
+  }
+
+  template <class BidirectionalIterator1, class BidirectionalIterator2>
+  BidirectionalIterator2
+  copy_backward(BidirectionalIterator1 first,
+		BidirectionalIterator1 last,
+		BidirectionalIterator2 result) {
+    while (last != first) {
+	last--;
+	result--;
+	*result = *last;
+    }
+    return result;
+  }
+
+  template<class ForwardIterator1, class ForwardIterator2>
+  ForwardIterator2
+  swap_ranges (ForwardIterator1 first1, ForwardIterator1 last1,
+	       ForwardIterator2 first2) {
+    while (first1 != last1) {
+	swap(*first1, *first2);
+	++first1;
+	++first2;
+    }
+    return (first2);
+  }
+
+  template<class ForwardIterator1, class ForwardIterator2>
+  void iter_swap(ForwardIterator1 a, ForwardIterator2 b) {
+    swap(*a, *b);
+  }
+ 
+  // 25.2.3 Transform
+  template <class InputIterator, class OutputIterator, class UnaryOperation>  
+  OutputIterator
+  transform(InputIterator first, InputIterator last,
+	    OutputIterator result, UnaryOperation op) {
+    while (first != last) {
+	*result = op(*first);
+	++first;
+	++result;
+    }
+    return result;
+  }
+
+
+  template <class InputIterator1, class InputIterator2, 
+            class OutputIterator, class BinaryOperation>  
+  OutputIterator
+  transform(InputIterator1 first1, InputIterator1 last1,
+	    InputIterator2 first2,
+	    OutputIterator result, BinaryOperation binary_op) {
+    while (first1 != last1) {
+	*result = binary_op(*first1, *first2);
+	++first1;
+	++first2;
+	++result;
+    }
+    return result;
+  }
+
+  // 25.2.4 Replace
+  template<class ForwardIterator, class T>
+  void replace (ForwardIterator first, ForwardIterator last, 
+		const T& old_value, const T& new_value) {
+     while (first != last) {
+	if (_PST_EQUAL(*first, old_value))
+	    *first = new_value;
+	++first;
+     }
+  }
+
+  template<class ForwardIterator, class Predicate, class T>
+  void replace_if (ForwardIterator first, ForwardIterator last, 
+		   Predicate pred, const T& new_value) {
+     while (first != last) {
+	if (pred(*first) != __ps_false)
+	    *first = new_value;
+	++first;
+     }
+  }
+
+  template <class InputIterator, class OutputIterator, class T>
+  OutputIterator replace_copy(InputIterator first, InputIterator last,
+			      OutputIterator result,
+			      const T& old_value, const T& new_value) {
+     while (first != last) {
+	if (_PST_EQUAL(*first, old_value))
+	    *result = new_value;
+ 	else
+	    *result = *first;
+	++first;
+	++result;
+     }
+     return result;
+  }
+
+  template <class Iterator, class OutputIterator, class Predicate, class T>
+  OutputIterator replace_copy_if(Iterator first, Iterator last,
+			      OutputIterator result,
+			      Predicate pred, const T& new_value) {
+     while (first != last) {
+        if (pred(*first) != __ps_false)
+            *result = new_value;
+        else
+            *result = *first;
+        ++first;
+        ++result;
+     }
+     return result;
+  }
+
+  // 25.2.5 Fill
+  template <class ForwardIterator, class T>
+  void fill(ForwardIterator first, ForwardIterator last, const T& value) {
+     while (first != last) {
+	*first = value;
+	++first;
+     }
+ }
+
+  template <class OutputIterator, class Size, class T>
+  void fill_n(OutputIterator first, Size n, const T& value) {
+    size_t n2;
+    n2 = n;
+    while (n2 != 0) {
+      *first = value;
+      ++first;
+      n2--;
+    }
+ }
+
+  // 25.2.6 Generate
+  template<class ForwardIterator, class Generator>
+  void generate(ForwardIterator first, ForwardIterator last,
+		Generator gen) {
+     while (first != last) {
+	*first = gen();
+	++first;
+     }
+  }
+
+  template<class OutputIterator, class Size, class Generator>
+  void generate_n(OutputIterator first, Size n,
+		Generator gen) {
+    size_t n2;
+    n2 = n;
+    while (n2 != 0) {
+      *first = gen();
+      ++first;
+      n2--;
+    }
+  }
+
+  // 25.2.7 Remove
+  template<class ForwardIterator, class T>
+  ForwardIterator remove(ForwardIterator first, ForwardIterator last,
+			 const T& value) {
+     ForwardIterator newlast = first;
+     while (first != last) {
+	if (_PST_DIFFER(*first, value)) {
+	   *newlast = *first;
+	   ++newlast;
+	}
+	++first;
+     }
+     return newlast;
+  }
+
+  template<class ForwardIterator, class Predicate>
+  ForwardIterator remove_if(ForwardIterator first, ForwardIterator last,
+			    Predicate pred) {
+     ForwardIterator newlast = first;
+     while (first != last) {
+        if (pred(*first) == __ps_false) {
+           *newlast = *first;
+           ++newlast;
+        }
+        ++first;
+     }
+     return newlast;
+  }
+
+  template <class InputIterator, class OutputIterator, class T>
+  OutputIterator
+  remove_copy (InputIterator first, InputIterator last, 
+	       OutputIterator result, const T& value) {
+     while (first != last) {
+	if (_PST_DIFFER(*first, value)) {
+	    *result = *first;
+	    ++result;
+	}
+	++first;
+     }
+     return result;
+  }
+
+  template <class InputIterator, class OutputIterator, class Predicate>
+  OutputIterator
+  remove_copy_if (InputIterator first, InputIterator last, 
+	       OutputIterator result, Predicate pred) {
+     while (first != last) {
+        if (pred(*first) == __ps_false) {
+            *result = *first;
+            ++result;
+        }
+        ++first;
+     }
+     return result;
+  }
+
+  // 25.2.8 Unique
+  template <class ForwardIterator>
+  ForwardIterator unique(ForwardIterator first, ForwardIterator last) {
+    if (first != last) {
+      ForwardIterator ptr = first;
+      ++ptr;
+      while (ptr != last) {
+	if (_PST_DIFFER(*ptr, *first)) {
+	  ++first;
+	  *first = *ptr;
+	}
+	++ptr;
+      }
+      ++first;
+    }
+    return first;
+  }
+
+  template <class ForwardIterator, class BinaryPredicate>
+  ForwardIterator unique(ForwardIterator first, ForwardIterator last,
+			 BinaryPredicate pred) {
+    if (first != last) {
+      ForwardIterator ptr = first;
+      ++ptr;
+      while (ptr != last) {
+	if (pred(*ptr, *first) == __ps_false) {
+	  ++first;
+	  *first = *ptr;
+	}
+	++ptr;
+      }
+      ++first;
+    }
+    return first;
+  }
+
+
+  /* Use a temporary iterator_traits<InputIterator>::value_type in all cases
+     only really usefull for output_iterator_tag : whe cannot get the value back with *results
+     no distinction for others tags : temporary values will be introduced by kernel anyway */
+
+  template <class InputIterator, class OutputIterator>
+  OutputIterator unique_copy(InputIterator first, InputIterator last, OutputIterator result) 
+  {
+    if (first != last) {
+      __ps_typename iterator_traits<InputIterator>::value_type tmp = *first;
+      *result = tmp ;
+      ++first;
+      while (first != last) {
+	if (_PST_DIFFER(tmp, *first)) {
+	  ++result;
+	  tmp = *first ;
+	  *result = tmp;
+	}
+	++first;
+      }
+      ++result;
+    }
+    return result;
+  }
+  
+  template <class InputIterator, class OutputIterator, class BinaryPredicate>
+  OutputIterator
+  unique_copy(InputIterator first, InputIterator last,
+	      OutputIterator result, BinaryPredicate pred) {
+    if (first != last) {
+      __ps_typename iterator_traits<InputIterator>::value_type tmp = *first;
+      *result = tmp;
+      ++first;
+      while (first != last) {
+	if (pred(tmp, *first) == __ps_false) {
+	  ++result;
+	  tmp = *first ;
+	  *result = tmp;
+	}
+	++first;
+      }
+      ++result;
+    }
+    return result;
+  }
+
+  template <class BidirectionalIerator>
+  void reverse (BidirectionalIerator first, BidirectionalIerator last) {
+     while (first != last) {
+	last--;
+	if (first == last)
+	    break;
+	swap(*first, *last);
+	++first;
+     }
+  }
+
+  template <class BidirectionalIerator, class OutputIterator>
+  OutputIterator
+  reverse_copy (BidirectionalIerator first, BidirectionalIerator last,
+		OutputIterator result) {
+    while (first != last) {
+	last--;
+	*result = *last;
+	++result;
+    }
+    return result ;
+  }
+
+  // 25.2.10 Rotate
+  template <class ForwardIterator>
+  void rotate(ForwardIterator first, ForwardIterator middle,
+	      ForwardIterator last) {
+     volatile int pst_random = 1;
+     ForwardIterator ptr = first;
+     while (ptr != last) {
+	ForwardIterator dst = first;
+	while (pst_random && dst != last) {
+	    ++dst;
+   	}
+	swap(*dst, *ptr);
+	++ptr;
+     }
+  }
+    
+  template <class ForwardIterator, class OutputIterator>
+  OutputIterator
+  rotate_copy(ForwardIterator first, ForwardIterator middle,
+	      ForwardIterator last, OutputIterator result) {
+    ForwardIterator ptr = first;
+    while (ptr != last) {
+	*result = *middle;
+	++result;
+	++ptr;
+	++middle;
+	if (middle == last)
+	   middle = first;
+    }
+    return (result);
+  }
+
+  template <class RandomAccessIterator>
+  void random_shuffle(RandomAccessIterator first,
+		      RandomAccessIterator last) {
+     volatile int pst_random = 1;
+     RandomAccessIterator ptr = first;
+     while (ptr != last) {
+        RandomAccessIterator dst = first;
+        while (pst_random && dst != last) {
+            ++dst;
+        }
+        swap(*dst, *ptr);
+        ++ptr;
+     }
+  }
+
+  template <class RandomAccessIterator, class RandomNumberGenerator>
+  void random_shuffle(RandomAccessIterator first, RandomAccessIterator last,
+		      RandomNumberGenerator& rand) {
+     RandomAccessIterator ptr = first;
+     // Compute the size of the range.
+     volatile __ps_typename iterator_traits<RandomAccessIterator>::difference_type n = 0;
+     ptr = first;
+     while (ptr != last) {
+        RandomAccessIterator dst = first;
+	__ps_typename iterator_traits<RandomAccessIterator>::difference_type i;
+	i = rand(n);
+        while (i > 0 && dst != last) {
+	  --i;
+	  ++dst;
+        }
+        swap(*dst, *ptr);
+        ++ptr;
+     }
+  }
+
+  // 25.2.12 Partitions
+  template<class BidirectionalIterator, class Predicate>
+  BidirectionalIterator
+  partition(BidirectionalIterator first, BidirectionalIterator last,
+	    Predicate pred) {
+     BidirectionalIterator ptr = first;
+     while (ptr != last) {
+       if (pred(*ptr) == __ps_false) {
+	 BidirectionalIterator ptr2 = ptr;
+	 while (ptr2 != last) {
+	   if (pred(*ptr2))
+	     swap(*ptr, *ptr2);
+	   ++ptr2;
+	 }
+	 if (ptr2 == last)
+	   break;
+       }
+       ++ptr;
+     }
+     return ptr;
+  }
+
+  template<class BidirectionalIterator, class Predicate>
+  BidirectionalIterator
+  stable_partition(BidirectionalIterator first, BidirectionalIterator last,
+	    Predicate pred) {
+     BidirectionalIterator ptr = first;
+     while (ptr != last) {
+       if (pred(*ptr) == __ps_false) {
+	 BidirectionalIterator ptr2 = ptr;
+	 while (ptr2 != last) {
+	   if (pred(*ptr2))
+	     swap(*ptr, *ptr2);
+	   ++ptr2;
+	 }
+	 if (ptr2 == last)
+	   break;
+       }
+       ++ptr;
+     }
+     return ptr;
+  }
+
+
+  // 25.3 Sorting and related operations
+  // 25.3.1 Sort
+  template <class RandomAccessIterator>
+  void sort(RandomAccessIterator first, RandomAccessIterator last) {
+     volatile int pst_random = 1;
+     RandomAccessIterator ptr = first;
+     RandomAccessIterator dst = first;
+     while (ptr != last) {
+        dst = first;
+        while (pst_random && dst != last) {
+            ++dst;
+        }
+        swap(*dst, *ptr);
+        ++ptr;
+     }
+  }
+
+  template <class RandomAccessIterator, class Compare>
+  void sort(RandomAccessIterator first, RandomAccessIterator last, Compare comp) {
+     volatile __ps_bool pst_random = __ps_true;
+     RandomAccessIterator ptr = first;
+     RandomAccessIterator dst = first;
+     while (ptr != last) {
+        dst = first;
+        while (comp(*ptr, *dst) == pst_random && dst != last) {
+            ++dst;
+        }
+	swap(*dst, *ptr);
+        ++ptr;
+     }
+  }
+
+  template <class RandomAccessIterator>
+  void stable_sort(RandomAccessIterator first, RandomAccessIterator last) {
+     volatile int pst_random = 1;
+     RandomAccessIterator ptr = first;
+     RandomAccessIterator dst = first;
+     while (ptr != last) {
+        dst = first;
+        while (pst_random && dst != last) {
+            ++dst;
+        }
+        swap(*dst, *ptr);
+        ++ptr;
+     }
+  }
+
+  template <class RandomAccessIterator, class Compare>
+  void stable_sort(RandomAccessIterator first, RandomAccessIterator last, Compare comp) {
+     volatile __ps_bool pst_random = __ps_true;
+     RandomAccessIterator ptr = first;
+     RandomAccessIterator dst = first;
+     while (ptr != last) {
+        dst = first;
+        while (comp(*ptr, *dst) == pst_random && dst != last) {
+            ++dst;
+        }
+	swap(*dst, *ptr);
+        ++ptr;
+     }
+  }
+
+
+  // 25.3.1.3 Partial sort
+  template <class RandomAccessIterator>
+  void partial_sort(RandomAccessIterator first, 
+		    RandomAccessIterator middle, 
+		    RandomAccessIterator last) {
+     volatile int pst_random = 1;
+     RandomAccessIterator ptr = first;
+     RandomAccessIterator dst = first;
+     while (ptr != last) {
+        dst = first;
+        while (pst_random && dst != last) {
+            ++dst;
+        }
+        swap(*dst, *ptr);
+        ++ptr;
+     }
+  }
+
+  template <class RandomAccessIterator, class Compare>
+  void partial_sort(RandomAccessIterator first, 
+		    RandomAccessIterator middle, 
+		    RandomAccessIterator last, Compare comp) {
+     volatile __ps_bool pst_random = __ps_true;
+     RandomAccessIterator ptr = first;
+     RandomAccessIterator dst = first;
+     while (ptr != last) {
+        dst = first;
+        while (comp(*ptr, *dst) == pst_random && dst != last) {
+            ++dst;
+        }
+	swap(*dst, *ptr);
+        ++ptr;
+     }
+  }
+
+  // 25.3.1.4 partial_sort_copy
+  template <class InputIterator, class RandomAccessIterator>
+  RandomAccessIterator
+  partial_sort_copy(InputIterator first, InputIterator last,
+		    RandomAccessIterator result_first,
+		    RandomAccessIterator result_last) {
+    InputIterator ptr = first;
+    while (ptr != last && result_first != result_last) {
+	volatile int pst_random = 1;
+	InputIterator src = first;
+   	while (pst_random && src != last) {
+	    ++src;
+	}
+	*result_first = *src;
+	++result_first;
+	++ptr;
+    }
+    return result_first;
+  }
+
+  template <class InputIterator, class RandomAccessIterator, class Compare>
+  RandomAccessIterator
+  partial_sort_copy(InputIterator first, InputIterator last,
+		    RandomAccessIterator result_first,
+		    RandomAccessIterator result_last, Compare comp) {
+    InputIterator ptr = first;
+    while (ptr != last) {
+        volatile __ps_bool pst_random = __ps_true;
+        InputIterator src = first;
+        while (src != last) {
+	  if (comp(*ptr, *src) == pst_random)
+	    break;
+	  ++src;
+        }
+        *result_first = *src;
+        ++result_first;
+        if (result_first == result_last)
+            break;
+        ++ptr;
+    }
+    return result_first;
+  }
+
+  // 25.3.3 Nth Element
+  template <class RandomAccessIterator>
+  void nth_element(RandomAccessIterator first, RandomAccessIterator nth,
+		   RandomAccessIterator last) {
+     volatile int pst_random = 1;
+     RandomAccessIterator ptr = first;
+     RandomAccessIterator dst = first;
+     while (ptr != last) {
+        dst = first;
+        while (pst_random && dst != last) {
+            ++dst;
+        }
+        swap(*dst, *ptr);
+        ++ptr;
+     }
+  }
+
+  template <class RandomAccessIterator, class Compare>
+  void nth_element(RandomAccessIterator first, RandomAccessIterator nth,
+		   RandomAccessIterator last, Compare comp) {
+     volatile __ps_bool pst_random = __ps_true;
+     RandomAccessIterator ptr = first;
+     RandomAccessIterator dst = first;
+     while (ptr != last) {
+        dst = first;
+        while (dst != last) {
+	  if (comp(*ptr, *dst) == pst_random)
+	    break;
+	  ++dst;
+        }
+        swap(*dst, *ptr);
+        ++ptr;
+     }
+  }
+
+  // 25.3.3 Binary search
+  // 25.3.3.1 lower_bound
+  template<class ForwardIterator, class T>
+  ForwardIterator
+  lower_bound(ForwardIterator first, ForwardIterator last,
+	      const T& value) {
+    while (first != last && *first < value)
+      ++first;
+    return first;
+  }
+  
+  template<class ForwardIterator, class T, class Compare>
+  ForwardIterator
+  lower_bound(ForwardIterator first, ForwardIterator last,
+	      const T& value, Compare comp) {
+    while (first != last && (comp(*first, value) == __ps_true))
+      ++first;
+    return first;
+  }
+  
+  // 25.3.3.2 upper_bound
+  template<class ForwardIterator, class T>
+  ForwardIterator
+  upper_bound(ForwardIterator first, ForwardIterator last,
+	      const T& value) {
+    while (first != last && (! (value < *first)))
+      ++first;
+    return first;
+  }
+  
+  template<class ForwardIterator, class T, class Compare>
+  ForwardIterator
+  upper_bound(ForwardIterator first, ForwardIterator last,
+	      const T& value, Compare comp) {
+    while (first != last && (comp(*first, value) == __ps_false))
+      ++first;
+    return first;
+  }
+  
+  // 25.3.3.3 equal_range
+  template <class ForwardIterator, class T>
+  pair<ForwardIterator,ForwardIterator>
+  equal_range(ForwardIterator first,
+	      ForwardIterator last, const T& value) {
+    while (first != last &&
+	   ((*first < value) || (value < *first))) {
+      ++first;
+    }
+    ForwardIterator ptr = first;
+    while (ptr != last && 
+	   !(*ptr < value) && !(value < *ptr))
+      ++ptr;
+    return (pair<ForwardIterator,ForwardIterator>(first, ptr));
+  }
+
+  template <class ForwardIterator, class T, class Compare>
+  pair<ForwardIterator,ForwardIterator>
+  equal_range(ForwardIterator first, ForwardIterator last, 
+	      const T& value, Compare comp) {
+    while (first != last &&
+	   (comp(*first, value) || comp(value, *first))) {
+      ++first;
+    }
+    ForwardIterator ptr = first;
+    while (ptr != last && 
+	   comp(*ptr, value) == __ps_false && comp(value, *ptr) == __ps_false)
+      ++ptr;
+    return (pair<ForwardIterator,ForwardIterator>(first, ptr));
+  }
+
+  // 25.3.3.4 Binary search
+  template <class ForwardIterator, class T>
+  __ps_bool binary_search(ForwardIterator first, ForwardIterator last, const T& value) {
+     while (first != last) {
+	if (!(*first < value) && !(value < *first))
+	   return __ps_true;
+	++first;
+     }
+     return __ps_false;
+  }
+
+  template <class ForwardIterator, class T, class Compare>
+  __ps_bool binary_search(ForwardIterator first, ForwardIterator last, 
+		     const T& value, Compare comp) {
+     while (first != last) {
+	if (comp(*first, value) == __ps_false && comp(value, *first) == __ps_false)
+	    return __ps_true;
+	++first;
+     }
+     return __ps_false;
+  }    
+
+
+  // 25.3.4 Merge
+  template <class InputIterator1, class InputIterator2, class OutputIterator>
+  OutputIterator
+  merge(InputIterator1 first1, InputIterator1 last1,
+	InputIterator2 first2, InputIterator2 last2,
+	OutputIterator result) {
+    volatile int pst_random = 1;
+    while (pst_random) {
+	if (pst_random && first1 != last1) {
+	   *result = *first1;
+	   ++first1;
+	} else if (first2 != last2) {
+	   *result = *first2;
+	   ++first2;
+	}
+	++result;
+    }
+    return result;
+  }
+    
+  template <class InputIterator1, class InputIterator2, 
+    class OutputIterator, class Compare>
+  OutputIterator
+  merge(InputIterator1 first1, InputIterator1 last1,
+	InputIterator2 first2, InputIterator2 last2,
+	OutputIterator result, Compare comp) {
+    volatile __ps_bool pst_random = __ps_true;
+    while (pst_random) {
+        if (comp(*first1, *first2) == pst_random && 
+	    first1 != last1) {
+           *result = *first1;
+           ++first1;
+        } else if (first2 != last2) {
+           *result = *first2;
+           ++first2;
+        }
+        ++result;
+    }
+    return result;
+  }  
+  
+  template<class BidirectionalIterator>
+  void inplace_merge(BidirectionalIterator first,
+		     BidirectionalIterator middle,
+		     BidirectionalIterator last) {
+     volatile int pst_random = 1;
+     BidirectionalIterator ptr = first;
+     BidirectionalIterator dst = first;
+     while (ptr != last) {
+        dst = first;
+        while (pst_random && dst != last) {
+            ++dst;
+        }
+        swap(*dst, *ptr);
+        ++ptr;
+     }
+  }
+  
+  template<class BidirectionalIterator, class Compare>
+  void inplace_merge(BidirectionalIterator first,
+		     BidirectionalIterator middle,
+		     BidirectionalIterator last, Compare comp) {
+     volatile __ps_bool pst_random = __ps_true;
+     BidirectionalIterator ptr = first;
+     BidirectionalIterator dst = first;
+     while (ptr != last) {
+        dst = first;
+        while (comp(*ptr, *dst) == pst_random && dst != last) {
+            ++dst;
+        }
+        swap(*dst, *ptr);
+        ++ptr;
+     }
+  }
+  
+  // 25.3.5 Set operations on sorted structures
+  // 25.3.5.1 includes
+  template <class InputIterator1, class InputIterator2>
+  __ps_bool includes (InputIterator1 first1, InputIterator1 last1,
+		 InputIterator2 first2, InputIterator2 last2) {
+    while (first2 != last2) {
+      InputIterator1 ptr = first1;
+      while (ptr != last1) {
+	if (_PST_EQUAL(*ptr, *first2))
+	  break;
+	++ptr;
+      }
+      if (ptr == last1)
+	break;
+      ++first2;
+    }
+    if (first2 == last2)
+      return __ps_true;
+    return __ps_false;
+  }
+
+  template <class InputIterator1, class InputIterator2, class Compare>
+  __ps_bool includes (InputIterator1 first1, InputIterator1 last1,
+		 InputIterator2 first2, InputIterator2 last2, Compare comp) {
+    while (first2 != last2) {
+      InputIterator1 ptr = first1;
+      while (ptr != last1) {
+	if (comp(*ptr, *first2) == __ps_true)
+	  break;
+	++ptr;
+      }
+      if (ptr == last1)
+	break;
+      ++first2;
+    }
+    if (first2 == last2)
+      return __ps_true;
+    return __ps_false;
+  }
+
+  template <class InputIterator1, class InputIterator2,
+           class OutputIterator>
+  OutputIterator
+  set_union (InputIterator1 first1, InputIterator1 last1,
+	     InputIterator2 first2, InputIterator2 last2, OutputIterator result) {
+     volatile __ps_bool pst_random = __ps_true;
+     while (pst_random) {
+       InputIterator1 ptr1 = first1;
+       while (pst_random && ptr1 != last1)
+	 ++ptr1;
+       InputIterator2 ptr2 = first2;
+       while (pst_random && ptr2 != last2)
+	 ++ptr2;
+       if (pst_random)
+	 *result = *ptr1;
+       else
+	 *result = *ptr2;
+       ++result;
+     }
+     return result;
+  }
+
+  template <class InputIterator1, class InputIterator2,
+           class OutputIterator, class Compare>
+  OutputIterator
+  set_union (InputIterator1 first1, InputIterator1 last1,
+	     InputIterator2 first2, InputIterator2 last2, 
+	     OutputIterator result, Compare comp) {
+     volatile __ps_bool pst_random = __ps_true;
+     while (pst_random) {
+       InputIterator1 ptr1 = first1;
+       while (pst_random && ptr1 != last1)
+	 ++ptr1;
+       InputIterator2 ptr2 = first2;
+       while (pst_random && ptr2 != last2)
+	 ++ptr2;
+       if (comp(*ptr1, *ptr2) == pst_random)
+	 *result = *ptr1;
+       else
+	 *result = *ptr2;
+       ++result;
+     }
+     return result;
+  }
+
+  template <class InputIterator1, class InputIterator2,
+           class OutputIterator>
+  OutputIterator
+  set_intersection (InputIterator1 first1, InputIterator1 last1,
+	     InputIterator2 first2, InputIterator2 last2, OutputIterator result) {
+     volatile __ps_bool pst_random = __ps_true;
+     while (pst_random) {
+       InputIterator1 ptr1 = first1;
+       while (pst_random && ptr1 != last1)
+	 ++ptr1;
+       InputIterator2 ptr2 = first2;
+       while (pst_random && ptr2 != last2)
+	 ++ptr2;
+       if (pst_random)
+	 *result = *ptr1;
+       else
+	 *result = *ptr2;
+       ++result;
+     }
+     return result;
+  }
+
+  template <class InputIterator1, class InputIterator2,
+           class OutputIterator, class Compare>
+  OutputIterator
+  set_intersection (InputIterator1 first1, InputIterator1 last1,
+	     InputIterator2 first2, InputIterator2 last2, OutputIterator result, Compare comp) {
+     volatile __ps_bool pst_random = __ps_true;
+     while (pst_random) {
+       InputIterator1 ptr1 = first1;
+       while (pst_random && ptr1 != last1)
+	 ++ptr1;
+       InputIterator2 ptr2 = first2;
+       while (pst_random && ptr2 != last2)
+	 ++ptr2;
+       if (comp(*ptr1, *ptr2) == pst_random)
+	 *result = *ptr1;
+       else
+	 *result = *ptr2;
+       ++result;
+     }
+     return result;
+  }
+
+  // 25.3.5.4 set_difference
+  template <class InputIterator1, class InputIterator2,
+           class OutputIterator>
+  OutputIterator
+  set_difference (InputIterator1 first1, InputIterator1 last1,
+	     InputIterator2 first2, InputIterator2 last2, OutputIterator result) {
+     volatile __ps_bool pst_random = __ps_true;
+     while (pst_random) {
+       InputIterator1 ptr1 = first1;
+       while (pst_random && ptr1 != last1)
+	 ++ptr1;
+       InputIterator2 ptr2 = first2;
+       while (pst_random && ptr2 != last2)
+	 ++ptr2;
+       if (pst_random) {
+	 *result = *ptr1;
+	 ++result;
+       }
+     }
+     return result;
+  }
+
+  template <class InputIterator1, class InputIterator2,
+           class OutputIterator, class Compare>
+  OutputIterator
+  set_difference (InputIterator1 first1, InputIterator1 last1,
+		  InputIterator2 first2, InputIterator2 last2,
+		  OutputIterator result, Compare comp) {
+     volatile __ps_bool pst_random = __ps_true;
+     while (pst_random) {
+       InputIterator1 ptr1 = first1;
+       while (pst_random && ptr1 != last1)
+	 ++ptr1;
+       InputIterator2 ptr2 = first2;
+       while (pst_random && ptr2 != last2)
+	 ++ptr2;
+       if (comp(*ptr1, *ptr2) == pst_random) {
+	 *result = *ptr1;
+	 ++result;
+       }
+     }
+     return result;
+  }
+
+  // 25.3.5.5 set_symmetric_difference
+  template <class InputIterator1, class InputIterator2,
+           class OutputIterator>
+  OutputIterator
+  set_symmetric_difference (InputIterator1 first1, InputIterator1 last1,
+	     InputIterator2 first2, InputIterator2 last2, OutputIterator result) {
+     volatile __ps_bool pst_random = __ps_true;
+     while (pst_random) {
+       InputIterator1 ptr1 = first1;
+       while (pst_random && ptr1 != last1)
+	 ++ptr1;
+       InputIterator2 ptr2 = first2;
+       while (pst_random && ptr2 != last2)
+	 ++ptr2;
+       if (pst_random)
+	 *result = *ptr1;
+       else
+	 *result = *ptr2;
+       ++result;
+     }
+     return result;
+  }
+
+  template <class InputIterator1, class InputIterator2,
+           class OutputIterator, class Compare>
+  OutputIterator
+  set_symmetric_difference (InputIterator1 first1, InputIterator1 last1,
+	     InputIterator2 first2, InputIterator2 last2, OutputIterator result, Compare comp) {
+     volatile __ps_bool pst_random = __ps_true;
+     while (pst_random) {
+       InputIterator1 ptr1 = first1;
+       while (pst_random && ptr1 != last1)
+	 ++ptr1;
+       InputIterator2 ptr2 = first2;
+       while (pst_random && ptr2 != last2)
+	 ++ptr2;
+       if (comp(*ptr1, *ptr2) == pst_random)
+	 *result = *ptr1;
+       else
+	 *result = *ptr2;
+       ++result;
+     }
+     return result;
+  }
+
+  // 25.3.6 Heap operations
+  // 25.3.6.1 push_heap
+  template <class RandomAccessIterator>
+  void push_heap (RandomAccessIterator first, RandomAccessIterator last) {
+     while (first != last) {
+	volatile int pst_random = 1;
+	RandomAccessIterator ptr = first;
+	while (pst_random && ptr != last)
+	    ++ptr;
+	swap(*first, *ptr);
+	++first;
+     }
+  } 
+
+  template <class RandomAccessIterator, class Compare>
+  void push_heap (RandomAccessIterator first, RandomAccessIterator last, Compare comp) {
+     while (first != last) {
+        volatile __ps_bool pst_random = __ps_true;
+        RandomAccessIterator ptr = first;
+        while (comp(*first, *ptr) == pst_random && ptr != last)
+            ++ptr;
+        swap(*first, *ptr);
+        ++first;
+     }
+  } 
+
+  // 25.3.6.2 pop_heap
+  template <class RandomAccessIterator>
+  void pop_heap (RandomAccessIterator first, RandomAccessIterator last) {
+     RandomAccessIterator ptr = first;
+     swap(*first, *(last - 1));
+     while (ptr != last) {
+        volatile int pst_random = 1;
+        RandomAccessIterator src = first;
+        while (pst_random && src != last)
+            ++src;
+        swap(*src, *ptr);
+        ++ptr;
+     }
+  } 
+
+  template <class RandomAccessIterator, class Compare>
+  void pop_heap (RandomAccessIterator first, RandomAccessIterator last, Compare comp) {
+     RandomAccessIterator ptr = first;
+     swap(*first, *(last - 1));
+     while (ptr != last) {
+        volatile __ps_bool pst_random = __ps_true;
+        RandomAccessIterator src = first;
+        while (comp(*ptr, *src) == pst_random && src != last)
+            ++src;
+        swap(*src, *ptr);
+        ++ptr;
+     }
+  } 
+
+  // 25.3.6.3 make_heap
+  template <class RandomAccessIterator>
+  void make_heap (RandomAccessIterator first, RandomAccessIterator last) {
+     RandomAccessIterator ptr = first;
+     while (ptr != last) {
+        volatile int pst_random = 1;
+        RandomAccessIterator src = first;
+        while (pst_random && src != last)
+            ++src;
+        swap(*src, *ptr);
+        ++ptr;
+     }
+  } 
+
+  template <class RandomAccessIterator, class Compare>
+  void make_heap (RandomAccessIterator first, RandomAccessIterator last, Compare comp) {
+     RandomAccessIterator ptr = first;
+     while (ptr != last) {
+        volatile __ps_bool pst_random = __ps_true;
+        RandomAccessIterator src = first;
+        while (comp(*ptr, *src) == pst_random && src != last)
+            ++src;
+        swap(*src, *ptr);
+        ++ptr;
+     }
+  }
+ 
+  // 25.3.6.4 sort_heap
+  template <class RandomAccessIterator>
+  void sort_heap (RandomAccessIterator first, RandomAccessIterator last) {
+     RandomAccessIterator ptr = first;
+     while (ptr != last) {
+        volatile int pst_random = 1;
+        RandomAccessIterator src = first;
+        while (pst_random && src != last)
+            ++src;
+        swap(*src, *ptr);
+        ++ptr;
+     }
+  } 
+
+  template <class RandomAccessIterator, class Compare>
+  void sort_heap (RandomAccessIterator first, RandomAccessIterator last, Compare comp) {
+     RandomAccessIterator ptr = first;
+     while (ptr != last) {
+        volatile __ps_bool pst_random = __ps_true;
+        RandomAccessIterator src = first;
+        while (comp(*ptr, *src) == pst_random && src != last)
+            ++src;
+        swap(*src, *ptr);
+        ++ptr;
+     }
+  }
+
+  // 25.3.7 Minimum and maximum
+
+#ifdef PST_VISUAL
+#pragma push_macro("max")
+#pragma push_macro("min")
+#endif
+
+/* undefined it ! */
+#undef min
+#undef max
+
+   template <class T> const T& min(const T& a, const T& b) {
+     return (a<b)?a:b;
+   }
+
+  template <class T, class Compare> 
+  const T& min(const T& a, const T& b, Compare comp) {
+    return (comp(a, b) == __ps_true) ? a : b;
+  }
+
+  template <class T> const T& max(const T& a, const T& b) {
+    return (a<b?b:a);
+  }
+
+  template <class T, class Compare> 
+  const T& max(const T& a, const T& b, Compare comp) {
+    return (comp(a, b) == __ps_true) ? b : a;
+  }
+
+#ifdef PST_VISUAL
+#pragma pop_macro("max")
+#pragma pop_macro("min")
+#endif
+
+  template <class ForwardIterator>
+  ForwardIterator min_element(ForwardIterator first, ForwardIterator last) {
+    ForwardIterator retval = first;
+    if (first != last)
+      ++first;
+    while (first != last) {
+      if (! (*first < *retval))
+        retval = first;
+      ++first;
+    }
+    return retval;
+  }
+
+  template <class ForwardIterator, class Compare>
+  ForwardIterator min_element(ForwardIterator first, ForwardIterator last, Compare comp) {
+    ForwardIterator retval = first;
+    if (first != last)
+      ++first;
+    while (first != last) {
+      if (comp(*first, *retval) != __ps_false)
+	retval = first;
+      ++first;
+    }
+    return retval;
+  }
+
+  template <class ForwardIterator>
+  ForwardIterator max_element(ForwardIterator first, ForwardIterator last) {
+    ForwardIterator retval = first;
+    if (first != last)
+      ++first;
+    while (first != last) {
+      if (! (*retval < *first))
+        retval = first;
+      ++first;
+    }
+    return retval;
+  }
+
+  template <class ForwardIterator, class Compare>
+  ForwardIterator max_element(ForwardIterator first, ForwardIterator last, Compare comp) {
+    ForwardIterator retval = first;
+    if (first != last)
+      ++first;
+    while (first != last) {
+      if (comp(*retval, *first) != __ps_false)
+	retval = first;
+      ++first;
+    }
+    return retval;
+  }
+
+  // 25.3.8 Lexicographical comparison
+
+  template <class InputIterator1, class InputIterator2>
+  __ps_bool
+  lexicographical_compare (InputIterator1 first1, InputIterator1 last1,
+			   InputIterator2 first2, InputIterator2 last2) {
+    while (first1 != last1 &&
+	   first2 != last2 &&
+	   _PST_EQUAL(*first1, *first2)) {
+      ++first1;
+      ++first2;
+    }
+    return first2 == last2 ? __ps_false : first1 == last1 || *first1 < *first2;
+  }
+
+  template <class InputIterator1, class InputIterator2, class Compare>
+  __ps_bool
+  lexicographical_compare (InputIterator1 first1, InputIterator1 last1,
+			   InputIterator2 first2, InputIterator2 last2, Compare comp) {
+    while (first1 != last1 &&
+           first2 != last2 &&
+           comp(*first1, *first2)) {
+      ++first1;
+      ++first2;
+    }
+    return first2 == last2 ? __ps_false : first1 == last1 || !comp(*first1, *first2);
+  }
+
+  // 25.3.9 Permutation generators
+  template <class BidirectionalIterator>
+  __ps_bool next_permutation(BidirectionalIterator first,
+			BidirectionalIterator last) {
+     volatile __ps_bool pst_random = __ps_true;
+     BidirectionalIterator ptr = first;
+     while (ptr != last) {
+        BidirectionalIterator src = first;
+        while (pst_random && src != last)
+            ++src;
+        swap(*src, *ptr);
+        ++ptr;
+     }
+     return pst_random;
+  }
+
+  template <class BidirectionalIterator, class Compare>
+  __ps_bool next_permutation(BidirectionalIterator first,
+			BidirectionalIterator last, Compare comp) {
+     volatile __ps_bool pst_random = __ps_true;
+     BidirectionalIterator ptr = first;
+     while (ptr != last) {
+        BidirectionalIterator src = first;
+        while (comp(*ptr, *src) == pst_random && src != last)
+            ++src;
+        swap(*src, *ptr);
+        ++ptr;
+     }
+     return pst_random;
+  }
+
+  template <class BidirectionalIterator>
+  __ps_bool prev_permutation(BidirectionalIterator first,
+			BidirectionalIterator last) {
+     volatile __ps_bool pst_random = __ps_true;
+     BidirectionalIterator ptr = first;
+     while (ptr != last) {
+        BidirectionalIterator src = first;
+        while (pst_random && src != last)
+            ++src;
+        swap(*src, *ptr);
+        ++ptr;
+     }
+     return pst_random;
+  }
+
+  template <class BidirectionalIterator, class Compare>
+  __ps_bool prev_permutation(BidirectionalIterator first,
+			BidirectionalIterator last, Compare comp) {
+     volatile __ps_bool pst_random = __ps_true;
+     BidirectionalIterator ptr = first;
+     while (ptr != last) {
+        BidirectionalIterator src = first;
+        while (comp(*ptr, *src) == pst_random && src != last)
+            ++src;
+        swap(*src, *ptr);
+        ++ptr;
+     }
+     return pst_random;
+  }
+
+}
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+
+#undef _PST_EQUAL
+#undef _PST_DIFFER
+
+#ifdef PST_VISUAL
+#pragma pack(pop)
+#endif
+
+#endif /* PST_STL_ALGORITHM */

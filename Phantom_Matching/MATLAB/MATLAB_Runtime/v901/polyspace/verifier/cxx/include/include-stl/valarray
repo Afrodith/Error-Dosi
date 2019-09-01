@@ -1,0 +1,812 @@
+/*
+ *
+ * This file and its contents are the property of The MathWorks, Inc.
+ * 
+ * This file contains confidential proprietary information.
+ * The reproduction, distribution, utilization or the communication
+ * of this file or any part thereof is strictly prohibited.
+ * Offenders will be held liable for the payment of damages.
+ *
+ * Copyright 1999-2012 The MathWorks, Inc.
+ *
+ */
+
+#ifndef PST_STL_VALARRAY
+#define PST_STL_VALARRAY
+
+#include <__polyspace__compat.h>
+#include <__polyspace__stddef.h>
+
+#ifdef PST_VISUAL
+#pragma pack(push, 8) /* push default value */
+#endif
+
+#ifdef PST_VISUAL
+#pragma push_macro("max")
+#pragma push_macro("min")
+#endif
+
+/* undefined it ! */
+#undef min
+#undef max
+
+
+// PST : only take care about length
+//  assumption not specified in the norm : T is default constructible
+//  side effect of opartors modelized : calls operators on T random elements
+// 
+
+// PST_VISUAL
+//   fill method found http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vclang98/HTML/VALARRAY.asp but not in headers
+//   
+
+namespace std
+{
+  template<class T> class valarray ;
+  class slice ;
+  template<class T> class slice_array ;
+  class gslice ;
+  template<class T> class gslice_array ;
+  template<class T> class mask_array ;
+  template<class T> class indirect_array ;
+
+
+  // 26.3.4
+
+  class slice
+  {
+    size_t m_start, m_len, m_stride ;
+
+  public:
+
+    template <class T> friend class valarray ;
+
+    slice() 
+    {
+      m_start = 0 ;
+      m_len = 0 ;
+      m_stride = 0 ;
+    }
+
+    // copy constructor = default one
+
+    slice(size_t start, size_t length, size_t stride)
+    {
+      m_start = start ;
+      m_len = length ;
+      m_stride = stride ;
+    }
+    
+    size_t start() const { return m_start ; } 
+    size_t size() const { return m_len ; } 
+    size_t stride() const { return m_stride ; } 
+  } ;
+
+
+#define CONSTRAINT(x) assert(x) 
+
+#define DECLARE_OPERATOR(OP, SRC_T)     void operator OP(const SRC_T&) const ;
+#define DEFINE_OPERATOR_FORCLASS(TYP_T, OP, SRC_T) \
+template<class T> \
+void TYP_T::operator OP(const SRC_T& src) const \
+{ \
+   assert(m_len==src.m_len) ; \
+   volatile int alea = 0; \
+   volatile T t1 ; \
+   volatile T t2 ; \
+   while (alea) t1 OP t2 ; \
+}
+
+  // 26.3.5
+
+  template <class T>
+  class slice_array
+  {
+  public:
+
+    typedef T value_type ;
+
+    template <class U> friend class valarray ;
+
+    DECLARE_OPERATOR(= , valarray<T>)
+    DECLARE_OPERATOR(*=, valarray<T>)
+    DECLARE_OPERATOR(/=, valarray<T>)
+    DECLARE_OPERATOR(%=, valarray<T>)
+    DECLARE_OPERATOR(+=, valarray<T>)
+    DECLARE_OPERATOR(-=, valarray<T>)
+    DECLARE_OPERATOR(^=, valarray<T>)
+    DECLARE_OPERATOR(&=, valarray<T>)
+    DECLARE_OPERATOR(|=, valarray<T>)
+    DECLARE_OPERATOR(<<=, valarray<T>)
+    DECLARE_OPERATOR(>>=, valarray<T>)
+
+    void operator=(const T& v)
+    {
+      T tmp = v ;
+    }
+
+#ifdef PST_VISUAL
+    void fill(const T& v) 
+    {
+      T tmp = v ;
+    }
+#endif
+
+    // no dtor needed
+
+  private :
+    slice_array(size_t len) { m_len = len ; }
+    size_t m_len ;
+    
+
+    slice_array() ;                   // no default constructible
+    slice_array(const slice_array&) ; // no copy constructible
+    slice_array& operator=(const slice_array&) ; // no assignable
+
+  } ;
+
+  // 26.3.7
+
+  template <class T>
+  class gslice_array
+  {
+  public:
+    typedef T value_type ;
+
+    template <class U> friend class valarray ;
+
+    DECLARE_OPERATOR(= , valarray<T>)
+    DECLARE_OPERATOR(*=, valarray<T>)
+    DECLARE_OPERATOR(/=, valarray<T>)
+    DECLARE_OPERATOR(%=, valarray<T>)
+    DECLARE_OPERATOR(+=, valarray<T>)
+    DECLARE_OPERATOR(-=, valarray<T>)
+    DECLARE_OPERATOR(^=, valarray<T>)
+    DECLARE_OPERATOR(&=, valarray<T>)
+    DECLARE_OPERATOR(|=, valarray<T>)
+    DECLARE_OPERATOR(<<=, valarray<T>)
+    DECLARE_OPERATOR(>>=, valarray<T>)
+
+    void operator=(const T& v)
+    {
+      T tmp = v ;
+    }
+
+#ifdef PST_VISUAL
+    void fill(const T& v) 
+    {
+      T tmp = v ;
+    }
+#endif
+
+    // no dtor needed
+
+  private :
+    gslice_array(size_t len) { m_len = len ; }
+    size_t m_len ;
+    
+    gslice_array() ;                   // no default constructible
+    gslice_array(const gslice_array&) ; // no copy constructible
+    gslice_array& operator=(const gslice_array&) ; // no assignable
+
+  } ;
+
+  // 26.3.8
+
+  template <class T>
+  class mask_array
+  {
+  public:
+    typedef T value_type ;
+
+    template <class U> friend class valarray ;
+
+    DECLARE_OPERATOR(= , valarray<T>)
+    DECLARE_OPERATOR(*=, valarray<T>)
+    DECLARE_OPERATOR(/=, valarray<T>)
+    DECLARE_OPERATOR(%=, valarray<T>)
+    DECLARE_OPERATOR(+=, valarray<T>)
+    DECLARE_OPERATOR(-=, valarray<T>)
+    DECLARE_OPERATOR(^=, valarray<T>)
+    DECLARE_OPERATOR(&=, valarray<T>)
+    DECLARE_OPERATOR(|=, valarray<T>)
+    DECLARE_OPERATOR(<<=, valarray<T>)
+    DECLARE_OPERATOR(>>=, valarray<T>)
+
+    void operator=(const T& v) 
+    {
+      T tmp = v ;
+    }
+
+#ifdef PST_VISUAL
+    void fill(const T& v) 
+    {
+      T tmp = v ;
+    }
+#endif
+
+    // no dtor needed
+
+  private :
+    mask_array(size_t len) { m_len = len ; }
+    size_t m_len ;
+    
+    mask_array() ;                   // no default constructible
+    mask_array(const mask_array&) ; // no copy constructible
+    mask_array& operator=(const mask_array&) ; // no assignable
+
+  } ;
+
+  // 26.3.9
+
+  template <class T>
+  class indirect_array
+  {
+  public:
+    typedef T value_type ;
+
+    template <class U> friend class valarray ;
+
+    DECLARE_OPERATOR(= , valarray<T>)
+    DECLARE_OPERATOR(*=, valarray<T>)
+    DECLARE_OPERATOR(/=, valarray<T>)
+    DECLARE_OPERATOR(%=, valarray<T>)
+    DECLARE_OPERATOR(+=, valarray<T>)
+    DECLARE_OPERATOR(-=, valarray<T>)
+    DECLARE_OPERATOR(^=, valarray<T>)
+    DECLARE_OPERATOR(&=, valarray<T>)
+    DECLARE_OPERATOR(|=, valarray<T>)
+    DECLARE_OPERATOR(<<=, valarray<T>)
+    DECLARE_OPERATOR(>>=, valarray<T>)
+
+    void operator=(const T& v)
+    {
+      T tmp = v ;
+    }
+
+#ifdef PST_VISUAL
+    void fill(const T& v) 
+    {
+      T tmp = v ;
+    }
+#endif
+
+    // no dtor needed
+
+  private :
+    indirect_array(size_t len) { m_len = len ; }
+    size_t m_len ;
+    
+    indirect_array() ;                   // no default constructible
+    indirect_array(const indirect_array&) ; // no copy constructible
+    indirect_array& operator=(const indirect_array&) ; // no assignable
+
+  } ;
+
+  template<class T>
+  class valarray
+  {
+  public:
+
+    friend class slice_array<T> ;
+    friend class gslice_array<T> ;
+    friend class mask_array<T> ;
+    friend class indirect_array<T> ;
+    template<class U> friend class valarray ;
+
+    typedef T value_type ;
+
+    // 26.3.2.1
+
+    valarray() { m_len = 0 ; }
+    __ps_explicit valarray(size_t n) { m_len = n ; } 
+    valarray(const T&, size_t n) { m_len = n ; } 
+
+    valarray(const T* tab, size_t n) 
+    {
+      for (size_t i=0; i<n; i++) {
+	T dummy = tab[i] ; // sec 4 : behaviour is undefined if second argument greater 
+        	 	   // that number of value pointed by first one
+      }
+      m_len = n ; 
+    } 
+
+    valarray(const valarray& src)          { m_len = src.m_len ; } 
+    valarray(const slice_array<T>& src)    { m_len = src.m_len ; } 
+    valarray(const gslice_array<T>& src)   { m_len = src.m_len ; } 
+    valarray(const mask_array<T>& src)     { m_len = src.m_len ; } 
+    valarray(const indirect_array<T>& src) { m_len = src.m_len ; } 
+
+    ~valarray() { ; }
+
+    // 26.3.2.2
+
+    valarray& operator=(const valarray& src)
+    {
+      assert(m_len==src.m_len) ;
+      return *this ;
+    }
+
+    valarray& operator=(const T& src)
+    {
+      T tmp = src ; //read
+      return *this ;
+    }
+
+    valarray& operator=(const slice_array<T>& src)    { m_len = src.m_len ; return *this ; }
+    valarray& operator=(const gslice_array<T>& src)   { m_len = src.m_len ; return *this ; }
+    valarray& operator=(const indirect_array<T>& src) { m_len = src.m_len ; return *this ; }
+    valarray& operator=(const mask_array<T>& src)     { m_len = src.m_len ; return *this ; }
+
+
+    // 26.3.2.3
+    T operator[] (size_t pos) const
+    {
+      assert(pos<m_len) ;
+      volatile T ret ;
+      return ret ;
+    }
+
+    T& operator[] (size_t pos)
+    {
+      assert(pos<m_len) ;
+      T * volatile ret ;
+      return *((T*)ret) ;
+    }
+
+    // 26.3.2.4
+
+       // only case we can check that sub-set element access is not out of bound
+       // valid range = [0..m_len-1], max element acceded = start + (length-1)*stride
+       //   this case integrated length <= mlen condition
+    valarray<T>     operator[](slice s) const          { assert( (s.m_start + (s.m_len-1)*s.m_stride ) < m_len) ; return valarray<T>    (s.m_len) ; }
+    slice_array<T>  operator[](slice s)                { assert( (s.m_start + (s.m_len-1)*s.m_stride ) < m_len) ; return slice_array<T> (s.m_len) ; }
+
+    friend class gslice ;
+    // gslice cannot be defined before valarray ...
+    valarray<T>     operator[](const gslice & s) const ; 
+    gslice_array<T> operator[](const gslice & s)       ; 
+
+    valarray<T>     operator[](const valarray<__ps_bool> & vb) const 
+    { 
+      volatile size_t len = 0;
+      CONSTRAINT(len<=vb.m_len) ; 
+      CONSTRAINT(len<=m_len) ;    
+      return valarray<T>(len) ; //len of sub array is not MORE than original or vb 
+    }
+
+    mask_array<T>   operator[](const valarray<__ps_bool> & vb) 
+    { 
+      volatile size_t len = 0;
+      CONSTRAINT(len<vb.m_len) ; 
+      CONSTRAINT(len<m_len) ; 
+      return mask_array<T>(len) ; //len of sub array is not MORE than original or vb 
+    }
+    valarray<T>         operator[](const valarray<size_t> & vi) const 
+    { 
+      volatile size_t len = 0;
+      CONSTRAINT(len<vi.m_len) ; 
+      CONSTRAINT(len<m_len) ; 
+      return valarray<T>(len) ; //len of sub array is not MORE than original or vi
+    }
+    indirect_array<T>   operator[](const valarray<size_t> & vi) 
+    { 
+      volatile size_t len = 0;
+      CONSTRAINT(len<vi.m_len) ; 
+      CONSTRAINT(len<m_len) ; 
+      return indirect_array<T>(len) ; //len of sub array is not MORE than original or vi
+    }
+    
+    // 26.3.2.5
+
+    valarray operator+() const       { volatile T t ; volatile int alea = 0; while(alea) +t ; return valarray(m_len) ; }
+    valarray operator-() const       { volatile T t ; volatile int alea = 0; while(alea) -t ; return valarray(m_len) ; }
+    valarray operator~() const       { volatile T t ; volatile int alea = 0; while(alea) ~t ; return valarray(m_len) ; }
+    valarray<__ps_bool> operator!() const { volatile T t ; volatile int alea = 0; while(alea) !t ; return valarray<__ps_bool>(m_len) ; }
+
+    // 26.3.2.6
+
+    #define DEFINE_OPERATOR_SELF(OP) \
+    valarray& operator OP(const valarray& src) \
+    { \
+      volatile T t1 ; \
+      volatile T t2 ; \
+      volatile int alea = 0; \
+      while(alea) t1 OP t2 ;    \
+      assert(src.m_len == m_len ) ; \
+      return *this ; \
+    }
+
+    DEFINE_OPERATOR_SELF(*=)
+    DEFINE_OPERATOR_SELF(/=)
+    DEFINE_OPERATOR_SELF(%=)
+    DEFINE_OPERATOR_SELF(+=)
+    DEFINE_OPERATOR_SELF(-=)
+    DEFINE_OPERATOR_SELF(^=)
+    DEFINE_OPERATOR_SELF(&=)
+    DEFINE_OPERATOR_SELF(|=)
+    DEFINE_OPERATOR_SELF(>>=)
+    DEFINE_OPERATOR_SELF(<<=)
+
+#undef DEFINE_OPERATOR_SELF
+
+    #define DEFINE_OPERATOR_UNARY(OP) \
+    valarray& operator OP(const T& v) \
+    { \
+      volatile T t1 ; \
+      volatile int alea = 0; \
+      while(alea) t1 OP v ;    \
+      return *this ; \
+    }
+
+    DEFINE_OPERATOR_UNARY(*=)
+    DEFINE_OPERATOR_UNARY(/=)
+    DEFINE_OPERATOR_UNARY(%=)
+    DEFINE_OPERATOR_UNARY(+=)
+    DEFINE_OPERATOR_UNARY(-=)
+    DEFINE_OPERATOR_UNARY(^=)
+    DEFINE_OPERATOR_UNARY(&=)
+    DEFINE_OPERATOR_UNARY(|=)
+    DEFINE_OPERATOR_UNARY(>>=)
+    DEFINE_OPERATOR_UNARY(<<=)
+
+#undef DEFINE_OPERATOR_UNARY
+
+    // 26.3.2.7
+    size_t size() const { return m_len ; }
+
+    T sum() const
+    {
+      assert(m_len>0) ; // sec 1
+      volatile T alea_ret ;
+      volatile T alea_tmp ;
+      volatile int alea = 0;
+      while (alea) alea_ret += alea_tmp ;
+      return alea_ret ;
+    }
+
+    T min() const
+    {
+      assert(m_len>0) ; // sec 1
+      volatile T alea_ret ;
+      volatile T alea_tmp ;
+      volatile int alea = 0;
+      while (alea) alea_ret < alea_tmp ;
+      return alea_ret ;
+    }
+
+    T max() const
+    {
+      assert(m_len>0) ; // sec 1
+      volatile T alea_ret ;
+      volatile T alea_tmp ;
+      volatile int alea = 0;
+      while (alea) alea_ret < alea_tmp ;
+      return alea_ret ;
+    }
+
+    valarray shift(int n) const
+    {
+      return valarray(m_len) ;
+    }
+
+    valarray cshift(int n) const
+    {
+      return valarray(m_len) ;
+    }
+
+    valarray apply(T func(T)) const
+    {
+      volatile T t1 ;
+      volatile int alea = 0;
+      while (alea) func(t1) ;
+      return  valarray(m_len) ;
+    }
+
+    valarray apply(T func(const T&)) const
+    {
+      volatile T t1 ;
+      volatile int alea = 0;
+      while (alea){ const T t = t1 ; func(t) ; }  ;
+      return  valarray(m_len) ;
+    }
+
+    void resize(size_t sz, T c = T())
+    {
+      m_len = sz ;
+    }
+
+#ifdef PST_VISUAL
+    // visual 6 & 7.1
+
+    void free() 
+    {
+      m_len = 0 ;
+    }
+    
+    // visual ?
+    void fill(const T& t)
+    {
+      T tmp = t ;
+    }
+    
+    friend T min(const valarray<T>& x)  
+    {
+      assert(x.m_len>0) ; // sec 1
+      volatile T alea_ret ;
+      volatile T alea_tmp ;
+      volatile int alea = 0;
+      while (alea) alea_ret < alea_tmp ;
+      return alea_ret ;
+    }
+
+    friend T max(const valarray<T>& x)  
+    {
+      assert(x.m_len>0) ; // sec 1
+      volatile T alea_ret ;
+      volatile T alea_tmp ;
+      volatile int alea = 0;
+      while (alea) alea_ret < alea_tmp ;
+      return alea_ret ;
+    }
+
+#endif
+
+    // 26.3.3.1
+
+#define DEFINE_BINARY_OPERATOR(OP) \
+friend valarray<T> operator OP (const valarray<T>& op1, const valarray<T>& op2) \
+{\
+  assert(op1.m_len==op2.m_len) ; \
+  volatile T t1 ; \
+  volatile T t2 ;  \
+  volatile int alea = 0; \
+  while (alea) t1 OP t2 ; \
+  return valarray<T>(op1.m_len) ; \
+} \
+\
+friend valarray<T> operator OP (const valarray<T>& op1, const T& v2) \
+{\
+  volatile T t1 ; \
+  volatile int alea = 0; \
+  while (alea) t1 OP v2 ; \
+  return valarray<T>(op1.m_len) ; \
+} \
+\
+friend valarray<T> operator OP (const T& v1, const valarray<T>& op2) \
+{\
+  volatile T t2 ;  \
+  volatile int alea = 0; \
+  while (alea) v1 OP t2 ; \
+  return valarray<T>(op2.m_len) ; \
+} 
+
+  DEFINE_BINARY_OPERATOR(*)
+  DEFINE_BINARY_OPERATOR(/)
+  DEFINE_BINARY_OPERATOR(%)
+  DEFINE_BINARY_OPERATOR(+)
+  DEFINE_BINARY_OPERATOR(-)
+  DEFINE_BINARY_OPERATOR(^)
+  DEFINE_BINARY_OPERATOR(&)
+  DEFINE_BINARY_OPERATOR(|)
+  DEFINE_BINARY_OPERATOR(>>)
+  DEFINE_BINARY_OPERATOR(<<)
+
+#undef DEFINE_BINARY_OPERATOR
+
+    // 26.3.3.2
+#define DEFINE_BINARY_LOGICAL_OPERATOR(OP) \
+friend valarray<__ps_bool> operator OP (const valarray<T>& op1, const valarray<T>& op2) \
+{\
+  assert(op1.m_len==op2.m_len) ; \
+  volatile T t1 ; \
+  volatile T t2 ;  \
+  volatile int alea = 0; \
+  while (alea) t1 OP t2 ; \
+  return valarray<__ps_bool>(op1.m_len) ; \
+} \
+\
+friend valarray<__ps_bool> operator OP (const valarray<T>& op1, const T& v2) \
+{\
+  volatile T t1 ; \
+  volatile int alea = 0; \
+  while (alea) t1 OP v2 ; \
+  return valarray<__ps_bool>(op1.m_len) ; \
+} \
+\
+friend valarray<__ps_bool> operator OP (const T& v1, const valarray<T>& op2) \
+{\
+  volatile T t2 ;  \
+  volatile int alea = 0; \
+  while (alea) v1 OP t2 ; \
+  return valarray<__ps_bool>(op2.m_len) ; \
+} 
+
+  DEFINE_BINARY_LOGICAL_OPERATOR(==)
+  DEFINE_BINARY_LOGICAL_OPERATOR(!=)
+  DEFINE_BINARY_LOGICAL_OPERATOR(< )
+  DEFINE_BINARY_LOGICAL_OPERATOR(> )
+  DEFINE_BINARY_LOGICAL_OPERATOR(<=)
+  DEFINE_BINARY_LOGICAL_OPERATOR(>=)
+  DEFINE_BINARY_LOGICAL_OPERATOR(&&)
+  DEFINE_BINARY_LOGICAL_OPERATOR(||)
+
+#undef DEFINE_BINARY_LOGICAL_OPERATOR
+
+#define DEFINE_TRANSCENDENTAL(FUNC) \
+friend valarray<T> FUNC (const valarray<T>& op) \
+{\
+  volatile T t ; \
+  volatile int alea = 0 ; \
+  while (alea) FUNC(t) ; \
+  return valarray<T>(op.m_len) ; \
+}
+
+#define DEFINE_TRANSCENDENTAL2(FUNC) \
+friend valarray<T> FUNC (const valarray<T>& op1, const valarray<T>& op2) \
+{\
+  assert(op1.m_len==op2.m_len) ; \
+  volatile T t1 ; \
+  volatile T t2 ; \
+  volatile int alea = 0 ; \
+  while (alea) FUNC(t1, t2) ; \
+  return valarray<T>(op1.m_len) ; \
+} \
+friend valarray<T> FUNC (const valarray<T>& op1, const T& v2) \
+{\
+  volatile T t1 ; \
+  volatile int alea = 0 ; \
+  while (alea) FUNC(t1, v2) ; \
+  return valarray<T>(op1.m_len) ; \
+} \
+friend valarray<T> FUNC (const T& v1, const valarray<T>& op2) \
+{\
+  volatile T t2 ; \
+  volatile int alea = 0 ; \
+  while (alea) FUNC(v1, t2) ; \
+  return valarray<T>(op2.m_len) ; \
+} \
+
+  DEFINE_TRANSCENDENTAL(abs)
+  DEFINE_TRANSCENDENTAL(acos)
+  DEFINE_TRANSCENDENTAL(asin)
+  DEFINE_TRANSCENDENTAL(atan)
+  DEFINE_TRANSCENDENTAL2(atan2)
+  DEFINE_TRANSCENDENTAL(cos)
+  DEFINE_TRANSCENDENTAL(cosh)
+  DEFINE_TRANSCENDENTAL(exp)
+  DEFINE_TRANSCENDENTAL(log)
+  DEFINE_TRANSCENDENTAL(log10)
+  DEFINE_TRANSCENDENTAL2(pow)
+  DEFINE_TRANSCENDENTAL(sin)
+  DEFINE_TRANSCENDENTAL(sinh)
+  DEFINE_TRANSCENDENTAL(sqrt)
+  DEFINE_TRANSCENDENTAL(tan)
+  DEFINE_TRANSCENDENTAL(tanh)
+
+  private:
+    size_t m_len ;
+
+  } ;
+
+  // 26.3.6
+
+  class gslice
+  {
+    size_t m_start, m_len ;
+    valarray<size_t> m_stride, m_length ;
+
+  public:
+
+    template <class T> friend class valarray ;
+    gslice()
+    {
+      m_start = 0 ;
+      m_len = 0 ;
+    }
+
+
+    // copy constructor = default one
+    gslice(size_t start, 
+	   const valarray<size_t>& length, 
+	   const valarray<size_t>& stride) 
+      : m_length(length), m_stride(stride)  // value could not be set with = after !
+    {
+      assert(length.m_len==stride.m_len) ;
+    
+      m_start = start ;      
+      volatile size_t alea = 0;
+      m_len = alea ;
+      // exact number of elements in gslice = product(length)
+      //  but we does not modelize content ...
+    }
+
+    size_t           start() const { return m_start ; } 
+    valarray<size_t> size() const { return m_length ; } 
+    valarray<size_t> stride() const { return m_stride ; } 
+
+  } ;
+
+
+
+
+
+  template<class T>
+  valarray<T>     valarray<T>::operator[](const gslice & s) const { CONSTRAINT(s.m_len<=m_len) ; return valarray<T>    (s.m_len) ; }
+
+  template<class T>
+  gslice_array<T> valarray<T>::operator[](const gslice & s)       { CONSTRAINT(s.m_len<=m_len) ; return gslice_array<T>(s.m_len) ; }
+
+  DEFINE_OPERATOR_FORCLASS(slice_array<T>, = , valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(slice_array<T>, *=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(slice_array<T>, /=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(slice_array<T>, %=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(slice_array<T>, +=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(slice_array<T>, -=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(slice_array<T>, ^=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(slice_array<T>, &=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(slice_array<T>, |=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(slice_array<T>, <<=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(slice_array<T>, >>=, valarray<T>)
+
+  DEFINE_OPERATOR_FORCLASS(gslice_array<T>, = , valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(gslice_array<T>, *=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(gslice_array<T>, /=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(gslice_array<T>, %=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(gslice_array<T>, +=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(gslice_array<T>, -=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(gslice_array<T>, ^=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(gslice_array<T>, &=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(gslice_array<T>, |=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(gslice_array<T>, <<=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(gslice_array<T>, >>=, valarray<T>)
+
+  DEFINE_OPERATOR_FORCLASS(mask_array<T>, = , valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(mask_array<T>, *=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(mask_array<T>, /=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(mask_array<T>, %=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(mask_array<T>, +=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(mask_array<T>, -=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(mask_array<T>, ^=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(mask_array<T>, &=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(mask_array<T>, |=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(mask_array<T>, <<=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(mask_array<T>, >>=, valarray<T>)
+
+  DEFINE_OPERATOR_FORCLASS(indirect_array<T>, = , valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(indirect_array<T>, *=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(indirect_array<T>, /=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(indirect_array<T>, %=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(indirect_array<T>, +=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(indirect_array<T>, -=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(indirect_array<T>, ^=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(indirect_array<T>, &=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(indirect_array<T>, |=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(indirect_array<T>, <<=, valarray<T>)
+  DEFINE_OPERATOR_FORCLASS(indirect_array<T>, >>=, valarray<T>)
+
+}
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+
+#undef CONSTRAINT
+#undef DECLARE_OPERATOR
+#undef DEFINE_OPERATOR_FORCLASS
+#undef DEFINE_TRANSCENDENTAL
+#undef DEFINE_TRANSCENDENTAL2
+
+#ifdef PST_VISUAL
+#pragma pop_macro("max")
+#pragma pop_macro("min")
+#endif
+
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+
+#endif /* PST_STL_VALARRAY */

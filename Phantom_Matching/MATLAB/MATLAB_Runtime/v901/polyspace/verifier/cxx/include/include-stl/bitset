@@ -1,0 +1,320 @@
+/*
+ *
+ * This file and its contents are the property of The MathWorks, Inc.
+ * 
+ * This file contains confidential proprietary information.
+ * The reproduction, distribution, utilization or the communication
+ * of this file or any part thereof is strictly prohibited.
+ * Offenders will be held liable for the payment of damages.
+ *
+ * Copyright 1999-2012 The MathWorks, Inc.
+ *
+ */
+#ifndef PST_STL_BITSET
+#define PST_STL_BITSET
+
+#include <iosfwd>
+#include <string>
+#include <stdexcept>
+
+#define OUT_OF_RANGE(cond) assert (!(cond))
+#define VALID_POS(pos) assert((pos>=0) && (pos<N))
+
+#ifdef PST_VISUAL
+#pragma pack(push, 8) /* push default value */
+#endif
+
+
+namespace std
+{
+  template<size_t N>
+  class bitset
+  {
+  public:
+
+#ifdef PST_STL_PERMISSIVE_STUB
+    // exist a least in visual
+    typedef __ps_bool element_type;
+#endif 
+
+#ifdef PST_VISUAL
+    // Visual 6
+    enum { bitset_size = N } ;
+#endif
+
+    class reference
+    { 
+      friend class bitset ;
+      reference() { ; }
+    public:
+
+      ~reference() { ; }
+      reference& operator=(__ps_bool val) { return *this ; }
+      reference& operator=(const reference&) { return *this ; }
+      reference& flip() { return *this ; }
+
+      __ps_bool operator~() const 
+      { 
+	volatile __ps_bool ret = false; 
+	return ret ; 
+      }
+
+      operator __ps_bool() const 
+      { 
+	volatile __ps_bool ret = false; 
+	return ret ; 
+      }
+    } ;
+
+    // Constructor
+    bitset()
+    {
+      ;
+    }
+
+    bitset(unsigned long)
+    {
+      ;
+    }
+    
+    PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+    __ps_explicit bitset(const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& str,
+		    const __ps_typename PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)::size_type pos = 0,
+		    const __ps_typename PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)::size_type n = 
+		                              PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)::npos)
+    {
+      OUT_OF_RANGE(pos > str.size() ) ;
+      // INVALID_ARGUMENT(RANDOM) ;
+    }
+
+    bitset<N>& operator&=(const bitset<N>& rhs)
+    {
+      return *this ;
+    }
+	
+    bitset<N>& operator|=(const bitset<N>& rhs)
+    {
+      return *this ;
+    }
+
+    bitset<N>& operator^=(const bitset<N>& rhs)
+    {
+      return *this ;
+    }
+
+    bitset<N>& operator<<=(size_t pos)
+    {
+      return *this ;
+    }
+
+    bitset<N>& operator>>=(size_t pos)
+    {
+      return *this ;
+    }
+
+    bitset<N>& set()
+    {
+      return *this ;
+    }
+
+#ifdef PST_VISUAL
+    bitset<N>& set(size_t pos, __ps_bool val = __ps_true)
+#else
+    bitset<N>& set(size_t pos, int val = 1)
+#endif
+    {
+      VALID_POS(pos) ;
+      return *this ;
+    }
+
+    bitset<N>& reset()
+    {
+      return *this ;
+    }
+
+    bitset<N>& reset(size_t pos)
+    {
+      VALID_POS(pos) ;
+      return *this ;
+    }
+
+    bitset<N> operator~() const
+    {
+      return *this ;
+    }
+
+    bitset<N>& flip()
+    {
+      return *this ;
+    }
+
+    bitset<N>& flip(size_t pos)
+    {
+      VALID_POS(pos) ;
+      return *this ;
+    }
+
+    unsigned long to_ulong() const
+    {
+      volatile unsigned long ret = 0 ;
+      return ret ;
+    }
+
+    // returns a string of size N, contents is already random
+
+#if (defined PST_VISUAL) && (_MSC_VER<=1200)
+
+    // visual 6.0 : to_string only return a 'string' object
+    string to_string() const
+    {
+      volatile char zero_or_one = 0;	
+      return string(N, (char) zero_or_one) ; 
+    }
+
+#else
+
+    PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+    PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits) to_string() const
+    {
+      volatile charT zero_or_one = 0;	
+      return PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)(N, (charT) zero_or_one) ; 
+    }
+
+#endif
+
+    size_t count() const
+    {
+      volatile size_t alea_ret = 0;
+      size_t ret = alea_ret ;
+      assert((ret<=N) && (ret>=0)) ;
+      return ret ;
+    }
+    
+    size_t size() const
+    {
+      return N ;
+    }
+
+    __ps_bool operator==(const bitset<N>& rhs) const
+    {
+      volatile __ps_bool ret = false;
+      return ret ;
+    }
+
+    __ps_bool operator!=(const bitset<N>& rhs) const
+    {
+      volatile __ps_bool ret = false;
+      return ret ;
+    }
+
+    __ps_bool test(size_t pos) const
+    {
+      VALID_POS(pos) ;
+      volatile __ps_bool ret = false;
+      return ret ;
+    }
+
+    __ps_bool any() const
+    {
+      volatile __ps_bool ret = false;
+      return ret ;
+    }
+
+    __ps_bool none() const
+    {
+      volatile __ps_bool ret = false;
+      return ret ;
+    }
+
+    bitset<N> operator<< (size_t pos) const
+    {
+      return bitset<N>() ;
+    }
+
+    bitset<N> operator>> (size_t pos) const
+    {
+      return bitset<N>() ;
+    }
+
+#ifdef PST_VISUAL
+    // exist a least in visual
+
+    __ps_bool at(size_t pos) const	
+    {	
+      VALID_POS(pos) ;
+      volatile __ps_bool ret = false;
+      return ret ;
+    }
+
+    reference at(size_t pos) 
+    {	
+      VALID_POS(pos) ;
+      return reference() ;
+    }
+
+#endif
+
+    // exist with linux too
+    __ps_bool operator[](size_t pos) const
+    {	
+      VALID_POS(pos) ;
+      volatile __ps_bool ret = false;
+      return ret ;
+    }
+
+    reference operator[](size_t pos)
+    {
+      VALID_POS(pos) ;
+      return reference() ;
+    }
+
+};
+
+template<size_t N>
+bitset<N> operator&(const bitset<N>&, const bitset<N>&)
+{
+  return bitset<N>() ;
+}
+
+template<size_t N>
+bitset<N> operator|(const bitset<N>&, const bitset<N>&)
+{
+  return bitset<N>() ;
+}
+
+template<size_t N>
+bitset<N> operator^(const bitset<N>&, const bitset<N>&)
+{
+  return bitset<N>() ;
+}
+
+
+template<class charT, class traits, size_t N>
+basic_istream<charT, traits>& operator>> (basic_istream<charT, traits>& in, bitset<N>& )
+{
+  return in ;
+}
+
+template<class charT, class traits, size_t N>
+basic_ostream<charT, traits>& operator<< (basic_ostream<charT, traits>& out, const bitset<N>& )
+{
+  return out ;
+}
+
+} // namespace std ;
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+#undef OUT_OF_RANGE
+#undef VALID_POS
+
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+
+#endif /* PST_STL_BITSET */
+

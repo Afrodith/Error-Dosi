@@ -1,0 +1,819 @@
+/*
+ *
+ * This file and its contents are the property of The MathWorks, Inc.
+ * 
+ * This file contains confidential proprietary information.
+ * The reproduction, distribution, utilization or the communication
+ * of this file or any part thereof is strictly prohibited.
+ * Offenders will be held liable for the payment of damages.
+ *
+ * Copyright 1999-2012 The MathWorks, Inc.
+ *
+ */
+#ifndef PST_STL_ISTREAM
+#define PST_STL_ISTREAM
+
+#include <iosfwd>
+#include <ios>
+#include <iomanip>
+
+namespace std
+{
+
+#ifdef PST_VISUAL 
+#pragma pack(push, 8) /* push default value */
+#endif 
+
+  template <class charT, class traits>
+  class basic_istream : virtual public basic_ios<charT, traits>
+  {
+  public:
+  //  typedef __ps_typename traits::off_type		streamsize; // Not Defined in this class in Norm //
+    typedef charT				char_type;
+    typedef __ps_typename traits::int_type		int_type;
+    typedef __ps_typename traits::pos_type		pos_type;
+    typedef __ps_typename traits::off_type		off_type;
+    typedef traits				traits_type;
+    typedef basic_istream<charT, traits>&	(*__imanip)(basic_istream<charT, traits> &);
+    typedef basic_ios<charT, traits>&		(*__manip)(basic_ios<charT, traits> &);
+    typedef ios_base&				(*__iosmanip)(ios_base &);
+
+    ///   Constructor/destructor    ////
+    __ps_explicit basic_istream (basic_streambuf<charT, traits> *);
+#ifdef PST_VISUAL
+    basic_istream(basic_streambuf<charT, traits> *, __ps_bool) {}
+    /* _Uninitialized is declared in xstddef which is always included by
+       polyspace_std_decl.h */
+    basic_istream(_Uninitialized) {}
+#endif
+    basic_istream() {}
+    ~basic_istream();
+
+#ifdef PST_VISUAL
+    __ps_bool ipfx(__ps_bool noskip = __ps_false) { volatile __ps_bool random = false; return random; }
+    void isfx() { }
+#endif
+
+    /// Formatted input ///
+    basic_istream<charT, traits>& operator >> (__imanip);
+    basic_istream<charT, traits>& operator >> (__manip);
+    basic_istream<charT, traits>& operator >> (__iosmanip);	
+
+#ifdef _BOOL
+    basic_istream<charT, traits>& operator >> (__ps_bool&);
+#endif /* _BOOL */
+    basic_istream<charT, traits>& operator >> (short&);
+    basic_istream<charT, traits>& operator >> (unsigned short&);
+    basic_istream<charT, traits>& operator >> (int &);
+    basic_istream<charT, traits>& operator >> (unsigned int&);
+    basic_istream<charT, traits>& operator >> (long &);
+    basic_istream<charT, traits>& operator >> (unsigned long&);
+#ifndef __NO_LONG_LONG
+    basic_istream<charT, traits>& operator >> (long long&);
+    basic_istream<charT, traits>& operator >> (unsigned long long&);
+#endif
+    basic_istream<charT, traits>& operator >> (float&);
+    basic_istream<charT, traits>& operator >> (double&);
+    basic_istream<charT, traits>& operator >> (long double&);
+
+    basic_istream<charT, traits>& operator >> (void *&);
+    basic_istream<charT, traits>& operator >> (basic_streambuf<char_type, traits> *);
+
+    // PST specific : requirements on <iomanip>
+    basic_istream<charT, traits>& operator >> (__pst_smanip_typ) { return *this ; } ;
+
+    /// Unformatted input ///
+    
+    streamsize	gcount() const;
+    int_type	get();
+    basic_istream<charT, traits>	&get(char_type &);
+    basic_istream<charT, traits>	&get(char_type *, streamsize);
+    basic_istream<charT, traits>	&get(char_type *, streamsize, char_type);
+    basic_istream<charT, traits>	&get(basic_streambuf<char_type, traits> &);
+    basic_istream<charT, traits>	&get(basic_streambuf<char_type, traits> &, char_type);
+
+    basic_istream<charT, traits>	&getline(char_type *, streamsize);
+    basic_istream<charT, traits>	&getline(char_type *, streamsize, char_type);
+
+#ifdef PST_STL_PERMISSIVE_STUB
+
+    basic_istream<charT, traits>	&getline(unsigned char * s, streamsize n)
+    {
+       volatile streamsize rand_size = 0;
+       streamsize size = rand_size;
+       assert((size >= 0) && (size < n)); 
+
+       volatile unsigned char value = 0;
+
+       for (streamsize i = 0; i < size; i++)
+         s[i] = value;
+
+       s[size] = charT() ;	
+       return (*this); 
+    }
+
+    basic_istream<charT, traits>	&getline(signed char * s, streamsize n)
+    {
+       volatile streamsize rand_size = 0;
+       streamsize size = rand_size;
+       assert((size >= 0) && (size < n)); 
+
+       volatile signed char value = 0;
+
+       for (streamsize i = 0; i < size; i++)
+         s[i] = value;
+
+       s[size] = charT() ;
+
+       return (*this); 
+    }
+
+#endif /* PST_STL_PERMISSIVE_STUB */
+
+
+    basic_istream<charT, traits>	&ignore(streamsize = 1, int_type = traits::eof());
+    int_type				peek();
+    basic_istream<charT, traits>	&read (char_type *, streamsize);
+    streamsize				readsome(char_type *, streamsize);	
+    basic_istream<charT, traits>	&putback(char_type  c);
+    basic_istream<charT, traits>	&unget();
+    int					sync();
+    pos_type				tellg();	
+    basic_istream<charT, traits>	&seekg(pos_type);
+    basic_istream<charT, traits>	&seekg(off_type, ios_base::seekdir);
+  };
+
+///   Constructor/destructor    ////
+
+/*  
+__ps_explicit basic_istream (basic_streambuf<charT, traits> *)
+This constructor create the in stream.
+*/
+
+
+template < class charT, class traits >
+basic_istream<charT, traits>::basic_istream(basic_streambuf<charT, traits> *)
+{}
+
+ 
+/*  
+~basic_istream ()
+This destructor destroy the in stream.
+*/
+
+template < class charT, class traits >
+basic_istream<charT, traits>::~basic_istream()
+{}
+
+
+
+///   Formatted input  ///
+
+/*
+  basic_istream<charT, traits>& operator >> (__imanip);
+  Comment   : Call the function of __imanip type and returns the in stream.
+*/
+
+template < class charT, class traits >
+basic_istream<charT, traits>& basic_istream<charT, traits>::operator >> (__imanip func)
+{
+  return ((*func)(*this));
+}
+
+/*
+  basic_istream<charT, traits>& operator >> (__manip);
+  Comment   : Call the function of __manip type and returns the in stream.
+*/
+
+template < class charT, class traits >
+basic_istream<charT, traits>& basic_istream<charT, traits>::operator >> (__manip func)
+{
+  return (*this);
+}
+
+/*
+  basic_istream<charT, traits>& operator >> (__iosmanip);
+  Comment   : Call the function of __iosmanip type and returns the in stream.
+*/
+
+template < class charT, class traits >
+basic_istream<charT, traits>& basic_istream<charT, traits>::operator >> (__iosmanip func)
+{
+  return (*this);
+}
+
+#ifdef _BOOL
+/* 
+   basic_istream<charT, traits>& operator >> (__ps_bool&);
+   Comment   : Get a __ps_bool from the in stream.
+*/
+
+template < class charT, class traits >
+basic_istream<charT, traits>& basic_istream<charT, traits>::operator >> (__ps_bool &b)
+{ 
+  volatile __ps_bool Number = false;
+
+  b = Number;
+  return (*this);
+}
+#endif /* _BOOL */
+
+/*
+   basic_istream<charT, traits>& operator >> (short&);
+   Comment   : Get an integer(short) from the in stream.
+*/
+
+template < class charT, class traits >
+basic_istream<charT, traits>& basic_istream<charT, traits>::operator >> (short &n)
+{
+  volatile short Number = 0;
+
+  n = Number;
+  return (*this);   
+}
+
+/*
+   basic_istream<charT, traits>& operator >> (short&);
+   Comment   : Get an integer(unsigned and short) from the in stream.
+*/
+
+template < class charT, class traits >
+basic_istream<charT, traits>& basic_istream<charT, traits>::operator >> (unsigned short &n)
+{
+  volatile unsigned short Number = 0U;
+
+  n = Number;
+  return (*this);   
+}
+
+/*
+   basic_istream<charT, traits>& operator >> (int&);
+   Comment   : Get an integer from the in stream.
+*/
+
+template < class charT, class traits >
+basic_istream<charT, traits>& basic_istream<charT, traits>::operator >> (int &n)
+{
+  volatile int Number = 0;
+
+  n = Number;
+  return (*this);   
+}
+
+/*
+   basic_istream<charT, traits>& operator >> (unsigned int&);
+   Comment   : Get an integer(unsigned) from the in stream.
+*/
+
+template < class charT, class traits >
+basic_istream<charT, traits>& basic_istream<charT, traits>::operator >> (unsigned int &n)
+{
+  volatile unsigned int Number = 0U;
+
+  n = Number;
+  return (*this);   
+}
+
+/*
+   basic_istream<charT, traits>& operator >> (long&);
+   Comment   : Get an integer(long) from the in stream.
+*/
+
+template < class charT, class traits >
+basic_istream<charT, traits>& basic_istream<charT, traits>::operator >> (long &n)
+{
+  volatile unsigned int Number = 0U;
+
+  n = Number;
+  return (*this);   
+}
+
+/*
+   basic_istream<charT, traits>& operator >> (unsigned long&);
+   Comment   : Get an integer(unsigned long) from the in stream.
+*/
+
+template < class charT, class traits >
+basic_istream<charT, traits>& basic_istream<charT, traits>::operator >> (unsigned long &n)
+{
+  volatile unsigned long Number = 0UL ;
+
+  n = Number;
+  return (*this);   
+}
+
+#ifndef __NO_LONG_LONG
+
+template < class charT, class traits >
+basic_istream<charT, traits>& basic_istream<charT, traits>::operator >> (long long &n)
+{
+  volatile long long Number = 0LL;
+                                                                                
+  n = Number;
+  return (*this);
+}
+
+template < class charT, class traits >
+basic_istream<charT, traits>& basic_istream<charT, traits>::operator >> (unsigned long long &n)
+{
+  volatile unsigned long long Number = 0ULL;
+                                                                                
+  n = Number;
+  return (*this);
+}
+#endif
+
+/*
+   basic_istream<charT, traits>& operator >> (float&);
+   Comment   : Get an real(simple precision) from the in stream.
+*/
+
+template < class charT, class traits >
+basic_istream<charT, traits>& basic_istream<charT, traits>::operator >> (float &n)
+{
+  volatile float Number = 0.0F;
+
+  n = Number;
+  return (*this);   
+}
+
+
+/*
+   basic_istream<charT, traits>& operator >> (double&);
+   Comment   : Get an real(double precision) from the in stream.
+*/
+
+template < class charT, class traits >
+basic_istream<charT, traits>& basic_istream<charT, traits>::operator >> (double &n)
+{
+  volatile double Number = 0.0;
+
+  n = Number;
+  return (*this);   
+}
+
+/*
+   basic_istream<charT, traits>& operator >> (long double&);
+   Comment   : Get an real(double precision and long) from the in stream.
+*/
+
+template < class charT, class traits >
+basic_istream<charT, traits>& basic_istream<charT, traits>::operator >> (long double &n)
+{
+  volatile long double Number = 0.0;
+
+  n = Number;
+  return (*this);   
+}
+
+/*
+   basic_istream<charT, traits>& operator >> (void *&);
+   Comment   : Get an address from the in stream.
+*/
+
+template < class charT, class traits >
+basic_istream<charT, traits>& basic_istream<charT, traits>::operator >> (void *&p)
+{
+  char	*str;
+  volatile unsigned int size = 0U;
+
+  str = new char[size];
+  p = (void *)str;
+  return (*this);   
+}
+
+/*
+   basic_istream<charT, traits>& operator >> (basic_streambuf<char_type, traits> *);
+   Comment   : Get an streambuf from the in stream.
+*/
+
+
+template < class charT, class traits >
+basic_istream<charT, traits>& basic_istream<charT, traits>::operator >> (basic_streambuf<char_type, traits> *sb)
+{
+  return (*this);   
+}
+
+
+/*
+   streamsize gcount() const;
+   Comment   :  return the number of character extracted by the
+		last unformatted input member function called for
+		the object.
+*/
+
+
+template < class charT, class traits >
+streamsize basic_istream<charT, traits>::gcount () const
+{
+  volatile streamsize	n = 0;
+
+  return (n);
+}
+
+
+/*
+   int_type	get();
+   Comment   : return size of the stream.
+*/
+
+template <class charT, class traits >
+ basic_istream<charT, traits>::int_type basic_istream<charT, traits>::get()
+{
+  volatile int	Random = 0;
+  volatile char c = 0;
+
+  return (((Random) ? c : traits::eof()));
+}
+
+/*
+   basic_istream<charT, traits>		&get(char_type &c);
+   Comment   : Get a character in the stream and return the stream.
+*/
+
+template <class charT, class traits >
+basic_istream<charT, traits> &basic_istream<charT, traits>::get(char_type &c)
+{
+  volatile char_type cret = (char_type)0;
+
+  c =  cret;
+  return (*this);
+}
+
+
+/*
+   basic_istream<charT, traits>		&get(char_type *s, streamsize n);
+   Comment   : Get characters in the stream and return the stream.
+*/
+
+template <class charT, class traits >
+basic_istream<charT, traits> &basic_istream<charT, traits>::get(char_type *s, streamsize n)
+{
+  streamsize	i;
+  volatile streamsize rand_size = 0;
+  streamsize size = rand_size;
+  assert((size >= 0) && (size < n)); // max = n-1 char stored 
+
+  volatile char_type value = (char_type)0;
+
+  for (i = 0; i < size; i++)
+    s[i] = value;
+
+  s[size] = charT() ;
+
+  return (*this);
+}
+
+/*
+   basic_istream<charT, traits>		&get(char_type *s, streamsize n, char_type delim);
+   Comment   : Get characters in the stream and return the stream.
+*/
+
+template <class charT, class traits >
+basic_istream<charT, traits> &basic_istream<charT, traits>::get(char_type *s, streamsize n, char_type delim)
+{
+  streamsize	i;
+  volatile streamsize rand_size = 0;
+  streamsize size = rand_size;
+  assert((size >= 0) && (size < n)); // max = n-1 char stored 
+
+  volatile char_type value = (char_type)0;	
+
+  for (i = 0; i < size; i++)
+    s[i] = value;
+
+  s[size] = charT() ;
+
+  return (*this);
+}
+
+
+/*
+   basic_istream<charT, traits>		&get(basic_streambuf<char_type, traits> &);
+   Comment   : Get characters in the stream and return the stream.
+*/
+
+
+template <class charT, class traits >
+basic_istream<charT, traits> &basic_istream<charT, traits>::get(basic_streambuf<char_type, traits> &sb)
+{  
+  return (*this);
+}
+
+
+/*
+   basic_istream<charT, traits>		&get(basic_streambuf<char_type, traits> &, char_type);
+   Comment   : Get characters in the stream and return the stream.
+*/
+
+
+template <class charT, class traits >
+basic_istream<charT, traits> &basic_istream<charT, traits>::get(basic_streambuf<char_type, traits> &sb, char_type delim)
+{  
+  return (*this);
+}
+
+
+/*
+   basic_istream<charT, traits>		&getline(char_type *, streamsize);
+   Comment   : Get characters in the stream and return the stream.
+*/
+
+
+template <class charT, class traits >
+basic_istream<charT, traits> &basic_istream<charT, traits>::getline(char_type *s, streamsize n)
+{  
+  streamsize	i;
+  volatile streamsize size = 0;
+  volatile char_type value = (char_type)0;
+
+  assert((size >= 0) && (size < n)); // max = n-1 char stored 
+  for (i = 0; i < size; i++)
+    s[i] = value;
+
+  s[size] = charT() ;
+
+  return (*this); 
+}
+
+
+/*
+   basic_istream<charT, traits>		&getline(char_type *, streamsize, char_type);
+   Comment   : Get characters in the stream and return the stream.
+*/
+
+template <class charT, class traits >
+basic_istream<charT, traits> &basic_istream<charT, traits>::getline(char_type *s, streamsize n, char_type delim)
+{  
+  streamsize	i;
+  volatile streamsize size = 0;
+  volatile char_type value = (char_type)0;	
+
+  assert((size >= 0) && (size < n)); // max = n-1 char stored 
+  for (i = 0; i < size; i++)
+    s[i] = value;
+
+  s[size] = charT() ;
+
+  return (*this); 
+}
+
+
+/*
+   basic_istream<charT, traits>		&ignore(streamsize = 1, int_type = traits::eof());
+   Comment   : ignore n (first arg) characters in the stream and return the stream.
+*/
+
+
+template <class charT, class traits >
+basic_istream<charT, traits> &basic_istream<charT, traits>::ignore(streamsize str, int_type it)
+{  
+  return (*this); 
+}
+
+
+/*
+   int_type	peek()
+   Comment	: traits::eof() is good() is __ps_false. Otherwise, returns a character from the buffer.
+*/
+
+template <class charT, class traits >
+basic_istream<charT, traits>::int_type	basic_istream<charT, traits>::peek()
+{  
+  volatile int	Random = 0;
+  volatile char c = 0;
+
+  if (Random)
+    return (traits::eof());
+  else
+    return c; 
+}
+
+/*
+   basic_istream<char T, traits>	&read(char_type *, streamsize)
+   Comment	: 
+*/
+
+template <class charT, class traits >
+basic_istream<charT, traits>	&basic_istream<charT, traits>::read(char_type *s, streamsize n)
+{  
+  int	i;
+  volatile char_type value = (char_type)0;	
+
+  for (i = 0; i < n; i++)
+    s[i] = value;
+  return (*this);
+}
+
+
+/*
+   streamsize readsome(char_type *, streamsize)
+   Comment	: In certain conditions, extracts characters and stores them into successive
+		  locations of an array whose first element is designated by s.
+*/
+
+template <class charT, class traits >
+streamsize	basic_istream<charT, traits>::readsome(char_type *s, streamsize n)
+{  
+  int		i;
+  volatile int	Random = 0;
+  volatile int	size = 0;
+  volatile char_type value = (char_type)0;	
+
+  assert(size < n);
+  if (Random)
+    {
+      for (i = 0; i < n; i++)
+	s[i] = value;
+      return (size);
+    }
+  return (0);
+}
+
+
+/*
+   basic_istream<charT, traits> &putback(char_type)
+   Comment	: return the stream.
+*/
+
+template <class charT, class traits >
+basic_istream<charT, traits>	&basic_istream<charT, traits>::putback(char_type c)
+{  
+  return (*this);
+}
+
+/*
+   basic_istream<charT, traits> &unget()
+   Comment	: return the stream.
+*/
+
+template <class charT, class traits >
+basic_istream<charT, traits>	&basic_istream<charT, traits>::unget()
+{  
+  return (*this);
+}
+
+
+/*
+   int sync()
+   Comment	: return the -1 if the buffer is a null pointer 0 otherwise.
+*/
+
+template <class charT, class traits >
+int	basic_istream<charT, traits>::sync()
+{  
+  volatile int	Random = 0;
+
+  if (Random)
+    return -1;
+  else
+    return 0;
+}
+
+/*
+   pos_type tellg()
+   Comment	: return the pos_type of the pointer in the buffer.
+*/
+
+template <class charT, class traits >
+basic_istream<charT, traits>::pos_type	basic_istream<charT, traits>::tellg()
+{  
+  pos_type	ret=pos_type();
+
+  return (ret);
+}
+
+/*
+   basic_istream<charT, traits>	&seekg(pos_type)
+   Comment	: return the stream.
+*/
+
+template <class charT, class traits >
+basic_istream<charT, traits>	&basic_istream<charT, traits>::seekg(pos_type pos)
+{  
+  return (*this);
+}
+
+/*
+   basic_istream<charT, traits> &seekg(off_type, ios_base::seekdir)
+   Comment	: return the stream.
+*/
+
+template <class charT, class traits >
+basic_istream<charT, traits>	&basic_istream<charT, traits>::seekg(off_type of, ios_base::seekdir dir)
+{  
+  return (*this);
+}
+
+
+/* template<class charT, class traits>
+   basic_istream<charT, traits>&		operator >> (basic_istream<charT, traits> &, charT &);
+   Comment	: get a charT in the stream(first arg) and stock it in the second args.
+*/
+
+template <class charT, class traits >
+basic_istream<charT, traits>	& operator >> (basic_istream<charT, traits> &is, charT &c)
+{  
+  volatile charT	ret = '\0';
+
+  c = ret;
+  return (is);
+}
+
+/* template<class traits>
+   basic_istream<char, traits>&		operator >> (basic_istream<char, traits> &, unsigned char &);
+   Comment	: get a char (unsigned ) in the stream(first arg) and stock it in the second args.
+*/
+
+template <class traits >
+basic_istream<char, traits>	& operator >> (basic_istream<char, traits> &is, unsigned char &c)
+{  
+  volatile unsigned char	ret = 0;
+
+  c = ret;
+  return (is);
+}
+
+/* template<class traits>
+   basic_istream<char, traits>&		operator >> (basic_istream<char, traits> &, signed char &);
+   Comment	: get a char (signed) in the stream(first arg) and stock it in the second args.
+*/
+
+template <class traits >
+basic_istream<char, traits>	& operator >> (basic_istream<char, traits> &is, signed char &c)
+{  
+  volatile signed char	ret = 0;
+
+  c = ret;
+  return (is);
+}
+
+/* template<class charT, class traits>
+   basic_istream<charT, traits>&		operator >> (basic_istream<charT, traits> &, charT *);
+   Comment	: get a string of charT in the stream(first arg) and stock it in the second args.
+*/
+
+template <class charT, class traits >
+basic_istream<charT, traits>	& operator >> (basic_istream<charT, traits> &is, charT	*str)
+{  
+  volatile charT	ret = '\0';
+  volatile int		size = 0;
+  int			i;
+  
+  for (i = 0; i < size; i++)
+    str[i] = ret;
+  return (is);
+}
+
+/* template<class traits>
+   basic_istream<char, traits>&		operator >> (basic_istream<char, traits> &, unsigned char *);
+   Comment	: get a string of char (unsigned) in the stream(first arg) and stock it in the second args.
+*/
+
+template <class traits >
+basic_istream<char, traits>	& operator >> (basic_istream<char, traits> &is, unsigned char	*str)
+{  
+  volatile unsigned char	ret = 0;
+  volatile int			size = 0;
+  int				i;
+  
+  for (i = 0; i < size; i++)
+    str[i] = ret;
+  return (is);
+}
+
+/* template<class traits>
+   basic_istream<char, traits>&		operator >> (basic_istream<char, traits> &, signed char *);
+   Comment	: get a string of char (signed) in the stream(first arg) and stock it in the second args.
+*/
+
+template <class traits >
+basic_istream<char, traits>	& operator >> (basic_istream<char, traits> &is, signed char	*str)
+{  
+  volatile signed char	ret = 0;
+  volatile int		size = 0;
+  int			i;
+  
+  for (i = 0; i < size; i++)
+    str[i] = ret;
+  return (is);
+}
+
+  
+template <class charT, class traits> basic_istream<charT, traits>	&ws(basic_istream<charT, traits> &is) {return is;}
+
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+ 
+ 
+}
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+#endif /* PST_STL_ISTREAM */
+

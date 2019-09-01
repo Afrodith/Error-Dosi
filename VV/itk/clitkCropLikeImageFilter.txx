@@ -20,7 +20,7 @@
 #define CLITKCROPLIKEIMAGEFILTER_TXX
 
 // clitk
-#include "clitkCommon.h"
+#include "VV/common/clitkCommon.h"
 #include "clitkPasteImageFilter.h"
 
 //--------------------------------------------------------------------

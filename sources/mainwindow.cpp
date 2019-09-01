@@ -1,6 +1,7 @@
 ﻿#include "headers/mainwindow.h"
 #include "ui_mainwindow.h"
 
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -10,12 +11,23 @@ MainWindow::MainWindow(QWidget *parent) :
     CT=nullptr;
     NM=nullptr;
     brachy=nullptr;
-    QFile file(":/pushbuttton.qss");
-    file.open(QFile::ReadOnly);
-    QString styleSheet = QLatin1String(file.readAll());
-    this->setStyleSheet(styleSheet);
     this->setWindowTitle("Error-Dosi");
 
+    QPixmap image_red = QPixmap::fromImage(QImage(":/icons/icons/platform-credits.jpg"));
+
+    QGraphicsScene* scene1= new QGraphicsScene(ui->graphicsView);
+    scene1->addPixmap(image_red);
+    scene1->setSceneRect(image_red.rect());
+
+    ui->graphicsView->setScene(scene1);
+
+    ui->graphicsView->resize(scene1->itemsBoundingRect().width(),scene1->itemsBoundingRect().height());
+
+    ui->graphicsView->show();
+
+
+//   vvMainWindow *vvMain = new vvMainWindow(this);
+//   vvMain->show();
 
 
 }

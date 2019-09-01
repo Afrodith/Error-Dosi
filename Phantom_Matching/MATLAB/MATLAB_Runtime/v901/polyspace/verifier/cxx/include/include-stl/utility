@@ -1,0 +1,113 @@
+/*
+ *
+ * This file and its contents are the property of The MathWorks, Inc.
+ * 
+ * This file contains confidential proprietary information.
+ * The reproduction, distribution, utilization or the communication
+ * of this file or any part thereof is strictly prohibited.
+ * Offenders will be held liable for the payment of damages.
+ *
+ * Copyright 1999-2013 The MathWorks, Inc.
+ *
+ */
+
+#ifndef PST_STL_UTILITY
+#define PST_STL_UTILITY
+
+#include <__polyspace__compat.h>
+
+namespace std
+{
+#ifdef PST_VISUAL
+#pragma pack(push, 8) /* push default value */
+#endif
+
+   /* 20.2.1 */
+
+   namespace rel_ops
+   {
+      template<class T> __ps_bool operator!=(const T& t1, const T& t2) { return !(t1==t2) ; } 
+      template<class T> __ps_bool operator> (const T& t1, const T& t2) { return t2<t1     ; } 
+      template<class T> __ps_bool operator<=(const T& t1, const T& t2) { return !(t2<t1)  ; } 
+      template<class T> __ps_bool operator>=(const T& t1, const T& t2) { return !(t1<t2)  ; } 
+   }
+
+   /* 20.2.2 */
+   
+   template<class T1, class T2>
+   struct pair
+   {
+      typedef T1 first_type ;
+      typedef T2 second_type ;
+      T1 first ;
+      T2 second ;
+
+      /*  constructor */
+
+      pair() : first(T1()), second(T2()) { ; } ;
+      pair(const T1& t1, const T2& t2) : first(t1), second(t2) { ; } ;
+
+      template<class U, class V>
+      pair(const pair<U, V> &p) : first((T1)p.first), second((T2)p.second) { ; } 
+   } ;
+
+   template<class T1, class T2>
+   __ps_bool operator==(const pair<T1, T2>& x, const pair<T1, T2>& y) 
+   { 
+      return (x.first==y.first) && (x.second==y.second) ;
+   }
+
+   template<class T1, class T2>
+   __ps_bool operator<(const pair<T1, T2>& x, const pair<T1, T2>& y) 
+   { 
+      return (x.first < y.first) || ( !(y.first < x.first) &&  (x.second < y.second)) ;
+   }
+
+   template<class T1, class T2>
+   __ps_bool operator>=(const pair<T1, T2>& x, const pair<T1, T2>& y) 
+   { 
+      //return !((x.first < y.first) || ( !(x.first < y.first) &&  (x.second < y.second))) ;
+     return (!(x.first < y.first)) && ( (x.first < y.first) || !(x.second < y.second)) ;
+   }
+
+   template<class T1, class T2>
+   __ps_bool operator!=(const pair<T1, T2>& x, const pair<T1, T2>& y) 
+   { 
+     //return !(x==y)
+     return (!(x.first==y.first)) || !(x.second==y.second) ;
+   }
+
+   template<class T1, class T2>
+   __ps_bool operator>(const pair<T1, T2>& x, const pair<T1, T2>& y) 
+   { 
+     //return y<x ;
+     return (y.first < x.first) || ( !(y.first < x.first) &&  (y.second < x.second)) ;
+   }
+
+   template<class T1, class T2>
+   __ps_bool operator<=(const pair<T1, T2>& x, const pair<T1, T2>& y) 
+   { 
+     // return !(y<x)
+     return (!(y.first < x.first)) && ( (y.first < x.first) || ! (y.second < x.second)) ;
+   }
+
+
+   template<class T1, class T2>
+   pair<T1, T2> make_pair(T1 t1, T2 t2)
+   {
+      return pair<T1,T2>(t1, t2) ;
+   }
+
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+
+}
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+#endif /* PST_STL_UTILITY */

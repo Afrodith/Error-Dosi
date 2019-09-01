@@ -20,7 +20,7 @@
 #define CLITKBOUNDINGBOXUTILS_H
 
 // clitk
-#include "clitkCommon.h"
+#include "VV/common/clitkCommon.h"
 
 // itk
 #include <itkBoundingBox.h>

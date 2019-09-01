@@ -1,0 +1,166 @@
+/*
+ *
+ * This file and its contents are the property of The MathWorks, Inc.
+ * 
+ * This file contains confidential proprietary information.
+ * The reproduction, distribution, utilization or the communication
+ * of this file or any part thereof is strictly prohibited.
+ * Offenders will be held liable for the payment of damages.
+ *
+ * Copyright 1999-2012 The MathWorks, Inc.
+ *
+ */
+#ifndef PST_STL_MEMORY
+#define PST_STL_MEMORY
+
+#include <__polyspace__compat.h>
+#include <new>
+#include <__polyspace__stdlib.h>
+#include <__polyspace__auto_ptr.h>
+#include <__polyspace__allocator_def.h>
+
+// need output_iterator_tag, __pst_iterator_traits<>
+#include <__polyspace__iterator.h>
+
+// need pair
+#include <utility>
+
+#ifdef PST_VISUAL
+#pragma pack(push, 8) 
+#endif
+
+namespace std
+{
+
+  // 20.4.1.2
+
+  template<class OutputIterator, class T>
+  class raw_storage_iterator : public iterator<output_iterator_tag, void, void, void, void>
+  {
+    OutputIterator m_out ;
+  public:
+    __ps_explicit raw_storage_iterator(OutputIterator x) : m_out(x) { ; }
+
+#ifdef PST_VISUAL
+    typedef OutputIterator iterator_type ; // Visual 6 & 7.1
+    typedef OutputIterator iter_type ;     // Visual 7.1
+    typedef T element_type ;
+#endif
+
+    raw_storage_iterator& operator*() { return *this ; } ;
+    raw_storage_iterator& operator++() { ++m_out ; return *this ; }
+    raw_storage_iterator operator++(int) { raw_storage_iterator tmp = *this ; ++m_out ; return tmp ; }
+
+    raw_storage_iterator& operator=(const T& elements) 
+    { 
+      typedef __ps_typename iterator_traits<OutputIterator>::value_type V ;
+      new (static_cast<void*>(&*m_out)) V(elements) ; 
+      return *this ; 
+    } ;
+
+  } ;
+}
+
+
+
+namespace std
+{
+  // 20.4.3
+  template<class T>
+#if (defined PST_VISUAL) && (_MSC_VER<1300)
+  inline pair<T*, ptrdiff_t> get_temporary_buffer(ptrdiff_t n, T* p)
+#else
+  inline pair<T*, ptrdiff_t> get_temporary_buffer(ptrdiff_t n)
+#endif
+  {
+    T* ptr = (T*) malloc(sizeof(T) * n) ;
+    if (ptr==0) 
+    {
+      return pair<T*, ptrdiff_t>(0, 0) ;
+    }
+    else
+    {
+      return pair<T*, ptrdiff_t>(ptr, n) ;      
+    }
+  }
+
+  template <class T>
+  inline void return_temporary_buffer(T* p)
+  {
+    free(p) ;
+  }
+}
+
+// 20.4.4
+
+namespace std
+{
+
+  template<class InputIterator, class ForwardIterator>
+  inline ForwardIterator uninitialized_copy(InputIterator first, InputIterator last,
+					    ForwardIterator result)
+  {
+    typedef __ps_typename iterator_traits<ForwardIterator>::value_type V ;
+    ForwardIterator orig = result;
+    try {
+      for ( ; first != last; ++first, ++result)
+	new (static_cast<void*>(&*result)) V(*first) ;   
+      return result;
+    }
+    catch(...)
+    {
+      for ( ; orig != result; ++orig)
+	(&*orig)->~V() ;
+      throw ;
+    }
+  }
+
+  template<class ForwardIterator, class T>
+  inline void uninitialized_fill(ForwardIterator first, ForwardIterator last, const T& x)	
+  {
+    typedef __ps_typename iterator_traits<ForwardIterator>::value_type V ;
+    ForwardIterator orig = first;
+    try {
+      for ( ; first != last; ++first)
+	new (static_cast<void*>(&*first)) V(x) ;
+    }
+    catch(...)
+    {
+      for ( ; orig != first; ++first)
+	(&*orig)->~V() ;
+      throw ;
+    }
+  }
+
+
+  template<class ForwardIterator, class Size, class T>
+  inline void uninitialized_fill_n(ForwardIterator first, Size n, const T& x)	
+  {
+    typedef __ps_typename iterator_traits<ForwardIterator>::value_type V ;
+    ForwardIterator orig = first;
+    try {
+      for ( ; n--; ++first)
+	new (static_cast<void*>(&*first)) V(x) ;
+    }
+    catch(...)
+    {
+      for ( ; orig != first; ++first)
+	(&*orig)->~V() ;
+      throw ;
+    }
+  }
+
+
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+
+}
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+#endif /* PST_STL_MEMORY */

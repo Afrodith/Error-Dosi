@@ -22,8 +22,8 @@
 #include <string>
 #include <itkImageFileReader.h>
 #include <itkImageSeriesReader.h>
-#include <itkImageToVTKImageFilter.h>
-#include <itkFlexibleVectorCastImageFilter.h>
+#include <VV/itk/itkImageToVTKImageFilter.h>
+#include <VV/itk/itkFlexibleVectorCastImageFilter.h>
 #include "itkVectorImageToImageAdaptor.h"
 
 #include <vtkTransform.h>

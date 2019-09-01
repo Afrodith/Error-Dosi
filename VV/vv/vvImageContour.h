@@ -18,7 +18,7 @@
 #ifndef VVIMAGECONTOUR_H
 #define VVIMAGECONTOUR_H
 
-#include "clitkCommon.h"
+#include "VV/common/clitkCommon.h"
 #include "vvSlicer.h"
 
 class vtkImageClip;

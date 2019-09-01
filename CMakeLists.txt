@@ -40,6 +40,76 @@ set(SOURCES
      sources/interp.cc
      sources/main.cpp
      sources/mainwindow.cpp
+     VV/common/clitkCommon.cxx
+     VV/common/clitkExceptionObject.cxx
+     VV/common/clitkVfImageIO.cxx
+     VV/common/rtkHisImageIOFactory.cxx
+     VV/common/clitkDicomRT_Contour.cxx
+     VV/common/clitkGateAsciiImageIO.cxx
+     VV/common/clitkVfImageIOFactory.cxx
+     VV/common/rtkHndImageIO.cxx
+     VV/common/clitkDicomRTDoseIO.cxx
+     VV/common/clitkGateAsciiImageIOFactory.cxx
+     VV/common/clitkVoxImageIO.cxx
+     VV/common/rtkHndImageIOFactory.cxx
+     VV/common/clitkDicomRTDoseIOFactory.cxx
+     VV/common/clitkDicomRT_ROI.cxx
+     VV/common/clitkDicomRTStruct2ImageFilter.cxx
+     VV/common/clitkDicomRT_StructureSet.cxx
+     VV/common/clitkEsrfHstImageIO.cxx
+     VV/common/clitkEsrfHstImageIOFactory.cxx
+     VV/common/clitkEsrfHstXMLFileReader.cxx
+     VV/common/clitkIO.cxx
+     VV/common/clitkListOfPair.cxx
+     VV/common/clitkMatrix.cxx
+     VV/common/clitkMemoryUsage.cxx
+     VV/common/clitkOrientation.cxx
+     VV/common/clitkTransformUtilities.cxx
+     VV/common/rtkHisImageIO.cxx
+     VV/common/clitkXdrImageIOFactory.cxx
+     VV/common/rtkImagXImageIOFactory.cxx
+     VV/common/clitkXdrImageIOReader.cxx
+     VV/common/rtkImagXXMLFileReader.cxx
+     VV/common/clitkXdrImageIOWriter.cxx
+     VV/common/vvImage.cxx
+     VV/common/rtkEdfImageIO.cxx
+     VV/common/vvImageReader.cxx
+     VV/common/rtkEdfImageIOFactory.cxx
+     VV/common/vvImageWriter.cxx
+     VV/common/clitkImageCommon.cxx
+     VV/common/clitkVoxImageIOFactory.cxx
+     VV/common/rtkImagXImageIO.cxx
+     VV/vv/vtkVOXImageWriter.cxx
+     VV/vv/vvAnimatedGIFWriter.cxx
+     VV/vv/vvBinaryImageOverlayActor.cxx
+     VV/vv/vvBlendImageActor.cxx
+     VV/vv/vvClipPolyData.cxx
+     VV/vv/vvGlyph2D.cxx
+     VV/vv/vvGlyphSource.cxx
+     VV/vv/vvImageContour.cxx
+     VV/vv/vvImageWarp.cxx
+     VV/vv/vvInfoPanel.cxx
+     VV/vv/vvIntensityValueSlider.cxx
+     VV/vv/vvInteractorStyleNavigator.cxx
+     VV/vv/vvLandmarks.cxx
+     VV/vv/vvLandmarksGlyph.cxx
+     VV/vv/vvMeshActor.cxx
+     VV/vv/vvMesh.cxx
+     VV/vv/vvMeshReader.cxx
+     VV/vv/vvMidPosition.cxx
+     VV/vv/vvProgressDialog.cxx
+     VV/vv/vvQDicomSeriesSelector.cxx
+     VV/vv/vvQProgressDialogITKCommand.cxx
+     VV/vv/vvROIActor.cxx
+     VV/vv/vvSlicer.cxx
+     VV/vv/vvSlicerManagerCommand.cxx
+     VV/vv/vvSlicerManager.cxx
+     VV/vv/vvStructureSetActor.cxx
+     VV/vv/vvToolRigidReg.cxx
+
+
+
+
 )
 
 set(MOC
@@ -49,32 +119,45 @@ set(MOC
     headers/integradedose.h
     headers/interp.hh
     headers/mainwindow.h
+
+
+
+
     )
 set(UI
     forms/Brachytherapy.ui
     forms/CTDosimetry.ui
     forms/NMDosimetry.ui
-    forms/mainwindow.ui)
+    forms/mainwindow.ui
+    VV/vv/qt_ui/vvInfoPanel.ui
+    VV/vv/qt_ui/vvProgressDialog.ui
+    VV/vv/qt_ui/vvIntensityValueSlider.ui
+    VV/vv/qt_ui/vvToolRigidReg.ui
+
+    )
 set(RCC resources.qrc )
 
+file(GLOB vv_common VV/common/"*.")
+file(GLOB vv_itk VV/itk/"*.h" ".txx")
+file(GLOB vv_vv VV/vv/"*.h")
+file(GLOB vv_utilities VV/utilities/"*.")
 
-#file(GLOB_RECURSE vv VV/common/"*.cxx" "*.hxx" "*.cxx")
+INCLUDE_DIRECTORIES(
+    ${vv_common}
+    ${vv_itk}
+    ${vv_vv}
+    ${vv_utilities}
 
-#file(GLOB_RECURSE vv VV/common/"*.cxx" "*.hxx" "*.h")
+    )
 
-#file(GLOB_RECURSE cc VV/common/"*.cxx" "*.hxx" "*.txx")
-
-#file(GLOB_RECURSE tt VV/common/"*.cxx" "*.hxx" "*.hxx")
-
-#file(GLOB_RECURSE tt VV/vv/q_ui/"*.ui" "*.hxx" "*.ui")
 
 #set(vv
-#    VV/common/*".cxx"
-#    VV/itk/"*.h"
-#    VV/itk/"*.cxx"
-#    VV/itk/"*.txx"
-#    VV/vv/"*.cxx"
-#    )
+    #VV/common/*".cxx"
+    #VV/itk/"*.h"
+    #VV/itk/"*.cxx"
+    #VV/itk/"*.txx"
+    #VV/vv/"*.cxx"
+    #)
 
 qt5_wrap_cpp(MOC_GENERATED ${MOC})
 qt5_wrap_ui(UI_GENERATED ${UI})
@@ -82,12 +165,12 @@ qt5_add_resources(RCC_GENERATED ${RCC})
 
 source_group("Form Files" FILES ${UI} )
 source_group("Resource Files" FILES ${RCC} )
-source_group("VV opensource files" FILES ${vv} )
+source_group("VV opensource files" FILES ${tt} )
 source_group("Generated Files" FILES ${MOC_GENERATED}   ${UI_GENERATED}  ${RCC_GENERATED} )
 
 add_executable(Error-Dosi
     ${SOURCES}
-    ${MOC_GENERATED}   ${UI_GENERATED}  ${RCC_GENERATED} )
+    ${MOC_GENERATED}   ${UI_GENERATED}  ${RCC_GENERATED} ${VV})# ${cc}  )
 
 
 

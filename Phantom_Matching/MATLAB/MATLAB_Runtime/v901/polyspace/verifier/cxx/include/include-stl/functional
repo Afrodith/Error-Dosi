@@ -1,0 +1,443 @@
+/*
+ *
+ * This file and its contents are the property of The MathWorks, Inc.
+ * 
+ * This file contains confidential proprietary information.
+ * The reproduction, distribution, utilization or the communication
+ * of this file or any part thereof is strictly prohibited.
+ * Offenders will be held liable for the payment of damages.
+ *
+ * Copyright 1999-2012 The MathWorks, Inc.
+ *
+ */
+#ifndef PST_STL_FUNCTIONAL
+#define PST_STL_FUNCTIONAL
+
+#include <__polyspace__compat.h>
+
+namespace std
+{
+
+#ifdef PST_VISUAL
+#pragma pack(push, 8) /* push default value */
+#endif
+
+  // 20.3.1 : base
+
+  template <class Arg, class Result>
+  struct unary_function
+  {
+	typedef Arg argument_type;
+	typedef Result result_type;
+  };
+
+  template <class Arg1, class Arg2, class Result>
+  struct binary_function
+  {
+    typedef Arg1    first_argument_type ;
+    typedef Arg2    second_argument_type ;
+    typedef Result  result_type ;
+  } ;
+
+  // 20.3.2 : arithmetic operations
+
+  template <class T>
+  struct plus : binary_function<T, T, T>
+  {
+	T operator()(const T& x, const T& y) const { return x + y; }
+  };
+
+  template <class T>
+  struct minus : binary_function<T, T, T>
+  {
+	T operator()(const T& x, const T& y) const { return x - y; }
+  };
+
+  template <class T>
+  struct multiplies : binary_function<T, T, T>
+  {
+	T operator()(const T& x, const T& y) const { return x * y; }
+  };
+
+  template <class T>
+  struct divides : binary_function<T, T, T>
+  {
+	T operator()(const T& x, const T& y) const { return x / y; }
+  };
+
+  template <class T>
+  struct modulus : binary_function<T, T, T>
+  {
+	T operator()(const T& x, const T& y) const { return x % y; }
+  };
+
+  template <class T>
+  struct negate : unary_function<T, T>
+  {
+	T operator()(const T& x) const { return -x; }
+  };
+ 
+  // 20.3.3 : comparision
+
+  template<class T>
+  struct equal_to : binary_function<T, T, __ps_bool>
+  {
+	__ps_bool operator()(const T& x, const T& y) const { return x == y; }
+  };
+
+  template<class T>
+  struct not_equal_to : binary_function<T, T, __ps_bool>
+  {
+	__ps_bool operator()(const T& x, const T& y) const { return x != y; }
+  };
+
+  template<class T>
+  struct greater : binary_function<T, T, __ps_bool>
+  {
+	__ps_bool operator()(const T& x, const T& y) const { return x > y; }
+  };
+
+  template<class T>
+  struct less : public binary_function<T, T, __ps_bool>
+  {
+	__ps_bool operator()(const T& x, const T& y) const { return x < y; }
+  };
+
+  template<class T>
+  struct greater_equal : public binary_function<T, T, __ps_bool>
+  {
+	__ps_bool operator()(const T& x, const T& y) const { return x >= y; }
+  };
+
+  template<class T>
+  struct less_equal : public binary_function<T, T, __ps_bool>
+  {
+	__ps_bool operator()(const T& x, const T& y) const { return x <= y; }
+  };
+
+  // 20.3.4 : logical operations
+
+  template <class T>
+  struct logical_and : public binary_function<T, T, __ps_bool>
+  {
+	__ps_bool operator()(const T& x, const T& y) const { return x && y; }
+  };
+
+  template <class T>
+  struct logical_or : public binary_function<T, T, __ps_bool>
+  {
+	__ps_bool operator()(const T& x, const T& y) const { return x || y; }
+  };
+
+  template <class T>
+  struct logical_not : public unary_function<T, __ps_bool>
+  {
+	__ps_bool operator()(const T& x) const { return !x; }
+  };
+
+  // 20.3.5 : negators
+  template <class Predicate>
+  struct unary_negate : 
+	public unary_function<__ps_typename Predicate::argument_type, __ps_bool>
+  {
+     private:
+	Predicate m_pred;
+     public:
+	__ps_explicit unary_negate(const Predicate& pred) : m_pred(pred) { }
+	__ps_bool operator()(const __ps_typename Predicate::argument_type& x) const 
+	{	
+		return !m_pred(x);
+	}
+  };
+
+  template <class Predicate> 
+  unary_negate<Predicate> not1(const Predicate& pred)
+  {
+	return unary_negate<Predicate>(pred);
+  }
+
+  template <class Predicate>
+  struct binary_negate
+	: public binary_function<__ps_typename Predicate::first_argument_type,
+				 __ps_typename Predicate::second_argument_type,
+				 __ps_bool>
+  {
+     private:
+	Predicate m_pred;
+     public:
+	__ps_explicit binary_negate(const Predicate& pred) : m_pred(pred) { }
+  	__ps_bool operator()(const __ps_typename Predicate::first_argument_type& x,
+			const __ps_typename Predicate::second_argument_type& y) const
+	{
+		return !m_pred(x, y);
+	}
+  };
+
+  template <class Predicate>
+  binary_negate<Predicate> not2(const Predicate& pred)
+  {
+	return binary_negate<Predicate>(pred);
+  }
+
+  // 20.3.6 : binders
+
+  template <class Operation>
+  class binder1st 
+	: public unary_function<__ps_typename Operation::second_argument_type,
+				__ps_typename Operation::result_type>
+  { 
+      protected:
+	Operation op;
+	__ps_typename Operation::first_argument_type value;
+      public:
+	binder1st(const Operation& x,
+		  const __ps_typename Operation::first_argument_type& y) 
+	  	: op(x), value(y) { }
+	__ps_typename Operation::result_type
+	    operator()(const __ps_typename Operation::second_argument_type& x) const
+	{
+		return op(value, x);
+	}
+#ifdef PST_VISUAL
+	__ps_typename Operation::result_type
+	    operator()(__ps_typename Operation::second_argument_type& x) const
+	{
+		return op(value, x);
+	}
+#endif
+  };
+
+  template <class Operation, class T>
+  binder1st<Operation> bind1st(const Operation& op, const T& x)
+  {
+	return binder1st<Operation>(op, 
+		__ps_typename Operation::first_argument_type(x));
+  }
+
+  template <class Operation> class binder2nd
+	: public unary_function<__ps_typename Operation::first_argument_type,
+				__ps_typename Operation::result_type>
+  {
+      protected:
+	Operation op;
+	__ps_typename Operation::second_argument_type value;
+      public:
+	binder2nd(const Operation& x,
+		  const __ps_typename Operation::second_argument_type& y)
+		: op(x), value(y) { }
+	__ps_typename Operation::result_type
+	    operator()(const __ps_typename Operation::first_argument_type& x) const
+	{
+	    	return op(x, value);
+	}
+#ifdef PST_VISUAL
+	__ps_typename Operation::result_type
+	    operator()(__ps_typename Operation::first_argument_type& x) const
+	{
+	    	return op(x, value);
+	}
+#endif
+  };
+
+  template <class Operation, class T>
+  binder2nd<Operation> bind2nd(const Operation& op, const T& x)
+  {
+	return binder2nd<Operation>(op, 
+		__ps_typename Operation::second_argument_type(x));
+  }
+
+  // 20.3.7 : adaptors for pointers to functions
+
+  template <class Arg, class Result>
+  class pointer_to_unary_function : public unary_function<Arg, Result>
+  {
+      private:
+	Result (*m_f)(Arg);
+      public:
+	__ps_explicit pointer_to_unary_function(Result (*f)(Arg)) 
+		: m_f(f) { }
+	Result operator()(Arg x) const { return (*m_f)(x); }
+  };
+
+  template <class Arg, class Result>
+  pointer_to_unary_function<Arg, Result> ptr_fun(Result (*f)(Arg))
+  {
+	return pointer_to_unary_function<Arg, Result>(f);
+  }
+
+  template <class Arg1, class Arg2, class Result>
+  class pointer_to_binary_function : public binary_function<Arg1, Arg2, Result>
+  {
+      private:
+	Result (*m_f)(Arg1, Arg2);
+      public:
+	__ps_explicit pointer_to_binary_function(Result (*f)(Arg1, Arg2))
+		: m_f(f) { }
+	Result operator()(Arg1 x, Arg2 y) const { return m_f(x, y); }
+  };
+
+  template <class Arg1, class Arg2, class Result>
+  pointer_to_binary_function<Arg1, Arg2, Result> ptr_fun(Result (*f)(Arg1, Arg2))
+  {
+	return pointer_to_binary_function<Arg1, Arg2, Result>(f);
+  }
+
+  // 20.3.8 : adaptors for pointers to members
+  
+  template<class S, class T> class mem_fun_t
+	: public unary_function<T *, S>
+  {
+     private:
+	S (T::*m_p)();
+     public:
+	__ps_explicit mem_fun_t(S (T::*p)()) : m_p(p) { }
+	S operator()(T *p) const { return (p->*m_p)(); }
+  };
+
+  template <class S, class T, class A> class mem_fun1_t
+	: public binary_function<T *, A, S>
+  {
+     private:
+	S (T::*m_p)(A);
+     public:
+	__ps_explicit mem_fun1_t(S (T::*p)(A)) : m_p(p) { }
+	S operator()(T *p, A x) const { return (p->*m_p)(x); }
+  };
+
+  template <class S, class T>
+  mem_fun_t<S, T> mem_fun(S (T::*f)())
+  {
+	return mem_fun_t<S, T>(f);
+  }
+
+  template <class S, class T, class A>
+  mem_fun1_t<S, T, A> mem_fun(S (T::*f)(A))
+  {
+	return mem_fun1_t<S, T, A>(f);
+  }
+
+#ifdef PST_VISUAL
+  template <class S, class T, class A>
+  mem_fun1_t<S, T, A> mem_fun1(S (T::*f)(A))
+  {
+	return mem_fun1_t<S, T, A>(f);
+  }
+#endif
+  
+  template <class S, class T>
+  class mem_fun_ref_t : public unary_function<T, S>
+  {
+      private:
+	S (T::*m_p)();
+      public:
+	__ps_explicit mem_fun_ref_t(S (T::*p)()) : m_p(p) { }
+	S operator()(T& p) const { return (p.*m_p)(); }
+  };
+
+  template <class S, class T, class A>
+  class mem_fun1_ref_t : public binary_function<T, A, S>
+  {
+      private:
+	S (T::*m_p)(A);
+      public:
+	__ps_explicit mem_fun1_ref_t(S (T::*p)(A)) : m_p(p) { }
+	S operator()(T& p, A x) const { return (p.*m_p)(x); }
+  };
+
+  template <class S, class T>
+  mem_fun_ref_t<S, T> mem_fun_ref(S (T::*f)())
+  {
+	return mem_fun_ref_t<S, T>(f);
+  }
+
+  template <class S, class T, class A>
+  mem_fun1_ref_t<S, T, A> mem_fun_ref(S (T::*f)(A))
+  {
+	return mem_fun1_ref_t<S, T, A>(f);
+  }
+
+#ifdef PST_VISUAL
+  template <class S, class T, class A>
+  mem_fun1_ref_t<S, T, A> mem_fun1_ref(S (T::*f)(A))
+  {
+	return mem_fun1_ref_t<S, T, A>(f);
+  }
+#endif
+
+  template <class S, class T>
+  class const_mem_fun_t : public unary_function<T*, S>
+  {
+      private:
+	S (T::*m_p)() const;
+      public:
+	__ps_explicit const_mem_fun_t(S (T::*p)() const) : m_p(p) { }
+	S operator()(const T* p) const { return (p->*m_p)(); }
+  };
+
+  template <class S, class T, class A> 
+  class const_mem_fun1_t : public binary_function<T*, A, S>
+  {
+      private:
+	S (T::*m_p)(A) const;
+      public:
+	__ps_explicit const_mem_fun1_t(S (T::*p)(A) const) : m_p(p) { }
+	S operator()(const T* p, A x) const { return (p->*m_p)(x); }
+  };
+
+  template <class S, class T>
+  const_mem_fun_t<S, T> mem_fun(S (T::*f)() const)
+  {
+	return const_mem_fun_t<S, T>(f);
+  }
+
+  template <class S, class T, class A>
+  const_mem_fun1_t<S, T, A> mem_fun(S (T::*f)(A) const)
+  {
+ 	return const_mem_fun1_t<S, T, A>(f);
+  }
+
+  template <class S, class T> 
+  class const_mem_fun_ref_t : public unary_function<T, S>
+  {
+      private:
+	S (T::*m_p)() const;
+      public:
+	__ps_explicit const_mem_fun_ref_t(S (T::*p)() const) : m_p(p) { }
+	S operator()(const T& p) const { return (p.*m_p)(); }
+  };
+
+  template <class S, class T, class A>
+  class const_mem_fun1_ref_t : public binary_function<T, A, S>
+  {
+      private:
+	S (T::*m_p)(A) const;
+      public:
+	__ps_explicit const_mem_fun1_ref_t(S (T::*p)(A) const) : m_p(p) { }
+	S operator()(const T& p, A x) const { return (p.*m_p)(x); }	
+  };	
+
+  template <class S, class T>
+  const_mem_fun_ref_t<S, T> mem_fun_ref(S (T::*f)() const)
+  {
+	return mem_fun_ref<S, T>(f);
+  }
+  
+  template <class S, class T, class A>
+  const_mem_fun1_ref_t<S, T, A> mem_fun_ref(S (T::*f)(A) const)
+  {
+	return mem_fun_ref<S, T, A>(f);
+  }
+
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+   
+} /* namespace std */
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+#endif /* PST_STL_FUNCTIONAL */

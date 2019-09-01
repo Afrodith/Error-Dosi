@@ -1,0 +1,141 @@
+/* Copyright 1999-2012 The MathWorks, Inc. */
+
+#ifndef PST_STL_TYPE_TRAITS
+#define PST_STL_TYPE_TRAITS
+
+#include <__polyspace__compat.h>
+
+#ifdef PST_VISUAL
+#pragma pack(push, 8)
+#endif
+
+namespace std {
+
+  // 25.2.2 Swap
+  template <class T> void swap (T& a, T& b) {
+     T tmp = a;
+     a = b;
+     b = tmp;
+  }
+
+  // Define a nested type if a condition is true.
+  template<__ps_bool, __ps_class>
+  struct enable_if
+  { };
+
+  template<__ps_class _Tp>
+  struct enable_if<__ps_true, _Tp>
+  { typedef _Tp type; };
+
+  // integral_constant
+  template <class _Tp, _Tp __v>
+  struct integral_constant {
+    static const _Tp      value = __v;
+    typedef _Tp               value_type;
+    typedef integral_constant type;
+    inline operator value_type() const { return value; }
+  };
+  template <class _Tp, _Tp __v>
+  const _Tp integral_constant<_Tp, __v>::value;
+
+  typedef integral_constant<__ps_bool, __ps_true>  true_type;
+  typedef integral_constant<__ps_bool, __ps_false> false_type;
+
+  // Test types for equality.
+  template<__ps_bool>
+  struct __polyspace__truth_type
+  { typedef false_type __type; };
+
+  template<>
+  struct __polyspace__truth_type<__ps_true>
+  { typedef true_type __type; };
+
+  template<__ps_class, __ps_class>
+  struct is_same
+  {
+      enum { __value = 0 };
+      typedef false_type __type;
+  };
+    
+  template<__ps_class _Tp>
+  struct is_same<_Tp, _Tp>
+  {
+      enum { __value = 1 };
+      typedef true_type __type;
+  };
+
+  // remove_const
+  template <class _Tp> struct remove_const            {typedef _Tp type;};
+  template <class _Tp> struct remove_const<const _Tp> {typedef _Tp type;};
+
+  // remove_volatile
+  template <class _Tp> struct remove_volatile               {typedef _Tp type;};
+  template <class _Tp> struct remove_volatile<volatile _Tp> {typedef _Tp type;};
+
+  // remove_cv
+  template <class _Tp> struct remove_cv
+  {typedef __ps_typename remove_volatile<__ps_typename remove_const<_Tp>::type>::type type;};
+
+  // is_void
+  template <class _Tp> struct __is_void       : public false_type {};
+  template <>          struct __is_void<void> : public true_type {};
+  template <class _Tp> struct is_void
+    : public __is_void<__ps_typename remove_cv<_Tp>::type> {};
+
+  // is_integral
+  template <class _Tp> struct __is_integral                     : public false_type {};
+#ifdef _BOOL
+  template <>          struct __is_integral<__ps_bool>               : public true_type {};
+#endif
+  template <>          struct __is_integral<char>               : public true_type {};
+  template <>          struct __is_integral<signed char>        : public true_type {};
+  template <>          struct __is_integral<unsigned char>      : public true_type {};
+#ifndef PST_VISUAL
+  template <>          struct __is_integral<wchar_t>            : public true_type {};
+#endif
+  template <>          struct __is_integral<short>              : public true_type {};
+  template <>          struct __is_integral<unsigned short>     : public true_type {};
+  template <>          struct __is_integral<int>                : public true_type {};
+  template <>          struct __is_integral<unsigned int>       : public true_type {};
+  template <>          struct __is_integral<long>               : public true_type {};
+  template <>          struct __is_integral<unsigned long>      : public true_type {};
+#ifndef __NO_LONG_LONG
+  template <>          struct __is_integral<long long>          : public true_type {};
+  template <>          struct __is_integral<unsigned long long> : public true_type {};
+#endif
+  template <class _Tp> struct is_integral
+    : public __is_integral<__ps_typename remove_cv<_Tp>::type> {};
+
+  // is_floating_point
+  template <__ps_class _Tp> struct __is_floating_point : public false_type {};
+  template <> struct __is_floating_point<float>       : public true_type {};
+  template <> struct __is_floating_point<double>      : public true_type {};
+  template <> struct __is_floating_point<long double> : public true_type {};
+  template <class _Tp> struct is_floating_point
+    : public __is_floating_point<__ps_typename remove_cv<_Tp>::type> {};
+
+  // is_arithmetic
+  template <class _Tp> struct is_arithmetic
+  : public integral_constant<__ps_bool, is_integral<_Tp>::value      ||
+                                     is_floating_point<_Tp>::value> {};
+
+  // __promote
+  template <class _A1, class _A2 = void, class _A3 = void,
+          __ps_bool = (is_arithmetic<_A1>::value || is_void<_A1>::value) &&
+                 (is_arithmetic<_A2>::value || is_void<_A2>::value) &&
+                 (is_arithmetic<_A3>::value || is_void<_A3>::value)>
+  class __promote {};
+
+} /* namespace std */
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+#ifdef PST_VISUAL
+#pragma pack(pop)
+#endif
+
+#endif /* PST_STL_TYPE_TRAITS */

@@ -25,9 +25,9 @@ public:
     QWidget* dialog;
     QByteArray ba;
     QByteArray ba2;
-    void compute();
+    void compute(QString, QString);
     double total_activity;
-
+    int dosimetry_type;
 
 signals:
 

@@ -1,0 +1,155 @@
+/* Edison Design Group, 1992-2014. */
+/*
+new -- Include file for C++ default operator new (see ARM 12.5).
+*/
+
+#ifndef __NEW_STDH
+#define __NEW_STDH
+
+#ifdef PST_HAS_EXCEPTION
+#define THROW(x) throw(x)
+#else
+#define THROW(x)
+#endif /* ifdef PST_HAS_EXCEPTION */
+
+#ifndef __STDDEF_H
+#include <__polyspace__stddef.h>
+#endif  /* ifndef __STDDEF_H */
+#ifndef _EXCEPTION_H
+#include <exception.h>
+#endif /* _EXCEPTION_H */
+
+#ifndef __EDG_STD_NAMESPACE
+/* If not already defined, define a macro that expands to the namespace
+   containing the standard library. */
+#if (defined __EDG_RUNTIME_USES_NAMESPACES) && (defined PST_HAS_NAMESPACE)
+#define __EDG_STD_NAMESPACE std
+#else /* ifndef __EDG_RUNTIME_USES_NAMESPACES */
+#define __EDG_STD_NAMESPACE /* nothing */
+#endif /* ifdef __EDG_RUNTIME_USES_NAMESPACES */
+#endif /* ifdef __EDG_STD_NAMESPACE */
+
+
+#if (defined __EDG_RUNTIME_USES_NAMESPACES) && (defined PST_HAS_NAMESPACE)
+namespace std {
+#endif /* ifdef __EDG_RUNTIME_USES_NAMESPACES */
+
+#ifdef PST_VISUAL
+#pragma pack(push, 8) /* push default value */
+#endif
+
+#ifdef PST_HAS_EXCEPTION
+
+/* This lets users disable the EDG supplied exception classes. */
+#ifndef __NO_EDG_EXCEPTION_CLASSES
+
+  class bad_alloc : public exception {
+  public:
+    bad_alloc() throw();
+    bad_alloc(const bad_alloc&) throw();
+#ifdef PST_VISUAL
+    bad_alloc(const char *) throw();  // VISUAL COMPATIBILITY
+#endif
+    bad_alloc& operator=(const bad_alloc&) throw();
+    virtual ~bad_alloc() throw();
+    virtual const char* what() const throw();
+  };
+
+  class bad_array_new_length : public bad_alloc {
+  public:
+    bad_array_new_length() throw();
+    virtual ~bad_array_new_length() throw();
+  };
+
+/* POLYSPACE : inline empty definitions */
+
+  inline bad_alloc::bad_alloc() throw() { }
+
+  inline bad_alloc::bad_alloc(const bad_alloc& rhs) throw() : exception(rhs) { }
+#ifdef PST_VISUAL
+  inline bad_alloc::bad_alloc(const char * s) throw() : exception(s)  {  }
+#endif
+  inline bad_alloc& bad_alloc::operator=(const bad_alloc& rhs) throw()
+  {
+    exception::operator=(rhs);
+    return *this;
+  }
+
+  inline bad_alloc::~bad_alloc() throw()  {  }
+
+  inline const char* bad_alloc::what() const throw()  { return ""; }
+
+/* POLYSPACE : end inline */
+
+#endif /* ifndef __NO_EDG_EXCEPTION_CLASSES */
+
+#endif /* ifdef PST_HAS_EXCEPTION */
+
+  typedef void (*new_handler)();
+  new_handler set_new_handler(new_handler) throw();
+  struct nothrow_t { };
+  // Declaration of object nothrow to permit the use of the placement new
+  // syntax: new (nothrow) T;
+  const nothrow_t nothrow = {};
+
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+
+#if (defined __EDG_RUNTIME_USES_NAMESPACES) && (defined PST_HAS_NAMESPACE)
+}  /* namespace std */
+
+#if (defined __EDG_IMPLICIT_USING_STD) || (defined __PST_IMPLICIT_USING_STD)
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __EDG_IMPLICIT_USING_STD */
+
+#endif /* ifdef __EDG_RUNTIME_USES_NAMESPACES */
+
+/* Normal operator new. */
+void *operator new(size_t) throw(__EDG_STD_NAMESPACE::bad_alloc);
+
+/* Normal operator delete. */
+void operator delete(void*) throw ();
+
+/* Nothrow version of operator new. */
+void *operator new(size_t, const __EDG_STD_NAMESPACE::nothrow_t&) throw();
+
+/* Nothrow version of operator delete. */
+void operator delete(void*, const __EDG_STD_NAMESPACE::nothrow_t&) throw();
+
+/* Placement new. */
+void *operator new(size_t, void*) throw();
+
+/* Placement delete. */
+#ifdef __PLACEMENT_DELETE
+void operator delete(void*, void*) throw();
+#endif /* ifdef __PLACEMENT_DELETE */
+
+#ifdef __ARRAY_OPERATORS
+
+/* Array new. */
+void *operator new[](size_t) throw(__EDG_STD_NAMESPACE::bad_alloc);
+
+/* Array delete. */
+void operator delete[](void*) throw ();
+
+/* Placement array new. */
+void *operator new[](size_t, void*) throw();
+
+/* Placement array delete. */
+#ifdef __PLACEMENT_DELETE
+void operator delete[](void*, void*) throw();
+#endif /* ifdef __PLACEMENT_DELETE */
+
+/* Nothrow version of array new. */
+void *operator new[](size_t,
+                     const __EDG_STD_NAMESPACE::nothrow_t&) throw();
+
+/* Nothrow version of array delete. */
+void operator delete[](void*,
+                       const __EDG_STD_NAMESPACE::nothrow_t&) throw();
+#endif /* __ARRAY_OPERATORS */
+
+#endif  /* ifndef __NEW_STDH */

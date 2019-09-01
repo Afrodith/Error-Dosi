@@ -21,7 +21,7 @@
 
 #include <string>
 
-#include "vvImage.h"
+#include "VV/common/vvImage.h"
 #include "vvMesh.h"
 
 class vvMeshReader : public QThread

@@ -1,0 +1,172 @@
+/*
+ *
+ * This file and its contents are the property of The MathWorks, Inc.
+ * 
+ * This file contains confidential proprietary information.
+ * The reproduction, distribution, utilization or the communication
+ * of this file or any part thereof is strictly prohibited.
+ * Offenders will be held liable for the payment of damages.
+ *
+ * Copyright 1999-2012 The MathWorks, Inc.
+ *
+ */
+
+#ifndef PST_STL_STRSTREAM
+#define PST_STL_STRSTREAM
+
+#include <streambuf>
+#include <iostream>
+
+// for strlen
+#include <__polyspace__cstring.h>
+
+namespace std {
+
+#ifdef PST_VISUAL
+#pragma pack(push, 8) /* push default value */
+#endif
+
+  class strstreambuf : public basic_streambuf<char> {
+  public:
+    __ps_explicit strstreambuf(streamsize alsize_arg = 0) {}
+    strstreambuf(void* (*palloc_arg)(size_t), void (*pfree_arg)(void*)) {}
+    strstreambuf(char* gnext_arg, streamsize n, char* pbeg_arg = 0) {}
+    strstreambuf(const char* gnext_arg, streamsize n) {}
+
+    strstreambuf(signed char* gnext_arg, streamsize n, signed char* pbeg_arg = 0) {}
+    strstreambuf(const signed char* gnext_arg, streamsize n) {}
+    strstreambuf(unsigned char* gnext_arg, streamsize n, unsigned char* pbeg_arg = 0) {}
+    strstreambuf(const unsigned char* gnext_arg, streamsize n) {}
+
+    ~strstreambuf() {}
+
+    void freeze(__ps_bool freezefl = __ps_true) {}
+    char* str() {
+      volatile int tmp = 0;
+      return (char*)tmp;
+    }
+    int pcount() {
+      volatile int tmp = 0;
+      return tmp;
+    }
+
+    // overflow, pbackfail, underflow not implemented: protected members
+
+    // seekoff, seekpos, setbuf not implemented: 
+    // streambuf gives pubseekoff, pubseekpos, pubsetbuf to access such data
+  };
+
+  class istrstream : public basic_istream<char> {
+  public:
+    __ps_explicit istrstream(const char* s) : istream(&sb), sb(strstreambuf(s,0)) {
+      while (*s != 0) ++s; // s shall designate the first element of an NTBS
+    }
+    __ps_explicit istrstream(char* s) : istream(&sb), sb(strstreambuf(s,0)) {
+      while (*s != 0) ++s; // s shall designate the first element of an NTBS
+    }
+    istrstream(const char* s, streamsize n) : istream(&sb), sb(strstreambuf(s,n)) {
+      assert(n > 0); // n shall be greater than zero
+      char c;
+      for (int i = 0; i < n; ++i)
+	c = s[i]; // s shall designate the first element of an array whose length is n elements, and s will be read
+    }
+    istrstream(char* s, streamsize n) : istream(&sb), sb(strstreambuf(s,n)) {
+      assert(n > 0); // n shall be greater than zero
+      char c;
+      for (int i = 0; i < n; ++i)
+	c = s[i]; // s shall designate the first element of an array whose length is n elements, and s will be read
+    }
+    ~istrstream() {}
+
+    strstreambuf* rdbuf() const {
+      return (strstreambuf*)&sb; // cast-away const
+    }
+    char *str() {
+      return rdbuf()->str();
+    }
+
+  private:
+    strstreambuf sb;
+  };
+
+  class ostrstream : public basic_ostream<char> {
+  public:
+    ostrstream() : ostream(&sb), sb(strstreambuf()) {}
+    ostrstream(char* s, int n, ios_base::openmode mode = ios_base::out) : ostream(&sb), 
+      sb(((mode & app) == 0) ? strstreambuf(s,n,s) : strstreambuf(s,n,s + strlen(s))) {
+      static volatile int random;
+      static volatile char random_char;
+      for (int i = 0; i < n; ++i)
+	s[i] = random_char; // s shall designate the first element of an array of n elements, and can be modified
+    }
+    ~ostrstream() {}
+
+    strstreambuf* rdbuf() const {
+      return (strstreambuf*)&sb; // cast-away const
+    }
+    void freeze(__ps_bool freezefl = __ps_true) {
+      rdbuf()->freeze(freezefl);
+    }
+    char *str() {
+      return rdbuf()->str();
+    }
+    int pcount() const {
+      return rdbuf()->pcount();
+    }
+
+  private:
+    strstreambuf sb;
+  };
+
+  class strstream : public basic_iostream<char> {
+  public:
+    // Types
+    typedef char                        char_type;
+    typedef char_traits<char>::int_type int_type;
+    typedef char_traits<char>::pos_type pos_type;
+    typedef char_traits<char>::off_type off_type;
+
+    // constructors/destructors
+    strstream() : iostream(&sb) {}
+    strstream(char* s, int n, ios_base::openmode mode = ios_base::in | ios_base::out) : iostream(&sb),
+      sb(((mode & app) == 0) ? strstreambuf(s,n,s) : strstreambuf(s,n,s + strlen(s))) {
+      static volatile int random;
+      static volatile char random_char;
+      for (int i = 0; i < n; ++i)
+	s[i] = random_char; // s shall designate the first element of an array of n elements, and can be modified
+    }
+    ~strstream() {}
+
+    // Members
+    strstreambuf* rdbuf() const {
+      return (strstreambuf*)&sb; // cast-away const
+    }
+    void freeze(__ps_bool freezefl = __ps_true) {
+      rdbuf()->freeze(freezefl);
+    }      
+    char *str() {
+      return rdbuf()->str();
+    }
+    int pcount() const {
+      return rdbuf()->pcount();
+    }
+
+  private:
+    strstreambuf sb;
+  };
+
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+
+} /* namespace std */
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+#endif /* PST_STL_STRSTREAM */
+
+

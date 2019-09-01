@@ -8,6 +8,7 @@
 #include <string>
 #include <cerrno>
 #include <iterator>
+#include <QLocale>
 
 
 double SimpsonMethod(double const* p_a, double const* p_b,
@@ -17,6 +18,7 @@ uint32_t GetNumberDosePointFromFile(std::ifstream* p_file);
 uint32_t GetNumberOrgansFromFile(std::ifstream* p_file);
 void LoadTimeAndActivityFraction(std::ifstream* p_file, double* p_time,double** p_activity_fraction, uint32_t* p_n_organs);
 void LoadSADRs(std::ifstream* p_file, double** p_sadrs, uint32_t* p_n_organs_to_study);
+QVector<std::string> GetOrgansNameFromFile(std::ifstream* p_file);
 
 
 integradeDose::integradeDose(QObject *parent) : QObject(parent)
@@ -112,6 +114,50 @@ uint32_t GetNumberOrgansFromFile(std::ifstream* p_file)
    return number_organs - 1; // Delete time column
  }
 
+
+QVector<std::string> GetOrgansNameFromFile(std::ifstream* p_file)
+{
+   std::string line;
+   QVector<std::string> name_vector;
+   uint32_t number_organs = 0, i = 0;
+
+   // Read file and count number of organs
+   while (std::getline(*p_file, line)) {
+     // Find first character
+     // Loop over the number of the characters in the line
+     for (size_t j = 0; j < line.size(); ++j) {
+       if (std::isspace(line[j])) i++;
+       else break;
+     }
+
+     // Check if the first is a comment
+     if (line[i] == '#')
+     {
+         std::istringstream iss(line);
+         std::vector<std::string> copy(std::istream_iterator<std::string>{iss},
+                                          std::istream_iterator<std::string>());
+          for(int i=0;i<copy.size();i++)
+          {
+              if(i!=0)
+              name_vector.push_back(copy.at(i));
+          }
+          break;
+     }
+     else {
+
+         continue;
+     }
+
+     i = 0; // Reinitialize i
+   }
+
+   // move file position indicator to beginning
+   p_file->clear();
+   p_file->seekg(0);
+
+   return name_vector; // Delete time column
+ }
+
  void LoadTimeAndActivityFraction(std::ifstream* p_file, double* p_time,
    double** p_activity_fraction, uint32_t* p_n_organs)
  {
@@ -184,7 +230,7 @@ uint32_t GetNumberOrgansFromFile(std::ifstream* p_file)
    p_file->seekg(0);
  }
 
- void integradeDose::compute()
+ void integradeDose::compute(QString fname,QString test)
  {
 
 
@@ -217,18 +263,12 @@ uint32_t GetNumberOrgansFromFile(std::ifstream* p_file)
 
 #endif
 
+     QString  filename = d.path()+"/"+fname;
+
      auto* editor = new QTextEdit;
      auto* doc = new QTextDocument(editor);
      QString html_script;
      QTextCursor cursor(doc);
-     QString filename;
-     if(dialog==nullptr)
-         dialog =new QWidget();
-
-     ///// open file dialog for the user to name the expoted report
-     filename = QFileDialog::getSaveFileName(dialog, "Save file", d.path(), tr("PDF(*.pdf)"));
-     /// store directory is the users documents every time
-
 
      if (is_verbose&&!filename.isEmpty()) {
 
@@ -249,19 +289,19 @@ uint32_t GetNumberOrgansFromFile(std::ifstream* p_file)
          // Checking the activity
          if (total_activity == 0.0) {
              std::cerr << "Activity has to be set!!!" << std::endl;
-             exit(EXIT_FAILURE);
+             //exit(EXIT_FAILURE);
          }
 
          // Checking the time activity curves file
          if (ba.data() == nullptr) {
              std::cerr << "A time activity curves file has to be set!!!" << std::endl;
-             exit(EXIT_FAILURE);
+             //exit(EXIT_FAILURE);
          }
 
          // Checking the SADRs file
          if (ba2.data() == nullptr) {
              std::cerr << "A SADRs file has to be set!!!" << std::endl;
-             exit(EXIT_FAILURE);
+             //exit(EXIT_FAILURE);
          }
 
 
@@ -270,7 +310,7 @@ uint32_t GetNumberOrgansFromFile(std::ifstream* p_file)
          if (!p_time_activity_curves_file.is_open()) {
              std::cerr << "Error opening file '" << ba.data()
                        << "': " << strerror(errno) << std::endl;
-             exit(EXIT_FAILURE);
+            // exit(EXIT_FAILURE);
          }
 
          // From the time activity curve file, the number of dose point is deduced
@@ -303,6 +343,8 @@ uint32_t GetNumberOrgansFromFile(std::ifstream* p_file)
          // Determine the number of organs to compute the total dose
          uint32_t n_organs_to_study = GetNumberOrgansFromFile(&p_sadrs_file);
 
+         QVector<std::string> OrganNames = GetOrgansNameFromFile(&p_sadrs_file);
+
          // Allocating memory storing the SADRs for each organ
          double** p_sadrs = new double*[n_organs_to_study];
          for (uint32_t t = 0; t < n_organs_to_study; ++t) {
@@ -320,80 +362,65 @@ uint32_t GetNumberOrgansFromFile(std::ifstream* p_file)
           //buffer.open(QIODevice::WriteOnly);
           QTextStream data_stream(&html_script);
           data_stream.flush();
+          QDateTime date = QDateTime::currentDateTime();
+          QLocale locale  = QLocale(QLocale::English ,QLocale::Greece); // set the locale you want here
+          QString swedishDate = locale.toString(date, "dddd, d MMMM yyyy hh:mm:ss ");
 
-         if(filename.contains(".pdf"))
-         {
-             filename.remove(".pdf");
-             filename.append(".txt");
-         }
-         data_stream << "<p><img src=':/icons/icons/error.png' alt ='Logo' border=='3'/></p>";
-         data_stream <<"<pre>\n\n\n\n\n " + QDateTime::currentDateTime().toString("MMM-ddd-yyyy hh:mm:ss") + "</pre>";
+         data_stream << "<p><img src=':/icons/icons/error.jpg' alt ='Logo' border=='3'/></p>";
+         data_stream <<"<pre>\n\n\n\n\n " + swedishDate + "</pre>";
          data_stream <<  "<center><pre>\n\n\n<b>Organ Dosimetry Report</b>\n\n\n</pre></center>";
 
          QByteArray arr =filename.toLocal8Bit();
-         std::FILE* fp;
-         if((fp= std::fopen(arr.data(),"w")))
-         {
 
-         std::fprintf(fp, "----- INFOS -----\n");
-         data_stream << "<pre>----- INFORMATION ----\n</pre>";// << "<br>";
+         data_stream << "<pre>\n\n\n<u> Dose export information for " << test <<" :</u>\n\n\n</pre>";// << "<br>";
+
          
-         std::fprintf(fp, "Total Activity:   %4.2f [MBq]\n",
-                      total_activity);
-         data_stream << "<pre>Total Activity:     "<< total_activity <<"[MBq]\n</pre>";// << "<br>";
+
+         data_stream << "<pre>Total Activity: "<< total_activity <<"  MBq\n\n</pre>";// << "<br>";
          
-         std::fprintf(fp, "Number of dose points:                   %u\n",
-                      n_dose_points);
-         data_stream << "<pre>Number of dose points:     "<< n_dose_points << " \n</pre>";// << "<br>";
-         
-         std::fprintf(fp, "Number of organs in activity curve:      %u\n",
-                      n_organs);
-         data_stream << "<pre>Number of organs in activity curve:      "<< n_organs << " \n</pre>";// << "<br>" ;
+
+         data_stream << "<pre>Number of dose points: "<< n_dose_points << " \n\n</pre>";// << "<br>";
+
+         data_stream << "<pre>Number of organs in activity curve: "<< n_organs << " \n\n</pre>";// << "<br>" ;
          
          
-         std::fprintf(fp, "Number of organs to study:               %u\n",
-                      n_organs_to_study);
-         data_stream << "<pre>Number of organs to study:      " << n_organs_to_study << " \n</pre>";//  "<br>" ;
+
+         data_stream << "<pre>Number of organs to study: " << n_organs_to_study << " \n\n</pre>";//  "<br>" ;
          
-         std::fprintf(fp, "Time (hours):\n");
+
          data_stream << "<pre>Time (hours):\n ";// << "<br>";
          for (uint32_t t = 0; t < n_dose_points; ++t) {
-             std::fprintf(fp, "    %4.7f ", p_time[t]);
              data_stream << "    " << p_time[t] << " ";
-         }
-         std::fprintf(fp, "\n");
-         data_stream << " </pre>\n";
+             if(t==n_dose_points-1)
+                  data_stream << "\n\n";
 
-         std::fprintf(fp, "Activity Fraction:\n");
-         data_stream << "<pre>Activity Fraction:   \n</pre>";// << "<br>";
+         }
+
+         data_stream << " </pre>\n\n\n\n";
+
+
+         data_stream << "<pre>\n\nActivity Fraction:   \n</pre>";// << "<br>";
          data_stream.setRealNumberNotation(QTextStream::FixedNotation);
 
          for (uint32_t i = 0; i < n_organs; ++i) {
-             std:: fprintf(fp, "    Organ #%u:\n", i);
-             data_stream << "<pre>    Organ#"<< i << ":\n";// << "<br>";
+
+             if(i<OrganNames.count()){
+
+              std::string str = OrganNames[i];
+              char cstr[str.size()+1];
+              str.copy(cstr, str.size() + 1);
+                  cstr[str.size()] = '\0';
+
+
+             data_stream << "<pre>  "<< cstr << ":\n";// << "<br>";
              for (uint32_t t = 0; t < n_dose_points; ++t) {
-                 std::fprintf(fp, "        %4.7f ", p_activity_fraction[i][t]);
                  data_stream << "     " << p_activity_fraction[i][t] << "  ";
              }
-             std::fprintf(fp, "\n");
              data_stream << " \n</pre>";
          }
-         std::fprintf(fp, "SADRs:\n");
-         data_stream << "<pre>SADRs:   \n</pre>";// << "<br>";
-         for (uint32_t i = 0; i < n_organs_to_study; ++i) {
-             std::fprintf(fp, "    Organ #%u:\n", i);
-             data_stream << "<pre>    Organ #"<< i <<": \n</pre>";// "<br>";
-             for (uint32_t t = 0; t < n_dose_points; ++t) {
-                 std::fprintf(fp, "        %4.20f\n", p_sadrs[i][t]);
-                 data_stream << "<pre>      " << p_sadrs[i][t] <<" ";
-             }
-             std::fprintf(fp, "\n");
-             data_stream << " \n</pre>";
          }
-         std::fprintf(fp, "-----------------\n");
-         data_stream << "<pre>-----------------\n</pre>";
 
-
+         data_stream << "\n\n</pre>";
 
          // Initialize linear interpolation
          Interpolation** p_linear_inter_act_fraction = new Interpolation*[n_organs];
@@ -408,16 +435,18 @@ uint32_t GetNumberOrgansFromFile(std::ifstream* p_file)
                                                          p_sadrs[t], &n_dose_points, 2);
          }
 
+
+
          // Loop over each organs to study
          for (uint32_t t = 0; t < n_organs_to_study; ++t) {
              // Computing the number of steps to perform integration. Integration on the
              // time, so the bound depends on the time
              n_step = ( (p_time[n_dose_points-1] - p_time[0]) / step ) + 1;
 
+
              // Loop over the activity organ
              if (is_verbose) {
-                 std::fprintf(fp, "****\n");
-                 data_stream << "<pre>****\n</pre>";// << "<br>";
+                 data_stream << "<pre>\n\n</pre>";// << "<br>";
              }
              for (uint32_t j = 0; j < n_organs; ++j) {
                  // Loop over the steps
@@ -445,17 +474,25 @@ uint32_t GetNumberOrgansFromFile(std::ifstream* p_file)
                      i_simpson += SimpsonMethod(&bin_min, &bin_max,
                                                 &sadrs_min, &sadrs_max, &sadrs_medium);
                  }
-                 if (is_verbose) {
-                     std::fprintf(fp, "    Intermediate dose in organ #%u: %4.5f [Gy]\n", j,
-                                  i_simpson);
-                     data_stream << "<pre>    Intermediate dose in organ: " << j << " " << i_simpson <<"  [Gy]\n</pre>";//<< "<br>";
-                 }
+
                  total_dose += i_simpson;
                  i_simpson = 0.0;
              }
-             std::fprintf(fp, "Total dose in organ #%u: %4.5f [Gy]\n", t,
-                          total_dose);
-             data_stream << "<pre>\nTotal dose in organ : " << t << " "  << total_dose << "[Gy]\n</pre>";// << "<br>";
+
+             if(t<OrganNames.count())
+             {
+             std::string str = OrganNames[t];
+             char cstr[str.size()+1];
+             str.copy(cstr, str.size() + 1);
+                 cstr[str.size()] = '\0';
+              if(t==0)
+               data_stream << "<pre>\n\n\n<u> Doses :<u>\n</pre>";// << "<br>";
+
+              data_stream << "<pre>\nTotal dose in " << cstr << "  : "  << total_dose << "[Gy]\n</pre>";// << "<br>";
+             }
+             else {
+                  data_stream << "<pre>\nTotal dose in organ " << t << "  : "  << total_dose << "[Gy]\n</pre>";// << "<br>";
+             }
              total_dose = 0;
 
          }
@@ -469,11 +506,11 @@ uint32_t GetNumberOrgansFromFile(std::ifstream* p_file)
          delete[] p_linear_inter_act_fraction;
          delete[] p_linear_inter_sadrs;
 
-     }
+
          // Closing the time activity curve file
          p_time_activity_curves_file.close();
          p_sadrs_file.close();
-         std::fclose(fp);
+
 
          // Freeing memory
 
@@ -498,99 +535,6 @@ uint32_t GetNumberOrgansFromFile(std::ifstream* p_file)
 
 
          editor->setDocumentTitle("Organ Dosimetry Report");
-         //html_script = pdfContents.data();
-//         html_script =
-//                 "<html>"
-//                 "<head>"
-//                 "</head>"
-//                 "<body>"
-//                 "<div >"
-//                 "<p><img src=':/icons/icons/error.png' alt ='Logo' border=='3'/></p>"
-//                 "</div>"
-//                 "<pre>\n\n\n\n\n " + QDateTime::currentDateTime().toString("MMM-ddd-yyyy hh:mm:ss") + "</pre>"
-//                 "<pre>\n\n\n\n <b>Organ Dosimetry Report</b>\n\n</pre>"
-//                 "<pre>\n\n<u><b>----- INFORMATION -----</b></u>\n\n:</pre>"
-//                 " <table style='border:1px solid black;'>"
-//                 " <tr> "
-//                 " <td><b>Total Activity:"+QString::number(total_activity)+"</b></td>";
-
-
-         //
-         //
-         //
-         //                                            " <td>" + date + "  </td>"
-         //                                            "<td>\n\n<b>Study Title:</b></td>  "
-         //                                            "<td>" + studyName + "  </td>  "
-         //                                            "</tr>"
-         //                                            " <tr> "
-         //                                            "<td>\n\n<b>Study ID:</b></td> "
-         //                                            "<td>" + ID + "</td> "
-         //                                            "<td>\n\n<b>Project:</b> </td>  "
-         //                                            "<td>" + Project + "</td>  "
-         //                                            "</tr>"
-         //                                            " <tr> "
-         //                                            "<td>\n\n<b>Frame Duration:</b></td> "
-         //                                            "<td>" + frame + "</td> "
-         //                                            "<td>\n\n<b>Exp. Duration:</b></td> "
-         //                                            "<td>" + expDur + "</td> "
-         //                                            "</tr>"
-         //                                            " <tr> "
-         //                                            "<td>\n\n<b>Species:</b></td>   "
-         //                                            "<td>" + species + "</td>   "
-         //                                            "<td><b>Breed:</b></td> "
-         //                                            "<td>" + breed + "</td> "
-         //                                            "</tr>"
-         //                                            " <tr> "
-         //                                            "<td>\n\n<b>Weight:</b> </td>    "
-         //                                            "<td>" + weight + "</td> " ;
-         //                                            if(ui->age->isEnabled())
-         //                                            {
-         //                                             html_script +=
-         //                                             " <td>\n\n<b>Age:</b></td>"
-         //                                             " <td>" + age + "</td>";
-
-         //                                            }
-         //                                            html_script +=
-         //                                            "</tr>"
-         //                                            " <tr> "
-         //                                            "<td>\n\n<b>Radionuclide:</b></td>  "
-         //                                            "<td>" + nuclide + "</td>  "
-         //                                            "<td><b>Injected Volume:</b></td> "
-         //                                            "<td>" + inj_volume + "</td> "
-         //                                            "</tr>";
-         //                                            if(ui->initialActivity->isEnabled()|| ui->cB_InjActivity->isEnabled())
-         //                                            {
-         //                                                html_script += " <tr> ";
-         //                                                if(ui->initialActivity->isEnabled())
-         //                                                {
-         //                                                    html_script +=
-         //                                                      "<td>\n\n<b>Initial Activity:</b></td>  "
-         //                                                      "<td>" + activity + "</td> ";
-
-         //                                                }
-         //                                                if(ui->injActivity->isEnabled())
-         //                                                {
-         //                                                    html_script +=
-         //                                                     "<td><b>\n\nInjected Activity:</b> </td>  "
-         //                                                     "<td>" + inj_activity + "</td>  ";
-
-         //                                                }
-         //                                                html_script += "</tr>";
-         //                                            }
-         //                                            html_script +=
-         //                                            " <tr> "
-         //                                            "<td>\n\n<b>Injection Path:</b></td> "
-         //                                            "<td>" + inj_path + "\n\n </td> "
-         //                                            "</tr>"
-         //                                            " <tr> "
-         //                                            "<td>\n\n<b>Comments:</b></td> "
-         //                                            "<td>" + comments + "</td> "
-         //                                            "</tr>"
-
-
-
-         //                                            " </table>";
-         //                                           html_script += "</body></html>";
 
 
 
@@ -600,29 +544,12 @@ uint32_t GetNumberOrgansFromFile(std::ifstream* p_file)
                                                       "border-colapse: colapse;}";
 
 
-         //                    //cursor.insertHtml(html_script);
-
-
-         //                      //////////////////////////////////////
 
                                cursor.insertBlock();
-
-         //                      QString html;
-
-                             //  html_script += " </div>\n\n\n";
-
-                             //  html_script +=  "\n\n\n<div > ";
-
-                              // html_script += " </div>";
-
-                              //html_script += " <p style='clear: both;'>";
-                             // html_script += "</body></html>";
 
                                cursor.insertHtml(html_script);
 
 
-         //                      QPixmap pixmap;
-         //                      pixmap.load(":/icons/BIOEMTECH_GREY.png");
                        #ifdef QT5
                                QPalette palette;
                                palette.setBrush(editor->backgroundRole(), QBrush(pixmap));

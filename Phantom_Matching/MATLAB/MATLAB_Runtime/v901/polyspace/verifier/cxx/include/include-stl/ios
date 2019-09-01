@@ -1,0 +1,282 @@
+/*
+ *
+ * This file and its contents are the property of The MathWorks, Inc.
+ * 
+ * This file contains confidential proprietary information.
+ * The reproduction, distribution, utilization or the communication
+ * of this file or any part thereof is strictly prohibited.
+ * Offenders will be held liable for the payment of damages.
+ *
+ * Copyright 1999-2012 The MathWorks, Inc.
+ *
+ */
+#ifndef PST_STL_IOS
+#define PST_STL_IOS
+
+#include <iosfwd>
+#include <__polyspace__ios_base.h>
+#include <ostream>
+#include <streambuf>
+
+namespace std
+{
+
+#ifdef PST_VISUAL
+#pragma pack(push, 8) /* push default value */
+#endif
+
+  // Manipulators //
+ ios_base&	boolalpha(ios_base	&str);
+ ios_base&	noboolalpha(ios_base	&str);
+ 
+ ios_base&	showbase(ios_base	&str);
+ ios_base&	noshowbase(ios_base	&str);
+ 
+ ios_base&	showpoint(ios_base	&str);
+ ios_base&	noshowpoint(ios_base	&str);
+ 
+ ios_base&	showpos(ios_base	&str);
+ ios_base&	noshowpos(ios_base	&str);
+ 
+ ios_base&	skipws(ios_base	&str);
+ ios_base&	noskipws(ios_base	&str);
+ 
+ ios_base&	uppercase(ios_base	&str);
+ ios_base&	nouppercase(ios_base	&str);
+
+ ios_base&	unitbuf(ios_base	&str);
+ ios_base&	nounitbuf(ios_base	&str);
+
+ 
+  // Adjust field //
+ ios_base&	internal(ios_base	&str);
+ ios_base&	left(ios_base	&str);
+ ios_base&	right(ios_base	&str);
+ 
+  // Basefield //
+ ios_base&	dec(ios_base	&str);
+ ios_base&	hex(ios_base	&str);
+ ios_base&	oct(ios_base	&str);
+ 
+  // Floatfield //
+ ios_base&	fixed(ios_base	&str);
+ ios_base&	scientific(ios_base	&str);
+
+  //template <class charT, class traits >
+  //class basic_ostream;
+
+  template <class charT, class traits>
+  class basic_ios : public ios_base
+  {
+  public:
+    typedef charT			char_type;
+    typedef __ps_typename traits::int_type	int_type; 
+    typedef __ps_typename traits::pos_type	pos_type;
+    typedef __ps_typename traits::off_type	off_type;
+    typedef traits			traits_type;
+
+    operator void *() const;
+    __ps_bool	operator !() const;
+    iostate	rdstate() const;
+#ifdef PST_VISUAL
+    void	clear(iostate = goodbit, __ps_bool _Except = __ps_false){}	
+    void	setstate(iostate, __ps_bool _Except = __ps_false) {}
+#else
+    void	clear(iostate = goodbit);
+    void	setstate(iostate);
+#endif
+    __ps_bool	good() const;
+    __ps_bool	eof() const;
+    __ps_bool	fail() const;
+    __ps_bool	bad() const;
+    iostate	exceptions() const;
+    void exceptions(iostate except);
+    
+    // Constructor/destructor //
+    __ps_explicit basic_ios(basic_streambuf<charT, traits> *) { ; }
+    ~basic_ios() {}
+
+    // Members //
+    basic_ostream<charT, traits>	*tie() const;
+    basic_ostream<charT, traits>	*tie(basic_ostream<charT, traits> *);
+    basic_streambuf<charT, traits>	*rdbuf() const;
+    basic_streambuf<charT, traits>	*rdbuf(basic_streambuf<charT, traits> *);
+
+    basic_ios&	copyfmt(const basic_ios&);
+    char_type	fill() const;
+    char_type	fill(char_type);
+
+    locale imbue(const locale&) { return locale(); }
+
+    char	narrow(char_type, char) const;
+    char_type	widen(char) const;
+
+  protected:
+    basic_ios(){};
+    void init(basic_streambuf<charT, traits>*);
+  };
+
+  template<class charT, class traits>
+  basic_ios<charT, traits>::operator void *() const
+  {
+    char	*r;
+	volatile int	Random = 0;
+	r = new char[2];
+	if (Random)
+	  return r;
+	else
+	  return 0;
+  }
+
+  template<class charT, class traits>
+  __ps_bool basic_ios<charT, traits>::operator !() const
+  {
+    volatile __ps_bool	b = false;
+    return b;
+  }
+
+  template<class charT, class traits>
+  basic_ios<charT, traits>::iostate basic_ios<charT, traits>::rdstate() const
+  {
+    volatile iostate	io = goodbit;
+    return io;
+  }
+
+#ifndef PST_VISUAL
+  template<class charT, class traits>
+  void basic_ios<charT, traits>::clear(iostate state)
+  {}
+
+  template<class charT, class traits>
+  void basic_ios<charT, traits>::setstate(iostate state)
+  {}
+#endif
+  template<class charT, class traits>
+  __ps_bool basic_ios<charT, traits>::good() const
+  {
+    volatile __ps_bool	b = false;
+    return b;
+  }
+
+  template<class charT, class traits>
+  __ps_bool basic_ios<charT, traits>::eof() const
+  {
+    volatile __ps_bool	b = false;
+    return b;
+  }
+  
+  template<class charT, class traits>
+  __ps_bool basic_ios<charT, traits>::fail() const
+  {
+    volatile __ps_bool	b = false;
+    return b;
+  }
+
+  template<class charT, class traits>
+  __ps_bool basic_ios<charT, traits>::bad() const
+  {
+    volatile __ps_bool	b = false;
+    return b;
+  }
+
+  template<class charT, class traits>
+  basic_ios<charT, traits>::iostate basic_ios<charT, traits>::exceptions() const
+  {
+    volatile iostate	io = goodbit;
+    return io;
+  }
+
+  template<class charT, class traits>
+  void basic_ios<charT, traits>::exceptions(iostate except)
+  {} 
+
+  template<class charT, class traits>
+  basic_ostream<charT, traits> *basic_ios<charT, traits>::tie() const
+  {
+    basic_ostream<charT, traits>        * volatile ret;
+    return ret;
+
+  } 
+
+  template<class charT, class traits>
+  basic_ostream<charT, traits> *basic_ios<charT, traits>::tie(basic_ostream<charT, traits> *sb)
+  {
+    basic_ostream<charT, traits>	* volatile ret;
+    return ret;
+  }
+
+  template<class charT, class traits>
+  basic_streambuf<charT, traits>	*basic_ios<charT, traits>::rdbuf() const
+  {
+    basic_streambuf<charT, traits>	* volatile ret;
+    return ret;
+  }
+
+  template<class charT, class traits>
+  basic_streambuf<charT, traits>	*basic_ios<charT, traits>::rdbuf(basic_streambuf<charT, traits> *sb)
+  {
+    basic_streambuf<charT, traits>	* volatile ret;
+    return ret;
+  }
+   
+  template<class charT, class traits>
+  basic_ios<charT, traits> &basic_ios<charT, traits>::copyfmt(const basic_ios &)
+  {
+    return (*this);
+  }
+
+  template<class charT, class traits>
+  basic_ios<charT, traits>::char_type basic_ios<charT, traits>::fill() const
+  {
+    volatile char_type	ret = (char_type)0;
+    return (ret);
+  }
+
+  template<class charT, class traits>
+   basic_ios<charT, traits>::char_type basic_ios<charT, traits>::fill(char_type)
+  {
+    volatile char_type ret = (char_type)0;
+    return (ret);
+  }
+
+  template<class charT, class traits>
+  char	basic_ios<charT, traits>::narrow(char_type c, char dfault) const
+  {
+    volatile char	ret = 0;
+    return (ret);
+  }
+
+  template<class charT, class traits>
+  basic_ios<charT, traits>::char_type basic_ios<charT, traits>::widen(char c) const
+  {
+    volatile char_type	ret = (char_type)0;
+    return ret;
+  }
+  
+  template<class charT, class traits>
+  void					basic_ios<charT, traits>::init(basic_streambuf<charT, traits> *sb)
+  {}
+	
+  class ios_base::Init
+  {
+	public:
+		Init() {}
+		~Init() {}  
+
+
+  };
+  
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+
+}
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+#endif /* PST_STL_IOS */
+

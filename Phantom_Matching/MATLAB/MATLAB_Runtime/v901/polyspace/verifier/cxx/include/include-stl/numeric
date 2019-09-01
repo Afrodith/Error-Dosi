@@ -1,0 +1,148 @@
+/*
+ *
+ * This file and its contents are the property of The MathWorks, Inc.
+ * 
+ * This file contains confidential proprietary information.
+ * The reproduction, distribution, utilization or the communication
+ * of this file or any part thereof is strictly prohibited.
+ * Offenders will be held liable for the payment of damages.
+ *
+ * Copyright 1999-2012 The MathWorks, Inc.
+ *
+ */
+#ifndef PST_STL_NUMERIC
+#define PST_STL_NUMERIC
+
+#ifdef PST_VISUAL
+#pragma pack(push, 8) /* push default value */
+#endif
+
+#include <__polyspace__compat.h>
+#include <__polyspace__iterator.h>
+
+namespace std
+{
+
+  template<__ps_class InputIterator, __ps_class T>
+  T accumulate(InputIterator first, InputIterator last, T init)
+  {
+    for ( ; first != last; ++first)
+      init = init + *first;
+    return init;
+  }
+
+  template<__ps_class InputIterator, __ps_class T, __ps_class BinaryOperation>
+  T accumulate(InputIterator first, InputIterator last, T init,
+	       BinaryOperation bin_op)
+  {
+    for ( ; first != last; ++first)
+      init = bin_op(init, *first);
+
+    return init;
+  }
+
+  template<__ps_class InputIterator1, __ps_class InputIterator2, __ps_class T>
+  T inner_product(InputIterator1 first1, InputIterator1 last1,
+		  InputIterator2 first2, T init)
+  {
+    for ( ; first1 != last1; ++first1, ++first2)
+      init = init + ((*first1) * (*first2));
+    return init;
+  }
+
+  template<__ps_class InputIterator1, __ps_class InputIterator2, __ps_class T,
+	   __ps_class BinaryOperation1, __ps_class BinaryOperation2>
+  T inner_product(InputIterator1 first1, InputIterator1 last1,
+		  InputIterator2 first2, T init, 
+		  BinaryOperation1 bin_op1,
+		  BinaryOperation2 bin_op2)
+  {
+    for ( ; first1 != last1; ++first1, ++first2)
+      init = bin_op1(init, bin_op2(*first1, *first2));
+    return init;
+  }
+
+  template<__ps_class InputIterator, __ps_class OutputIterator>
+  OutputIterator partial_sum(InputIterator first, InputIterator last,
+			     OutputIterator result)
+  {
+    typedef __ps_typename iterator_traits<InputIterator>::value_type ValueType;
+
+    if (first == last) return result;
+    *result = *first;
+    ValueType value = *first;
+
+    while (++first != last) {
+      value = value + *first;
+      *++result = value;
+    }
+    return ++result;
+  }
+
+  template<__ps_class InputIterator, __ps_class OutputIterator, __ps_class BinaryOperation>
+  OutputIterator   partial_sum(InputIterator first, InputIterator last,
+			       OutputIterator result, BinaryOperation bin_op)
+  {
+    typedef __ps_typename iterator_traits<InputIterator>::value_type ValueType;
+    
+    if (first == last) return result;
+    *result = *first;
+    ValueType value = *first;
+
+    while (++first != last) {
+      value = bin_op(value, *first);
+      *++result = value;
+    }
+    return ++result;
+  }
+
+  template<__ps_class InputIterator, __ps_class OutputIterator>
+  OutputIterator adjacent_difference(InputIterator first,
+				     InputIterator last, OutputIterator result)
+  {
+    typedef __ps_typename iterator_traits<InputIterator>::value_type ValueType;
+    
+    
+    if (first == last) return result;
+    *result = *first;
+    ValueType value = *first;
+    while (++first != last) {
+      ValueType tmp = *first;
+      *++result = tmp - value;
+      value = tmp;
+    }
+    return ++result;
+  }
+
+  template<__ps_class InputIterator, __ps_class OutputIterator, __ps_class BinaryOperation>
+  OutputIterator adjacent_difference(InputIterator first, InputIterator last,
+				     OutputIterator result, BinaryOperation bin_op)
+  {
+    typedef __ps_typename iterator_traits<InputIterator>::value_type ValueType;
+    
+    
+    if (first == last) return result;
+    *result = *first;
+    ValueType value = *first;
+    while (++first != last) {
+      ValueType tmp = *first;
+      *++result = bin_op(tmp, value);
+      value = tmp;
+    }
+    return ++result;
+  }
+  
+} // namespace std
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+
+#endif /* PST_STL_NUMERIC */
+

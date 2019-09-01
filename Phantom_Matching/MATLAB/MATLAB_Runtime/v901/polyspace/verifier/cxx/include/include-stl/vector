@@ -1,0 +1,510 @@
+/*
+ *
+ * This file and its contents are the property of The MathWorks, Inc.
+ * 
+ * This file contains confidential proprietary information.
+ * The reproduction, distribution, utilization or the communication
+ * of this file or any part thereof is strictly prohibited.
+ * Offenders will be held liable for the payment of damages.
+ *
+ * Copyright 1999-2012 The MathWorks, Inc.
+ *
+ */
+
+// PST stub for class vector
+// from STL library.
+// As for string stub, we made
+// the choice not to give a template
+// argument for class Allocator,
+// and to matter only about the
+// number of elements contained
+// in the vector.
+
+#ifndef PST_STL_VECTOR
+#define PST_STL_VECTOR
+
+// necessary in visual mode
+// for ptrdiff_t
+#include <__polyspace__container.h>
+#include <is_integer_type.h>
+
+// macros undefined at the end of file
+#define OUT_OF_RANGE(cond) assert (!(cond))
+#define LENGTH_ERROR(cond) assert (!(cond))
+#define VALID_RANGE(f,l) assert ((f!=0 && l!=0) && f<=l)
+#define VALID_SIZE(s) assert(s <= (PST_CONTAINER_MAX_SIZE/sizeof(value_type)) && s >= 0)
+#define VALID_SIZE_MAX(s,n) assert(s  <= (PST_CONTAINER_MAX_SIZE/sizeof(value_type)) - n)
+#define VALID_SIZE_MIN(s,n) assert(s     >= n)
+#define NON_NULL(p) assert(p != 0)
+
+#define RESET_ELEMENTS()  { value_type* volatile random_element ; _pst_elements = new value_type(*random_element) ; }  
+// create "first" element
+#define ADD_ELEMENT(t) { volatile int random_alias = 0 ; if (random_alias) _pst_elements = new value_type(t) ; }
+#define ITERATOR_ELEMENT(i) i(_pst_elements) 
+
+#ifdef PST_VISUAL
+#pragma pack(push, 8) /* push default value */
+#endif
+
+namespace std {
+
+  template<class InputIterator, class value_type, __ps_bool is_int_type> struct __PST_VECTOR_ADD_ELEMENTS_T  { };
+  template<class InputIterator, class value_type>                   struct __PST_VECTOR_ADD_ELEMENTS_T<InputIterator, value_type, __ps_false> 
+  {
+    static size_t add(InputIterator __first, InputIterator __last, value_type *&_pst_elements )
+    {
+      size_t nbelt = 0;
+
+      // Valid range macro require < to be defined on InputIterator, thats not allways __ps_true
+      //  if range is not valid, we should get a NTL above
+
+      for (InputIterator tmp = __first; tmp != __last; ++tmp) 
+      {
+	ADD_ELEMENT(*tmp) ;
+	nbelt++ ;
+      }
+      VALID_SIZE(nbelt) ;
+      return nbelt;
+    } ; 
+  } ;
+
+  // specialization for pointer
+  template<class Pointed, class value_type>                   struct __PST_VECTOR_ADD_ELEMENTS_T<Pointed*, value_type, __ps_false> 
+  {
+    static size_t add(Pointed* __first, Pointed*  __last, value_type *&_pst_elements )
+    {
+      VALID_RANGE(__first,__last);
+      VALID_SIZE(__last - __first);
+      for (Pointed* tmp = __first; tmp != __last; ++tmp)  {  ADD_ELEMENT(*tmp) ; }
+      return __last - __first;	
+    } ; 
+  } ;
+
+  template<class InputIterator, class value_type>                   struct __PST_VECTOR_ADD_ELEMENTS_T<InputIterator, value_type, __ps_true> 
+  { 
+    static size_t add(InputIterator __first, InputIterator __last, value_type *&_pst_elements) 
+    { 
+      ADD_ELEMENT(__last) ;
+      return __first;
+    }
+  } ;
+
+
+  PST_TEMPLATE_DECL_DEF_FOR_CONTAINER(T)
+  class vector 
+  {
+
+  public:
+    
+    // types
+    typedef T value_type;
+    typedef value_type& reference;
+    typedef const value_type& const_reference;
+    typedef size_t size_type;
+    typedef ptrdiff_t difference_type;
+    typedef PST_ALLOCATOR allocator_type;
+    typedef value_type* pointer;
+    typedef const value_type* const_pointer;
+
+#if defined(__PST_STL_VECTOR_CONST_ITERATOR_DIFFER_ITERATOR__)
+    typedef __pst__generic_iterator<random_access_iterator_tag, T> iterator;
+    typedef __pst__generic_iterator<random_access_iterator_tag, const T> const_iterator;
+    typedef __pst__reverse_iterator<const_iterator> const_reverse_iterator;
+    typedef __pst__reverse_iterator<iterator> reverse_iterator;
+#else
+    // implementation choice : norm specify that vector (and all sequence container) iterator
+    //  should be at least forward_iterator; for vector, random_access_iterator seems more suitable
+    typedef __pst__generic_iterator<random_access_iterator_tag, T> iterator;
+    // implementation choice: const_iterator is the same as iterator, this avoids
+    // the need for an implicit conversion from const_iterator to iterator
+    typedef iterator const_iterator;
+    typedef __pst__reverse_iterator<iterator> reverse_iterator;
+    // implementation choice: const_reverse_iterator is the same as reverse_iterator, this avoids
+    // the need for an implicit conversion from const_reverse_iterator to reverse_iterator
+    typedef reverse_iterator const_reverse_iterator;
+#endif /* #if defined(__PST_STL_VECTOR_CONST_ITERATOR_DIFFER_ITERATOR__) */
+
+  private:
+    // the current number of elements 
+    // contained in the vector
+    size_type _nbelt;
+    pointer _pst_elements ;
+
+  public:    
+    // construct/copy/destroy
+
+    // the default constructor
+    // Post-condition : size() == 0
+    vector(PST_ALLOCATOR_DECL1) 
+    { 
+      _nbelt=0; 
+      RESET_ELEMENTS() ;
+    }
+
+
+    // Post : size() == n
+    __ps_explicit vector(size_type __n, const T& __value = T() PST_ALLOCATOR_DECL_LAST) {
+      VALID_SIZE(__n);
+      _nbelt = __n;
+      RESET_ELEMENTS() ;
+      volatile int random = 0 ;	
+      while (random) _pst_elements = new value_type(__value) ;
+    }
+
+    // Post : size() == __x.size()
+    vector(const PST_TEMPLATE_CONTAINER_NAME1(vector, T)& __x) 
+    { 
+      _nbelt = __x.size() ; 
+      _pst_elements = new value_type(*__x._pst_elements) ; 
+    }
+
+
+    // destructor :
+    // the access to any member of the
+    // vector object should provoke
+    // a runtime error after calling
+    // the destructor. We set the number
+    // of elements contained in *this 
+    // to 0 though it doesn't have
+    // much meaning...
+    ~vector() 
+    { 
+      _nbelt = 0; 
+      _pst_elements = 0 ;
+    }
+    
+
+    // post-condition : size() == distance
+    // between __first and __last.
+    template<class InputIterator>
+    vector(InputIterator __first, InputIterator __last PST_ALLOCATOR_DECL_LAST) 
+    {
+       RESET_ELEMENTS() ;
+       _nbelt = __PST_VECTOR_ADD_ELEMENTS_T<InputIterator, value_type,
+                                         __polyspace_is_int_type<InputIterator>::is_int_type >::add(__first, 
+                                                                                                    __last,
+                                                                                                    _pst_elements ); 
+    }
+   
+    PST_TEMPLATE_CONTAINER_NAME1(vector, T)& operator=(const PST_TEMPLATE_CONTAINER_NAME1(vector, T)& __x) {
+      _nbelt = __x.size();
+      _pst_elements = new value_type(*(__x._pst_elements)) ;
+      return *this;
+    }
+
+    // assign(), a generalized assignment member function.  Two
+    // versions: one that takes a count, and one that takes a range.
+    void assign(size_type __n, const T& __val){
+      VALID_SIZE(__n);
+      _nbelt = __n;
+      volatile int random = 0;
+      while (random) ADD_ELEMENT(__val) ;
+    }
+
+    template <class InputIterator>
+    void assign(InputIterator __first, InputIterator __last) 
+    {
+       RESET_ELEMENTS() ;
+       _nbelt = __PST_VECTOR_ADD_ELEMENTS_T<InputIterator, value_type,
+                                        __polyspace_is_int_type<InputIterator>::is_int_type >::add(__first,
+                                                                                                   __last,
+                                                                                                   _pst_elements );
+    }
+
+    // As we don't use the template argument allocator, 
+    // we don't matter about its type
+    allocator_type get_allocator() const {
+	PST_RETURN_STAT_FOR_GET_ALLOCATOR ;
+    }
+    
+    // iterators
+    
+    iterator begin() {
+       return ITERATOR_ELEMENT(iterator) ;
+    }
+
+    const_iterator begin() const {
+       return ITERATOR_ELEMENT(const_iterator) ;
+    }
+
+    iterator end() {
+       return ITERATOR_ELEMENT(iterator) ;
+    }
+
+    const_iterator end() const {
+       return ITERATOR_ELEMENT(const_iterator) ;
+    }
+
+    reverse_iterator rbegin() {
+       return ITERATOR_ELEMENT(reverse_iterator) ;
+    }
+
+    const_reverse_iterator rbegin() const {
+       return ITERATOR_ELEMENT(const_reverse_iterator) ;
+    }
+
+    reverse_iterator rend() {
+       return ITERATOR_ELEMENT(reverse_iterator) ;
+    }
+
+    const_reverse_iterator rend() const {
+       return ITERATOR_ELEMENT(const_reverse_iterator) ; 
+    }
+
+    // capacity
+    size_type size() const
+    { return _nbelt; }
+
+    // Returns the greatest unsigned
+    // int value.
+    size_type max_size() const {
+      return PST_CONTAINER_MAX_SIZE/sizeof(value_type);
+    }
+
+    size_type capacity() const {
+      volatile size_type delta = (size_type)0;
+      return (_nbelt + delta);
+    }
+
+    __ps_bool empty() const
+    { return _nbelt == 0; }
+
+    
+    // Post : size() not modified.
+    // throws length_error if
+    // __n > max_size().
+    void reserve(size_type __n) {
+      LENGTH_ERROR(__n > max_size());
+    }
+
+    // size() is set to
+    // __new_size iff _nbelt is greater.
+    // otherwise, size() is set to 
+    // __new_size.
+    void resize(size_type __new_size, T __x = T()) {
+      VALID_SIZE(__new_size);
+      _nbelt = __new_size;
+      volatile int random = 0;
+      while (random) ADD_ELEMENT(__x) ;
+    }    
+    
+    reference operator[](size_type __n) { 
+      OUT_OF_RANGE(__n >= _nbelt || __n < 0);
+      iterator it = ITERATOR_ELEMENT(iterator) ;
+      return *it;
+    }
+
+    const_reference operator[](size_type __n) const { 
+      OUT_OF_RANGE(__n >= _nbelt || __n < 0);
+      const_iterator it = ITERATOR_ELEMENT(const_iterator) ;
+      return *it;
+    }
+
+    reference at(size_type __n) {
+      OUT_OF_RANGE(__n >= _nbelt);
+      iterator it = ITERATOR_ELEMENT(iterator) ;
+      return *it;
+    }
+
+    const_reference at(size_type __n) const {
+      OUT_OF_RANGE(__n >= _nbelt);
+      const_iterator it = ITERATOR_ELEMENT(const_iterator) ;
+      return *it;
+    }
+
+    reference front() { 
+      return *begin();  // too complicated ?
+    }
+
+    const_reference front() const { 
+      return *begin(); // too complicated ?
+    }
+
+    reference back() { 
+      return *begin(); // sementically __ps_false ... but correct for verifier with begin impl.
+    }
+
+    const_reference back() const {
+      return *begin(); // sementically __ps_false ... but correct for verifier with begin impl.
+    }
+
+
+    // modifiers
+
+    // inserts __x at the end of *this.
+    // size() is increased by one.
+    // the norm doesn't specify
+    // any condition about adding
+    // an element when size() is
+    // already equal to max_size() ...
+
+    void push_back(const T& __x) {
+      VALID_SIZE_MAX(_nbelt,1);
+      _nbelt++ ;
+      ADD_ELEMENT(__x) ;
+    }
+
+    // remove the last element of 
+    // *this, and so size() is
+    // decreased by one.
+    // The norm doesn't specify
+    // to check if *this is already empty...
+    // we check it anyway
+    void pop_back() {
+      VALID_SIZE_MIN(_nbelt,1);
+      _nbelt--;
+    }
+
+    // not specified in the norm, but we guess
+    // that __x is inserted at position __position
+    // in the vector controlled by *this.
+    // so the number of elements in increased by one.
+    // We also suppose that the iterator returned
+    // is __position.
+    iterator insert(iterator __position, const T& __x) {
+      NON_NULL(__position);
+      VALID_SIZE_MAX(_nbelt,1);
+      _nbelt++;
+      ADD_ELEMENT(__x) ;
+      return ITERATOR_ELEMENT(iterator);
+    }
+    
+    // not specified in the norm, but we guess
+    // that __x is inserted n times at position __position
+    // in the vector controlled by *this.
+    // so the number of elements is increased by n.    
+    // as above, we suppose that the result is __position.
+    void insert(iterator __position, size_type __n, const T& __x) {
+      NON_NULL(__position);
+      VALID_SIZE_MAX(_nbelt,__n);
+      _nbelt += __n;
+      volatile int random = 0 ; while (random) ADD_ELEMENT(__x) ;
+    }
+
+    // not specified in the norm, but we guess
+    // that all elements between __first and __last
+    // are inserted from position __pos
+    // in the vector controlled by *this.
+    // so the number of elements in increased by (__last - __first).    
+    template<class _InputIterator>	
+    void insert(iterator __pos, _InputIterator __first, _InputIterator __last) {
+       size_t added = __PST_VECTOR_ADD_ELEMENTS_T<_InputIterator, value_type,
+                                       __polyspace_is_int_type<_InputIterator>::is_int_type >::add(__first, 
+                                                                                                   __last,
+                                                                                                   _pst_elements ); 
+       VALID_SIZE_MAX(_nbelt, added);
+       _nbelt += added;
+    }
+
+    // erases the element at postion __position
+    // in the vector : size() is decreased by one.
+    iterator erase(iterator __position) {
+      NON_NULL(__position);
+      VALID_SIZE_MIN(_nbelt,1);
+      _nbelt--;
+      return __position;
+    } 
+
+    // erases all elements between __first
+    // and __last, and so size() is decreased
+    // by (__last - __first).
+    iterator erase(iterator __first, iterator __last) {
+      VALID_RANGE(__first, __last);
+      VALID_SIZE_MIN(_nbelt,(__last - __first));
+      _nbelt -= __last - __first;
+      return __first;
+    }
+
+    // swaps __x and *this
+    void swap(PST_TEMPLATE_CONTAINER_NAME1(vector, T)& __x) {
+      size_type n = _nbelt;	
+      _nbelt = __x.size();
+      __x._nbelt = n ;
+      pointer tmp = __x._pst_elements ;
+      __x._pst_elements = _pst_elements ;
+      _pst_elements = tmp ; 
+    }
+
+    // post: size() == 0
+    void clear() { 
+      _nbelt = 0;
+      RESET_ELEMENTS() ;
+    }
+
+    // for vector<__ps_bool>
+    void flip() {}
+
+  }; // class vector 
+
+  // non-member operators
+  PST_TEMPLATE_DECL_FOR_CONTAINER1(class T)
+  __ps_bool operator==(const PST_TEMPLATE_CONTAINER_NAME1(vector, T)& x, const PST_TEMPLATE_CONTAINER_NAME1(vector, T)& y) {
+    volatile __ps_bool b = true;
+    if (x.size() != y.size())
+      return __ps_false;
+    return b;
+  }
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER1(class T)
+  __ps_bool operator<(const PST_TEMPLATE_CONTAINER_NAME1(vector, T)& x, const PST_TEMPLATE_CONTAINER_NAME1(vector, T)& y) {
+    volatile __ps_bool b = false;
+    return b;
+  }
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER1(class T)
+  __ps_bool operator!=(const PST_TEMPLATE_CONTAINER_NAME1(vector, T)& x, const PST_TEMPLATE_CONTAINER_NAME1(vector, T)& y) {
+    volatile __ps_bool b = false;
+    if (x.size() != y.size())
+      return __ps_true;
+    return b;
+  }
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER1(class T)
+  __ps_bool operator>(const PST_TEMPLATE_CONTAINER_NAME1(vector, T)& x, const PST_TEMPLATE_CONTAINER_NAME1(vector, T)& y) {
+    volatile __ps_bool b = false;
+    return b;
+  }
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER1(class T)
+  __ps_bool operator>=(const PST_TEMPLATE_CONTAINER_NAME1(vector, T)& x, const PST_TEMPLATE_CONTAINER_NAME1(vector, T)& y) {
+    volatile __ps_bool b = false;
+    return b;
+  }
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER1(class T)
+  __ps_bool operator<=(const PST_TEMPLATE_CONTAINER_NAME1(vector, T)& x, const PST_TEMPLATE_CONTAINER_NAME1(vector, T)& y) {
+    volatile __ps_bool b = false;
+    return b;
+  }
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER1(class T)
+  void swap(PST_TEMPLATE_CONTAINER_NAME1(vector, T)& x, PST_TEMPLATE_CONTAINER_NAME1(vector, T)& y) {
+    x.swap(y);
+  }
+
+} // namespace std
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+
+// undef macros defined in this file
+#undef OUT_OF_RANGE
+#undef LENGTH_ERROR
+#undef VALID_RANGE
+#undef VALID_SIZE
+#undef VALID_SIZE_MAX
+#undef VALID_SIZE_MIN
+#undef NON_NULL
+#undef ADD_ELEMENT
+#undef RESET_ELEMENT
+#undef ITERATOR_ELEMENT
+
+#endif /* PST_STL_VECTOR */

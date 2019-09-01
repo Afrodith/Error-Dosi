@@ -1,0 +1,73 @@
+/*
+ *
+ * This file and its contents are the property of The MathWorks, Inc.
+ * 
+ * This file contains confidential proprietary information.
+ * The reproduction, distribution, utilization or the communication
+ * of this file or any part thereof is strictly prohibited.
+ * Offenders will be held liable for the payment of damages.
+ *
+ * Copyright 1999-2012 The MathWorks, Inc.
+ *
+ */
+#ifndef PST_STL_IOSTREAM
+#define PST_STL_IOSTREAM
+
+#include <istream>
+#include <ostream>
+
+namespace std
+{
+#ifdef PST_VISUAL
+#pragma pack(push, 8) /* push default value */
+#endif
+
+ template <class charT, class traits>
+ class basic_iostream :  public basic_istream<charT, traits>, public basic_ostream<charT, traits>
+ { 
+	
+   public:
+	
+	//using basic_ios<charT, traits>::fmtflags;
+	
+	typedef charT				char_type;
+    	typedef __ps_typename traits::int_type	int_type; 
+    	typedef __ps_typename traits::pos_type	pos_type;
+    	typedef __ps_typename traits::off_type	off_type;
+    	typedef traits				traits_type;
+
+
+
+	__ps_explicit basic_iostream(basic_streambuf<charT, traits> * sb) {}
+	basic_iostream(){}
+	~basic_iostream() {}	
+  
+ };
+
+}
+
+namespace std
+{
+	extern istream			cin;
+	extern ostream			cout;
+	extern ostream			cerr;
+	extern ostream			clog;
+	extern wistream			wcin;
+	extern wostream			wcout;
+	extern wostream			wcerr;
+	extern wostream			wclog;
+
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+
+}
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+#endif /* PST_STL_IOSTREAM */
+

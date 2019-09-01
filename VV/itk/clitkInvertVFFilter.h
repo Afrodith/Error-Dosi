@@ -17,7 +17,7 @@
 ===========================================================================**/
 #ifndef __clitkInvertVFFilter_h
 #define __clitkInvertVFFilter_h
-#include "clitkImageCommon.h"
+#include "VV/common/clitkImageCommon.h"
 
 #include "itkImageToImageFilter.h"
 #include "itkImage.h"

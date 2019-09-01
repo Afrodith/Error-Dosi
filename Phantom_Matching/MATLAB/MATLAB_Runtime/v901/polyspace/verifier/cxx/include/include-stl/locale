@@ -1,0 +1,1454 @@
+/*
+ *
+ * This file and its contents are the property of The MathWorks, Inc.
+ * 
+ * This file contains confidential proprietary information.
+ * The reproduction, distribution, utilization or the communication
+ * of this file or any part thereof is strictly prohibited.
+ * Offenders will be held liable for the payment of damages.
+ *
+ * Copyright 1999-2012 The MathWorks, Inc.
+ *
+ */
+#ifndef PST_STL_LOCALE
+#define PST_STL_LOCALE
+
+#include <__polyspace__stddef.h>
+#include <__polyspace__time.h>
+#include <limits>
+#include <string>
+#include <__polyspace__locale.h>
+#include <__polyspace__ios_base.h>
+#include <iterator>
+
+#ifdef PST_VISUAL
+#pragma pack(push, 8) /* push default value */
+#endif
+
+namespace std {
+
+template<class _Facet> inline const _Facet& use_facet(const locale& _Loc)
+{
+	const locale::facet	*volatile _Psave;
+	return ((const _Facet&)(*_Psave));
+}
+
+#ifdef PST_VISUAL
+template<class _Facet> inline const _Facet& use_facet(const locale& _Loc, const _Facet *, __ps_bool = __ps_false)
+{
+	return use_facet<_Facet>(_Loc);
+}
+#endif
+
+class codecvt_base
+#ifdef PST_VISUAL
+  : public locale::facet
+#endif
+{
+	public:
+	  enum result {ok, partial, error, noconv};
+#ifdef PST_VISUAL
+	  codecvt_base(size_t _Refs = 0) : locale::facet()
+	  {}
+
+	  __ps_bool	always_noconv() const throw()
+	  { volatile __ps_bool ret = false; return ret; }
+
+	  int	max_length() const throw()
+	  { volatile int ret = 0; return ret; }
+	
+	  int	encoding() const throw()
+	  { volatile int ret = 0; return ret; } 
+	
+	  ~codecvt_base()
+	  {}		
+#endif
+};
+
+template<class _Elem, class _Byte, class _Statype>
+class codecvt
+#ifdef PST_VISUAL
+  : public codecvt_base
+#else
+  : public locale::facet, public codecvt_base
+#endif
+{
+	public:
+		typedef _Elem 		intern_type;
+		typedef _Byte		extern_type;
+		typedef _Statype 	state_type;
+
+		result	in(state_type& _State, const extern_type * _First1, 
+			   const extern_type * _Last1, 
+			   const extern_type *& _Mid1, intern_type*_First2, 
+			   intern_type * _Last2, intern_type *& _Mid2) const
+		{ 
+		  volatile result ret = ok;
+		   extern_type * volatile random_elem;
+		  unsigned int len, len2;
+		  len = _Last1 - _First1;
+		  len2 = _Last2 - _First2;
+		  if (len2 < len)
+		    len = len2;		  
+		  for (int i = 0; i < len; i++)
+		    _First2[i] = *((extern_type *) random_elem);
+		  _Mid1 = _First1 + len;
+		  _Mid2 = _First2 + len;
+		  return ret; 
+		}
+
+		result	out(state_type &_State, const intern_type *_First1, const intern_type * _Last1, const intern_type *& _Mid1,
+			  extern_type *_First2, extern_type *_Last2, extern_type *& _Mid2) const
+		{ 
+		  volatile result ret = ok;
+		   extern_type * volatile random_elem;
+		  unsigned int len, len2;
+		  len = _Last1 - _First1;
+		  len2 = _Last2 - _First2;
+		  if (len2 < len)
+		    len = len2;		  
+		  for (int i = 0; i < len; i++)
+		    _First2[i] = *((extern_type *) random_elem);
+		  _Mid1 = _First1 + len;
+		  _Mid2 = _First2 + len;
+		  return ret; 
+		}
+
+		result	unshift(state_type& _State, extern_type *_First2, extern_type * _Last2, extern_type *&_Mid2) const
+		{ 
+		  volatile result ret = ok;
+		   extern_type * volatile random_elem;
+		  unsigned int len;
+		  len = _Last2 - _First2;
+		  for (int i = 0; i < len; i++)
+		    _First2[i] = *((extern_type *) random_elem);
+		  _Mid2 = _First2 + len;
+		  return ret; 
+		}
+
+		int	length(const state_type& _State, const extern_type *_First1, const extern_type *_Last1, size_t _Count) const throw()
+		{ volatile int ret = 0; return ret; }
+	
+#ifndef PST_VISUAL
+		__ps_bool	always_noconv() const throw()
+	  	{ volatile __ps_bool ret = false; return ret; }
+
+	  	int	max_length() const throw()
+	  	{ volatile int ret = 0; return ret; }
+	
+	  	int	encoding() const throw()
+	  	{ volatile int ret = 0; return ret; } 
+#endif
+
+		static locale::id	id;
+
+		__ps_explicit codecvt(size_t _Refs = 0) { }
+protected:
+		virtual ~codecvt()
+		{}	
+};
+
+template<class _Elem, class _Byte, class _Statype>
+locale::id	codecvt<_Elem, _Byte, _Statype>::id;
+
+#ifdef PST_VISUAL
+template<>
+class codecvt<wchar_t, char, mbstate_t> : public codecvt_base
+{
+	public:
+		typedef	wchar_t		intern_type;
+		typedef	char		extern_type;
+		typedef	mbstate_t	state_type;
+		
+		 result  in(state_type& _State, const extern_type * _First1, const extern_type * _Last1,
+                                const extern_type *& _Mid1, intern_type*_First2, intern_type * _Last2, intern_type *& _Mid2) const
+		{ 
+		  volatile result ret = ok;
+		   extern_type * volatile random_elem;
+		  unsigned int len, len2;
+		  len = _Last1 - _First1;
+		  len2 = _Last2 - _First2;
+		  if (len2 < len)
+		    len = len2;		  
+		  for (int i = 0; i < len; i++)
+		    _First2[i] = *((extern_type *) random_elem);
+		  _Mid1 = _First1 + len;
+		  _Mid2 = _First2 + len;
+		  return ret; 
+		}
+
+                result  out(state_type &_State, const intern_type *_First1, const intern_type * _Last1, const intern_type *& _Mid1,
+                          extern_type *_First2, extern_type *_Last2, extern_type *& _Mid2) const
+		{ 
+		  volatile result ret = ok;
+		   extern_type * volatile random_elem;
+		  unsigned int len, len2;
+		  len = _Last1 - _First1;
+		  len2 = _Last2 - _First2;
+		  if (len2 < len)
+		    len = len2;		  
+		  for (int i = 0; i < len; i++)
+		    _First2[i] = *((extern_type *) random_elem);
+		  _Mid1 = _First1 + len;
+		  _Mid2 = _First2 + len;
+		  return ret; 
+		}
+
+                result  unshift(state_type& _State, extern_type *_First2, extern_type * _Last2, extern_type *&_Mid2) const
+		{ 
+		  volatile result ret = ok;
+		   extern_type * volatile random_elem;
+		  unsigned int len;
+		  len = _Last2 - _First2;
+		  for (int i = 0; i < len; i++)
+		    _First2[i] = *((extern_type *) random_elem);
+		  _Mid2 = _First2 + len;
+		  return ret; 
+		}
+
+                int     length(const state_type& _State, const extern_type *_First1, const extern_type *_Last1, size_t _Count) const throw()
+                { volatile int ret = 0; return ret; }
+
+                static locale::id       id;
+		
+		__ps_explicit codecvt(size_t _Refs = 0) : codecvt_base(_Refs)
+                {}
+	
+		  virtual ~codecvt()
+                {}
+		
+		 __ps_bool  always_noconv() const throw()
+	        { return __ps_false; }
+
+        	int   max_length() const throw()
+          	{ return (MB_LEN_MAX); }
+
+          	int   encoding() const throw()
+          	{ return (0); }
+};
+
+#endif
+
+template<class _Elem, class _Byte, class _Statype>
+class codecvt_byname : public codecvt<_Elem, _Byte, _Statype>
+{
+	public:
+		__ps_explicit codecvt_byname(const char * _Locname, size_t _Refs = 0) : codecvt<_Elem, _Byte, _Statype>(_Refs) 
+		{}
+
+	protected:
+
+		virtual ~codecvt_byname()
+		{}	
+};
+
+struct ctype_base
+#ifdef PST_VISUAL
+  : public locale::facet
+#endif
+{
+	enum mask {
+	  space = 1 << 0, print = 1 << 1, cntrl = 1 << 2, upper = 1 << 3,
+	  lower = 1 << 4, alpha = 1 << 5, digit = 1 << 6, punct = 1 << 7,
+	  xdigit = 1 << 8,
+	  alnum = alpha | digit, graph = alnum | punct
+	};
+#ifdef PST_VISUAL
+	ctype_base(size_t _Refs = 0) : locale::facet()
+	{}
+
+	~ctype_base()
+	{}
+#endif
+};
+
+template<class _Elem>
+class ctype
+#ifdef PST_VISUAL
+  : public ctype_base
+#else
+  : public locale::facet, public ctype_base
+#endif
+{
+	public:
+		typedef _Elem char_type;
+
+		__ps_bool	is (mask _Maskval, char_type _Ch) const
+		{ volatile __ps_bool ret = false; return ret; }
+
+		const char_type *is(const char_type *_First, 
+				    const char_type *_Last, 
+				    mask * _Dest) const { 
+		  volatile mask random_mask = space;
+		  for (int i = 0; i < _Last - _First; i++)
+		    _Dest[i] = random_mask;
+		  return _Last; 
+		}
+
+		const char_type *scan_is(mask _Maskval, 
+					 const char_type *_First, 
+					 const char_type *_Last) {
+		  volatile unsigned int i = 0;
+		  return &_First[i % ((_Last - _First) + 1)]; 
+		}
+		
+		const char_type	*scan_not(mask _Maskval, 
+					  const char_type *_First, 
+					  const char_type *_Last) {
+		  volatile unsigned int i = 0;
+		  return &_First[i % ((_Last - _First) + 1)]; 
+		}
+
+		char_type	tolower(char_type _Ch) const
+                { volatile char_type 	ret = (char_type)0; return ret; }
+
+		const char_type *tolower(char_type *_First, 
+					 const char_type * _Last) const {
+		  char_type * volatile random_char;
+		  for (int i = 0; i < _Last - _First; i++)
+		    _First[i] = *((char_type *) random_char);
+		  return _Last;
+		}
+
+		char_type       toupper(char_type _Ch) const
+                { volatile char_type    ret = (char_type)0; return ret; }
+
+                const char_type *toupper(char_type *_First, 
+					 const char_type * _Last) const {
+		  char_type * volatile random_char;
+		  for (int i = 0; i < _Last - _First; i++)
+		    _First[i] = *((char_type *) random_char);
+		  return _Last;
+		}
+		
+	 	char_type       widen(char _Byte) const
+                { volatile char_type    ret = (char_type)0; return ret; }
+
+		const char	*widen(const char *_First, 
+				       const char *_Last, 
+				       char_type * _Dest) const {
+		  char_type * volatile random_char;
+		  for (int i = 0; i < _Last - _First; i++)
+		    _Dest[i] = *((char_type *) random_char);
+		  return _Last;
+		}
+		
+		char		narrow(char_type _Ch, char _Dflt = '\0') const
+		{ volatile char ret = 0; return ret;}
+
+		const char_type *narrow(const char_type *_First, 
+					const char_type *_Last, 
+					char _Dflt, char *_Dest) const {
+		  volatile char random_char = 0;
+                  for (int i = 0; i < _Last - _First; i++)
+                    _Dest[i] = random_char;
+                  return _Last;
+		}
+
+		static locale::id	id;
+
+		__ps_explicit ctype(size_t _Refs = 0) { }
+
+protected:
+		virtual	~ctype()
+		{} 
+};
+
+template<class _Elem>
+locale::id ctype<_Elem>::id;
+
+template<> class ctype<char>
+#ifdef PST_VISUAL
+   : public ctype_base
+#else
+   : public locale::facet, public ctype_base
+#endif
+{
+	public:
+		typedef char	char_type;
+
+	        __ps_bool    is (mask _Maskval, char_type _Ch) const
+                { volatile __ps_bool ret = false; return ret; }
+
+                const char_type *is(const char_type *_First, const char_type *_Last, mask * _Dest) const
+		{
+		  volatile mask random_mask = space;
+		  for (int i = 0; i < _Last - _First; i++)
+		    _Dest[i] = random_mask;
+		  return _Last; 
+		}
+
+                const char_type *scan_is(mask _Maskval, const char_type *_First, const char_type *_Last) const
+		{
+		  volatile unsigned int i = 0;
+		  return &_First[i % ((_Last - _First) + 1)]; 
+		}
+
+                const char_type *scan_not(mask _Maskval, const char_type *_First, const char_type *_Last) const
+        	{		
+		  volatile unsigned int i = 0;
+		  return &_First[i % ((_Last - _First) + 1)]; 
+		}
+
+		 char_type       tolower(char_type _Ch) const
+                { volatile char_type    ret = (char_type)0; return ret; }
+
+                const char_type *tolower(char_type *_First, const char_type * _Last) const
+		{
+		  volatile char_type random_char = (char_type)0;
+		  for (int i = 0; i < _Last - _First; i++)
+		    _First[i] = random_char;
+		  return _Last;
+		}
+
+                char_type       toupper(char_type _Ch) const
+                { volatile char_type    ret = (char_type)0; return ret; }
+
+                const char_type *toupper(char_type *_First, const char_type * _Last) const
+		{
+		  volatile char_type random_char = (char_type)0;
+		  for (int i = 0; i < _Last - _First; i++)
+		    _First[i] = random_char;
+		  return _Last;
+		}
+
+                char_type       widen(char _Byte) const
+                { volatile char_type    ret = (char_type)0; return ret; }
+
+                const char      *widen(const char *_First, const char *_Last, char_type * _Dest) const
+		{
+		  volatile char_type random_char = (char_type)0;
+		  for (int i = 0; i < _Last - _First; i++)
+		    _Dest[i] = random_char;
+		  return _Last;
+		}
+
+                char            narrow(char_type _Ch, char _Dflt = '\0') const
+                { volatile char ret = 0; return ret;}
+
+                const char_type *narrow(const char_type *_First, const char_type *_Last, char _Dflt, char *_Dest) const
+		{
+		  volatile char random_char = 0;
+                  for (int i = 0; i < _Last - _First; i++)
+                    _Dest[i] = random_char;
+                  return _Last;
+		}
+
+		static locale::id id;
+
+		__ps_explicit ctype(const mask *_Table = 0, __ps_bool _Deletetable = __ps_false, size_t _Refs = 0) { }
+
+#ifdef PST_VISUAL
+		ctype(size_t _Refs) : ctype_base(_Refs)
+		{}
+#endif
+
+		static const size_t table_size;
+protected:
+		virtual ~ctype()
+		{}
+};
+
+
+#ifdef PST_VISUAL
+
+template<> class ctype<wchar_t> : public ctype_base
+{
+	public:
+		typedef wchar_t	char_type;
+
+		 __ps_bool    is (mask _Maskval, char_type _Ch) const
+                { volatile __ps_bool ret = false; return ret; }
+
+                const char_type *is(const char_type *_First, const char_type *_Last, mask * _Dest) const
+		{
+		  volatile mask random_mask = space;
+		  for (int i = 0; i < _Last - _First; i++)
+		    _Dest[i] = random_mask;
+		  return _Last; 
+		}
+
+                const char_type *scan_is(mask _Maskval, const char_type *_First, const char_type *_Last) const
+		{
+		  volatile unsigned int i = 0;
+		  return &_First[i % ((_Last - _First) + 1)]; 
+		}
+
+                const char_type *scan_not(mask _Maskval, const char_type *_First, const char_type *_Last) const
+        	{		
+		  volatile unsigned int i = 0;
+		  return &_First[i % ((_Last - _First) + 1)]; 
+		}
+
+                 char_type       tolower(char_type _Ch) const
+                { volatile char_type    ret = (char_type)0; return ret; }
+
+                const char_type *tolower(char_type *_First, const char_type * _Last) const
+		{
+		  volatile char_type random_char = (char_type)0;
+		  for (int i = 0; i < _Last - _First; i++)
+		    _First[i] = random_char;
+		  return _Last;
+		}
+
+                char_type       toupper(char_type _Ch) const
+                { volatile char_type    ret = (char_type)0; return ret; }
+
+                const char_type *toupper(char_type *_First, const char_type * _Last) const
+		{
+		  volatile char_type random_char = (char_type)0;
+		  for (int i = 0; i < _Last - _First; i++)
+		    _First[i] = random_char;
+		  return _Last;
+		}
+
+                char_type       widen(char _Byte) const
+                { volatile char_type    ret = (char_type)0; return ret; }
+
+                const char      *widen(const char *_First, const char *_Last, char_type * _Dest) const
+		{
+		  volatile char_type random_char = (char_type)0;
+		  for (int i = 0; i < _Last - _First; i++)
+		    _Dest[i] = random_char;
+		  return _Last;
+		}
+
+                char            narrow(char_type _Ch, char _Dflt = '\0') const
+                { volatile char ret = 0; return ret;}
+
+                const char_type *narrow(const char_type *_First, const char_type *_Last, char _Dflt, char *_Dest) const
+		{
+		  volatile char random_char = 0;
+                  for (int i = 0; i < _Last - _First; i++)
+                    _Dest[i] = random_char;
+                  return _Last;
+		}
+
+		static locale::id	id;
+
+		__ps_explicit ctype(size_t _Refs = 0) : ctype_base(_Refs)
+		{}
+
+		virtual ~ctype()
+		{}
+};
+
+#endif
+
+template<class _Elem>
+class ctype_byname : public ctype<_Elem>
+{
+ 	public:
+		typedef __ps_typename ctype<_Elem>::mask mask;
+
+		__ps_explicit ctype_byname(const char *_Locname, size_t _Refs = 0) : ctype<_Elem>(_Refs)
+		{}
+	protected:
+		virtual ~ctype_byname()
+		{}
+};
+
+template<> class ctype_byname<char> : public ctype<char> {
+public:
+  __ps_explicit ctype_byname(const char *, size_t refs = 0) { }
+protected:
+  ~ctype_byname() { }
+};
+
+// locale in Visual //
+
+template<class _Elem>
+class collate : public locale::facet
+{
+	public:
+		typedef	_Elem char_type;
+		typedef  basic_string<_Elem, char_traits<_Elem>, allocator<_Elem> > string_type;
+
+		int	compare(const char_type *_First1, const char_type *_Last1, const char_type *_First2, const char_type *_Last2) const
+		{ volatile int	ret = 0; return ret; }
+		
+		string_type	transform(const char_type *_First, const char_type *_Last) const
+		{ 
+		  string_type *volatile ret; 
+		  return *((string_type *) ret);
+		}
+
+		long		hash(const char_type *_First, const char_type *_Last) const
+		{ volatile long ret = 0L; return ret; }
+
+		static	locale::id	id;
+
+		__ps_explicit collate(size_t _Refs = 0) : locale::facet()
+		{}
+
+protected:
+
+		virtual ~collate()
+		{}
+};
+
+template<class _Elem>
+locale::id collate<_Elem>::id;
+
+template<class _Elem>
+class collate_byname : public collate<_Elem>
+{
+public:
+	typedef basic_string<_Elem> string_type;
+
+	__ps_explicit collate_byname(const char *_Locname, size_t _Refs = 0) : collate<_Elem>(_Refs)
+	{}
+
+protected:
+
+	virtual ~collate_byname()
+	{}
+};
+
+template<class _Facet> inline __ps_bool has_facet(const locale& _Loc) throw()
+{
+	volatile __ps_bool ret = false; return ret;
+}
+
+#ifdef PST_VISUAL
+template<class _Facet> inline __ps_bool has_facet(const locale& _Loc, const _Facet *) throw()
+{
+	volatile __ps_bool ret = false; return ret;
+}
+#endif
+
+/* Get rid of the macros defined in ctype.h instead of real functions. */
+#undef isalnum
+#undef isalpha
+#undef iscntrl
+#undef isdigit
+#undef isgraph
+#undef islower
+#undef isprint
+#undef ispunct
+#undef isspace
+#undef isupper
+#undef isxdigit
+
+template<class _Elem> inline __ps_bool isalnum(_Elem _Ch, const locale& _Loc)
+{
+	volatile __ps_bool ret = false; return ret;
+}
+
+template<class _Elem> inline __ps_bool isalpha(_Elem _Ch, const locale& _Loc)
+{
+        volatile __ps_bool ret = false; return ret;
+}
+
+template<class _Elem> inline __ps_bool iscntrl(_Elem _Ch, const locale& _Loc)
+{
+        volatile __ps_bool ret = false; return ret;
+}
+
+template<class _Elem> inline __ps_bool isdigit(_Elem _Ch, const locale& _Loc)
+{
+        volatile __ps_bool ret = false; return ret;
+}
+
+template<class _Elem> inline __ps_bool isgraph(_Elem _Ch, const locale& _Loc)
+{
+        volatile __ps_bool ret = false; return ret;
+}
+
+template<class _Elem> inline __ps_bool islower(_Elem _Ch, const locale& _Loc)
+{
+        volatile __ps_bool ret = false; return ret;
+}
+
+template<class _Elem> inline __ps_bool isprint(_Elem _Ch, const locale& _Loc)
+{
+        volatile __ps_bool ret = false; return ret;
+}
+
+template<class _Elem> inline __ps_bool ispunct(_Elem _Ch, const locale& _Loc)
+{
+        volatile __ps_bool ret = false; return ret;
+}
+
+template<class _Elem> inline __ps_bool isspace(_Elem _Ch, const locale& _Loc)
+{
+        volatile __ps_bool ret = false; return ret;
+}
+
+template<class _Elem> inline __ps_bool isupper(_Elem _Ch, const locale& _Loc)
+{
+        volatile __ps_bool ret = false; return ret;
+}
+
+template<class _Elem> inline __ps_bool isxdigit(_Elem _Ch, const locale& _Loc)
+{
+        volatile __ps_bool ret = false; return ret;
+}
+
+template<class _Elem> inline _Elem tolower(_Elem _Ch, const locale& _Loc)
+{
+	_Elem * volatile ret; 
+	return *((_Elem *) ret); 
+}
+
+template<class _Elem> inline _Elem toupper(_Elem _Ch, const locale& _Loc)
+{
+        _Elem * volatile ret;
+	return *((_Elem *) ret);
+}
+
+// xlocmes
+
+struct messages_base
+#ifdef PST_VISUAL
+  : public locale::facet
+#endif
+{
+	typedef int catalog;
+
+	__ps_explicit messages_base(size_t _Refs = 0) { }
+};
+
+template<class _Elem>
+class messages
+#ifdef PST_VISUAL
+  : public messages_base
+#else
+  : public locale::facet, public messages_base
+#endif
+{
+	public :
+		typedef _Elem char_type;
+		typedef basic_string<_Elem, char_traits<_Elem>, allocator<_Elem> > string_type;
+
+		catalog		open(const string &_Catname, const locale& _Loc) const
+		{ volatile catalog ret = 0; return ret; }
+
+		string_type	get(catalog _Catval, int _Set, int _Message, const string_type& _Dflt) const
+		{ volatile string_type ret; return *((string_type *)(&ret)); }
+
+		void		close(catalog _Catval) const
+		{}
+
+		static locale::id	id;
+
+		__ps_explicit messages(size_t _Refs = 0) : messages_base(_Refs)
+		{}
+
+	protected:
+		~messages() { }
+};
+
+template<class _Elem>
+locale::id messages<_Elem>::id;
+
+template<class _Elem>
+class messages_byname : public messages<_Elem>
+{
+	public:
+		typedef messages_base::catalog catalog;
+		typedef basic_string<_Elem> string_type;
+
+		__ps_explicit messages_byname(const char *_Locname, size_t _Refs = 0) : messages<_Elem>(_Refs)
+		{}
+
+	protected:
+
+		virtual ~messages_byname()
+		{}
+};
+
+// xlocmon
+
+struct money_base
+#ifdef PST_VISUAL
+  : public locale::facet
+#endif
+{
+	enum part { symbol, sign, space, value, none};
+
+	struct pattern { char field[4]; };
+
+#ifdef PST_VISUAL
+	money_base(size_t _Refs = 0) : locale::facet()
+	{}
+#endif
+};
+
+template<class _Elem, __ps_bool _Intl = __ps_false>
+class moneypunct 
+#ifdef PST_VISUAL
+  : public money_base
+#else
+  : public locale::facet, public money_base
+#endif
+{
+	public:
+		typedef _Elem char_type;
+		typedef	basic_string<_Elem, char_traits<_Elem>, allocator<_Elem> > string_type;
+
+		char_type	decimal_point() const
+                { volatile char_type ret = (char_type)0; return ret; }
+
+		char_type	thousands_sep()	const
+		{ volatile char_type ret = (char_type)0; return ret; }
+
+		string		grouping() 	const
+		{ volatile string ret; return *((string *)(&ret));  }
+
+		string_type	positive_sign()	const
+		{ volatile string ret; return *((string *)(&ret)); }
+
+		string_type     negative_sign() const
+                { volatile string ret; return *((string *)(&ret)); }
+
+		int		frac_digits() 	const
+		{ volatile int ret = 0; return ret; }
+
+		pattern		pos_format()	const
+		{ volatile pattern ret; return *((pattern *)(&ret)); }
+
+		pattern		neg_format()	const
+		{ volatile pattern ret; return *((pattern *)(&ret)); }	
+
+		static const __ps_bool	intl;
+		static locale::id	id;
+
+		__ps_explicit moneypunct(size_t _Refs = 0)
+		{}
+
+	protected:
+
+		~moneypunct() { }
+};
+
+template<class _Elem, __ps_bool _Intl> const __ps_bool moneypunct<_Elem, _Intl>::intl = _Intl;
+template<class _Elem, __ps_bool _Intl> locale::id moneypunct<_Elem, _Intl>::id;
+
+template<class _Elem, __ps_bool _Intl = __ps_false>
+class moneypunct_byname : public moneypunct<_Elem, _Intl>
+{
+	public:
+		typedef money_base::pattern pattern;
+		typedef basic_string<_Elem> string_type;
+
+		__ps_explicit moneypunct_byname(const char *_Locname, size_t _Refs = 0) : moneypunct<_Elem, _Intl>(_Refs)
+		{}
+
+	protected:
+		virtual ~moneypunct_byname()
+		{}
+};
+
+template<class _Elem, class _InIt = istreambuf_iterator<_Elem, char_traits<_Elem> > >
+class money_get : public locale::facet
+{
+	public:
+		typedef	_Elem char_type;
+		typedef	_InIt iter_type;
+		typedef	basic_string<_Elem, char_traits<_Elem>, allocator<_Elem> > string_type;
+
+		iter_type	get(iter_type _First, iter_type _Last, __ps_bool _intl, ios_base& _iosbase, ios_base::iostate& _State, long double& _Val) const
+		{
+		  volatile __ps_bool pst_random = false;
+		  volatile long double random_val = 0.0;
+		  volatile ios_base::iostate random_iostate;
+		  while (pst_random && _First != _Last) {
+		    ++_First;
+		  } 
+		  _State = random_iostate;
+		  _Val = random_val;
+		  return _First;
+		}
+
+		iter_type	get(iter_type _First, iter_type _Last, __ps_bool _Intl, ios_base & _Iosbase, ios_base::iostate& _State, string_type& _Val) const
+		{
+		  volatile __ps_bool pst_random = false;
+		  string_type * volatile random_val;
+		  volatile ios_base::iostate random_iostate;
+		  while (pst_random && _First != _Last) {
+		    ++_First;
+		  } 
+		  _State = random_iostate;
+		  _Val = *((string_type *) random_val);
+		  return _First;
+		}
+
+		static locale::id	id;
+
+		__ps_explicit money_get(size_t _Refs = 0) : locale::facet()
+		{}
+
+	protected:
+
+		virtual ~money_get()
+		{}
+};
+
+template<class _Elem, class _InIt>
+locale::id money_get<_Elem, _InIt>::id;
+
+template<class _Elem, class _OutIt = ostreambuf_iterator<_Elem, char_traits<_Elem> > >
+class money_put : public locale::facet
+{
+	public:
+		typedef _Elem char_type;
+		typedef	_OutIt iter_type;
+		typedef basic_string<_Elem, char_traits<_Elem>, allocator<_Elem> > string_type;
+		
+		iter_type	put(iter_type	_Dest, __ps_bool _Intl, ios_base& _iosbase, _Elem _Fill, long double _Val) const
+		{
+		   volatile __ps_bool pst_random = false;
+		   while (pst_random)
+			_Dest++;
+		   return _Dest;
+		}
+
+		iter_type       put(iter_type   _Dest, __ps_bool _Intl, ios_base& _iosbase, _Elem _Fill, const string_type& _Val) const
+		{
+		   volatile __ps_bool pst_random = false;
+		   while (pst_random)
+			_Dest++;
+		   return _Dest;
+		}
+
+		static locale::id	id;
+
+		__ps_explicit	money_put(size_t _Refs = 0) : locale::facet()
+		{}
+
+	protected:
+
+		virtual		~money_put()
+		{}
+};
+
+template<class _Elem, class _OutIt>
+locale::id money_put<_Elem, _OutIt>::id;
+
+// xlocnum
+
+template<class _Elem>
+class numpunct : public locale::facet
+{
+	public:
+		typedef basic_string<_Elem, char_traits<_Elem>, allocator<_Elem> > string_type;
+		typedef	_Elem char_type;
+		static locale::id id;
+
+		char_type	decimal_point() const
+                { volatile char_type ret = (char_type)0; return ret; }
+
+		char_type	thousands_sep() const
+		{ volatile char_type ret = (char_type)0; return ret; }
+
+		string		grouping() const
+		{ volatile string ret; return *((string *)&ret); }
+
+		string_type	falsename() const
+		{ volatile string_type ret; return *((string_type*)&ret); }	
+		
+		string_type	truename() const
+		{ volatile string_type ret; return *((string_type*)&ret); }
+
+		__ps_explicit numpunct(size_t _Refs = 0) : locale::facet()
+		{}
+
+	protected:
+		virtual  ~numpunct()
+		{}
+		
+};
+
+template<class _Elem>
+class numpunct_byname : public numpunct<_Elem>
+{
+	public:
+		typedef _Elem char_type;
+		typedef basic_string<_Elem> string_type;
+
+		__ps_explicit numpunct_byname(const char *_Locname, size_t _refs = 0) : numpunct<_Elem>(_refs)
+		{}
+
+	protected:
+		virtual ~numpunct_byname()
+		{}
+};
+
+template<class _Elem>
+locale::id numpunct<_Elem>::id;
+
+template<class _Elem, class _InIt = istreambuf_iterator<_Elem, char_traits<_Elem> > >
+class num_get : public locale::facet
+{
+	public:
+		typedef _Elem	char_type;
+		typedef	_InIt	iter_type;
+		static locale::id id;
+		
+		__ps_explicit num_get(size_t _Refs = 0) : locale::facet()
+		{ }
+
+	protected:
+
+		virtual ~num_get()
+		{}
+
+	public:
+
+		iter_type	get(iter_type _First, iter_type _Last, ios_base& _Iosbase, ios_base::iostate & _State, __ps_bool& _Val) const
+		{
+		  volatile __ps_bool pst_random = false;
+		  volatile __ps_bool random_val = false;
+		  volatile ios_base::iostate random_iostate;
+		  while (pst_random && _First != _Last) {
+		    ++_First;
+		  } 
+		  _State = random_iostate;
+		  _Val = random_val;
+		  return _First;
+		}
+
+		iter_type       get(iter_type _First, iter_type _Last, ios_base& _Iosbase, ios_base::iostate & _State,unsigned short &_Val) const
+		{
+		  volatile __ps_bool pst_random = false;
+		  volatile unsigned short random_val = 0U;
+		  volatile ios_base::iostate random_iostate;
+		  while (pst_random && _First != _Last) {
+		    ++_First;
+		  } 
+		  _State = random_iostate;
+		  _Val = random_val;
+		  return _First;
+		}
+
+		iter_type       get(iter_type _First, iter_type _Last, ios_base& _Iosbase, ios_base::iostate & _State,unsigned int &_Val) const
+		{
+		  volatile __ps_bool pst_random = false;
+		  volatile unsigned int random_val = 0U;
+		  volatile ios_base::iostate random_iostate;
+		  while (pst_random && _First != _Last) {
+		    ++_First;
+		  } 
+		  _State = random_iostate;
+		  _Val = random_val;
+		  return _First;
+		}
+
+		iter_type       get(iter_type _First, iter_type _Last, ios_base& _Iosbase, ios_base::iostate & _State,long &_Val) const
+		{
+		  volatile __ps_bool pst_random = false;
+		  volatile long random_val = 0L;
+		  volatile ios_base::iostate random_iostate;
+		  while (pst_random && _First != _Last) {
+		    ++_First;
+		  } 
+		  _State = random_iostate;
+		  _Val = random_val;
+		  return _First;
+		}
+
+		iter_type       get(iter_type _First, iter_type _Last, ios_base& _Iosbase, ios_base::iostate & _State,unsigned long &_Val) const
+		{
+		  volatile __ps_bool pst_random = false;
+		  volatile unsigned long random_val = 0UL;
+		  volatile ios_base::iostate random_iostate;
+		  while (pst_random && _First != _Last) {
+		    ++_First;
+		  } 
+		  _State = random_iostate;
+		  _Val = random_val;
+		  return _First;
+		}
+
+#ifndef __NO_LONG_LONG
+		iter_type       get(iter_type _First, iter_type _Last, ios_base& _Iosbase, ios_base::iostate & _State,long long &_Val) const
+		{
+		  volatile __ps_bool pst_random = false;
+		  volatile long long random_val = 0LL;
+		  volatile ios_base::iostate random_iostate;
+		  while (pst_random && _First != _Last) {
+		    ++_First;
+		  } 
+		  _State = random_iostate;
+		  _Val = random_val;
+		  return _First;
+		}
+
+		iter_type       get(iter_type _First, iter_type _Last, ios_base& _Iosbase, ios_base::iostate & _State,unsigned long long &_Val) const
+		{
+		  volatile __ps_bool pst_random = false;
+		  volatile unsigned long long random_val = 0ULL;
+		  volatile ios_base::iostate random_iostate;
+		  while (pst_random && _First != _Last) {
+		    ++_First;
+		  } 
+		  _State = random_iostate;
+		  _Val = random_val;
+		  return _First;
+		}
+#endif
+		iter_type       get(iter_type _First, iter_type _Last, ios_base& _Iosbase, ios_base::iostate & _State,float &_Val) const
+		{
+		  volatile __ps_bool pst_random = false;
+		  volatile float random_val = 0.0F;
+		  volatile ios_base::iostate random_iostate;
+		  while (pst_random && _First != _Last) {
+		    ++_First;
+		  } 
+		  _State = random_iostate;
+		  _Val = random_val;
+		  return _First;
+		}
+
+		iter_type       get(iter_type _First, iter_type _Last, ios_base& _Iosbase, ios_base::iostate & _State,double &_Val) const
+		{
+		  volatile __ps_bool pst_random = false;
+		  volatile double random_val = 0.0;
+		  volatile ios_base::iostate random_iostate;
+		  while (pst_random && _First != _Last) {
+		    ++_First;
+		  } 
+		  _State = random_iostate;
+		  _Val = random_val;
+		  return _First;
+		}
+	
+		iter_type       get(iter_type _First, iter_type _Last, ios_base& _Iosbase, ios_base::iostate & _State,long double &_Val) const
+		{
+		  volatile __ps_bool pst_random = false;
+		  volatile long double random_val = 0.0;
+		  volatile ios_base::iostate random_iostate;
+		  while (pst_random && _First != _Last) {
+		    ++_First;
+		  } 
+		  _State = random_iostate;
+		  _Val = random_val;
+		  return _First;
+		}
+		
+		iter_type       get(iter_type _First, iter_type _Last, ios_base& _Iosbase, ios_base::iostate & _State,void * &_Val) const
+		{
+		  volatile __ps_bool pst_random = false;
+		  void * volatile random_val;
+		  volatile ios_base::iostate random_iostate;
+		  while (pst_random && _First != _Last) {
+		    ++_First;
+		  } 
+		  _State = random_iostate;
+		  _Val = (void *) random_val;
+		  return _First;
+		}
+};
+
+template<class _Elem, class _InIt>
+locale::id num_get<_Elem, _InIt>::id;
+
+template<class _Elem, class _OutIt = ostreambuf_iterator<_Elem, char_traits<_Elem> > >
+class num_put : public locale::facet
+{
+	public:
+		static locale::id	id;
+		typedef _Elem		char_type;
+		typedef	_OutIt		iter_type;			
+
+		__ps_explicit num_put(size_t _Refs = 0) : locale::facet()
+		{}
+
+	protected:
+
+		virtual ~num_put()
+		{}
+
+	public:
+
+		iter_type	put(iter_type _Dest, ios_base &_Iosbase, char_type _Fill, __ps_bool _Val) const
+		{
+		   volatile __ps_bool pst_random = false;
+		   while (pst_random)
+			_Dest++;
+		   return _Dest;
+		}
+
+		iter_type       put(iter_type _Dest, ios_base &_Iosbase, char_type _Fill, long _Val) const
+		{
+		   volatile __ps_bool pst_random = false;
+		   while (pst_random)
+			_Dest++;
+		   return _Dest;
+		}
+	
+		iter_type       put(iter_type _Dest, ios_base &_Iosbase, char_type _Fill, unsigned long _Val) const
+		{
+		   volatile __ps_bool pst_random = false;
+		   while (pst_random)
+			_Dest++;
+		   return _Dest;
+		}
+
+#ifndef __NO_LONG_LONG
+		iter_type       put(iter_type _Dest, ios_base &_Iosbase, char_type _Fill, long long _Val) const
+		{
+		   volatile __ps_bool pst_random = false;
+		   while (pst_random)
+			_Dest++;
+		   return _Dest;
+		}
+
+		iter_type       put(iter_type _Dest, ios_base &_Iosbase, char_type _Fill, unsigned long long _Val) const
+		{
+		   volatile __ps_bool pst_random = false;
+		   while (pst_random)
+			_Dest++;
+		   return _Dest;
+		}
+#endif
+
+		iter_type       put(iter_type _Dest, ios_base &_Iosbase, char_type _Fill, double _Val) const
+		{
+		   volatile __ps_bool pst_random = false;
+		   while (pst_random)
+			_Dest++;
+		   return _Dest;
+		}
+
+		iter_type       put(iter_type _Dest, ios_base &_Iosbase, char_type _Fill, long double _Val) const
+		{
+		   volatile __ps_bool pst_random = false;
+		   while (pst_random)
+			_Dest++;
+		   return _Dest;
+		}
+	
+		iter_type       put(iter_type _Dest, ios_base &_Iosbase, char_type _Fill, void * _Val) const
+		{
+		   volatile __ps_bool pst_random = false;
+		   while (pst_random)
+			_Dest++;
+		   return _Dest;
+		}
+};
+
+template<class _Elem, class _OutIt>
+locale::id num_put<_Elem, _OutIt>::id;
+
+struct time_base
+#ifdef PST_VISUAL
+  : public locale::facet
+#endif
+{
+	enum dateorder {no_order, dmy, mdy, ymd, ydm};
+	time_base(size_t _refs = 0) { }
+};
+
+template<class _Elem, class _InIt = istreambuf_iterator<_Elem, char_traits<_Elem> > >
+class time_get
+#ifdef PST_VISUAL
+  : public time_base
+#else
+  : public locale::facet, public time_base
+#endif
+{
+	public:
+		typedef _Elem		char_type;
+		typedef	_InIt		iter_type;
+		static locale::id	id;
+		
+		dateorder	date_order() const
+		{ volatile dateorder ret; return ret; }
+		
+		iter_type	get_time(iter_type _First, iter_type _Last, ios_base& _Iosbase, ios_base::iostate& _State, tm *_Pt) const
+		{
+		  volatile __ps_bool pst_random = false;
+		  tm * volatile random_tm;
+		  while (pst_random && _First != _Last) {
+		    ++_First;
+		  }
+		  *_Pt = *((tm *) random_tm);
+		  return _First;
+		}
+
+		iter_type	get_date(iter_type _First, iter_type _Last, ios_base& _Iosbase, ios_base::iostate& _State, tm *_Pt) const
+		{
+		  volatile __ps_bool pst_random = false;
+		  tm * volatile random_tm;
+		  while (pst_random && _First != _Last) {
+		    ++_First;
+		  }
+		  *_Pt = *((tm *) random_tm);
+		  return _First;
+		}
+
+		iter_type       get_weekday(iter_type _First, iter_type _Last, ios_base& _Iosbase, ios_base::iostate& _State, tm *_Pt) const
+		{
+		  volatile __ps_bool pst_random = false;
+		  tm * volatile random_tm;
+		  while (pst_random && _First != _Last) {
+		    ++_First;
+		  }
+		  *_Pt = *((tm *) random_tm);
+		  return _First;
+		}
+
+		iter_type       get_monthname(iter_type _First, iter_type _Last, ios_base& _Iosbase, ios_base::iostate& _State, tm *_Pt) const
+		{
+		  volatile __ps_bool pst_random = false;
+		  tm * volatile random_tm;
+		  while (pst_random && _First != _Last) {
+		    ++_First;
+		  }
+		  *_Pt = *((tm *) random_tm);
+		  return _First;
+		}
+
+		iter_type       get_year(iter_type _First, iter_type _Last, ios_base& _Iosbase, ios_base::iostate& _State, tm *_Pt) const
+		{
+		  volatile __ps_bool pst_random = false;
+		  tm * volatile random_tm;
+		  while (pst_random && _First != _Last) {
+		    ++_First;
+		  }
+		  *_Pt = *((tm *) random_tm);
+		  return _First;
+		}
+
+		__ps_explicit 	time_get(size_t _Refs = 0) : time_base(_Refs)
+		{}
+
+	protected:
+
+		virtual 	~time_get()
+		{}
+};
+
+template<class _Elem, class _InIt>
+locale::id	time_get<_Elem, _InIt>::id;
+
+template<class _Elem, class _InIt = istreambuf_iterator<_Elem, char_traits<_Elem> > >
+class time_get_byname : public time_get<_Elem, _InIt>
+{
+	public:
+		typedef time_base::dateorder dateorder;
+		typedef _InIt iter_type;
+
+		__ps_explicit time_get_byname(const char *_Locname, size_t _Refs = 0) : time_get<_Elem, _InIt>(_Refs)
+		{ }
+
+	protected:
+
+		virtual ~time_get_byname()
+		{}
+};
+
+template<class _Elem, class _OutIt = ostreambuf_iterator<_Elem, char_traits<_Elem> > >
+class time_put : public locale::facet
+{
+	public:
+		typedef	_Elem	char_type;
+		typedef _OutIt	iter_type;
+
+		iter_type	put(iter_type _Dest, ios_base& _Iosbase, char_type _Fill, const tm * _Pt, 
+							const char_type *_Fmtfirst, const char_type *_Fmtlast) const
+		{
+		   volatile __ps_bool pst_random = false;
+		   while (pst_random)
+		     ++_Dest;
+		   return _Dest;
+		}
+
+		iter_type	put(iter_type _Dest, ios_base& _Iosbase, char_type _Fill, const tm *_Pt,
+							char _Specifier, char _modifier = 0) const
+		{
+		   volatile __ps_bool pst_random = false;
+		   while (pst_random)
+		     ++_Dest;
+		   return _Dest;
+		}
+
+		static locale::id	id;
+
+		__ps_explicit	time_put(size_t _Refs = 0) : locale::facet()
+		{}
+
+	protected:
+
+		virtual		~time_put()
+		{}
+};
+
+template<class _Elem, class _OutIt>
+locale::id	time_put<_Elem, _OutIt>::id;
+
+#ifdef PST_VISUAL
+
+template<class _OutIt>
+class time_put<wchar_t, _OutIt> : public locale::facet
+{
+	public:
+		typedef	wchar_t	char_type;
+		typedef	_OutIt	iter_type;
+
+		iter_type       put(iter_type _Dest, ios_base& _Iosbase, char_type _Fill, const tm * _Pt,
+                                                        const char_type *_Fmtfirst, const char_type *_Fmtlast) const
+		{
+		   volatile __ps_bool pst_random = false;
+		   while (pst_random)
+		     ++_Dest;
+		   return _Dest;
+		}
+
+		 iter_type       put(iter_type _Dest, ios_base& _Iosbase, char_type _Fill, const tm *_Pt,
+                                                        char _Specifier, char _modifier = 0) const
+		{
+		   volatile __ps_bool pst_random = false;
+		   while (pst_random)
+		     ++_Dest;
+		   return _Dest;
+		}
+
+		static locale::id       id;
+
+                __ps_explicit        time_put(size_t _Refs = 0) : locale::facet()
+                {}
+
+	protected:
+
+                virtual         ~time_put()
+                {}
+};
+
+template<class _OutIt>
+locale::id      time_put<wchar_t, _OutIt>::id;
+
+#endif
+
+template<class _Elem, class _OutIt = ostreambuf_iterator<_Elem, char_traits<_Elem> > >
+class time_put_byname : public time_put<_Elem, _OutIt>
+{
+	public:
+		typedef _Elem char_type;
+		typedef _OutIt iter_type;
+		
+		__ps_explicit	time_put_byname(const char * _Locname, size_t _Refs = 0) : time_put<_Elem, _OutIt>(_Refs)
+		{}
+
+	protected:
+
+		virtual 	~time_put_byname()
+		{}
+};
+
+} /* namespace std */
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+
+#endif /* PST_STL_LOCALE */
+

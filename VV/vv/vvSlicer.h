@@ -25,7 +25,7 @@
 #include <QMessageBox>
 
 #include "vvLandmarks.h"
-#include "vvImage.h"
+#include "VV/common/vvImage.h"
 #include "vvMesh.h"
 #include "vvMeshActor.h"
 #include "vvClipPolyData.h"

@@ -1,0 +1,258 @@
+/*
+ *
+ * This file and its contents are the property of The MathWorks, Inc.
+ * 
+ * This file contains confidential proprietary information.
+ * The reproduction, distribution, utilization or the communication
+ * of this file or any part thereof is strictly prohibited.
+ * Offenders will be held liable for the payment of damages.
+ *
+ * Copyright 1999-2012 The MathWorks, Inc.
+ *
+ */
+#ifndef PST_STL_STREAMBUF
+#define PST_STL_STREAMBUF
+
+#include <iosfwd>
+#include <ios>
+#include <__polyspace__locale.h>
+
+namespace std
+{
+#ifdef PST_VISUAL
+#pragma pack(push, 8) /* push default value */
+#endif
+
+  template <class charT, class traits>
+  class basic_streambuf
+  {
+  public:
+    typedef charT            char_type;
+    typedef traits           traits_type;
+    typedef __ps_typename traits::int_type int_type;
+    typedef __ps_typename traits::pos_type pos_type;
+    typedef __ps_typename traits::off_type off_type;
+#ifdef PST_VISUAL
+    basic_streambuf() {}
+    /* _Uninitialized is declared in xstddef which is always included by
+       polyspace_std_decl.h */
+    basic_streambuf(_Uninitialized) {}
+#endif
+
+    ~basic_streambuf(){}
+    /* LOCALES */
+    locale	pubimbue(const locale &) { return locale(); }
+    locale getloc() const { return locale(); }
+ 
+    /* BUFFER AND POSITIONING */
+    basic_streambuf<char_type, traits>	*pubsetbuf(char_type *, streamsize);
+    pos_type				 pubseekpos(pos_type, ios_base::openmode = ios_base::in | ios_base::out);
+    pos_type				 pubseekoff(off_type, ios_base::seekdir, ios_base::openmode = ios_base::in | ios_base::out);
+#ifdef PST_VISUAL
+    pos_type pubseekoff(off_type _Off, ios_base::seek_dir _Way, ios_base::open_mode _Mode);
+    pos_type pubseekpos(pos_type _Pos, ios_base::open_mode _Mode);
+#endif
+    int					 pubsync();
+
+    /* GET AREAS */
+    streamsize	in_avail();
+    int_type	snextc();
+    int_type	sbumpc();
+    int_type	sgetc();
+    streamsize	sgetn(char_type *, streamsize);
+
+    /* PUTBACK */
+    int_type	sputbackc(char_type);
+    int_type	sungetc();
+
+    /* PUT AREA */
+    int_type	sputc(char_type);
+    streamsize	sputn(const char_type *, streamsize);
+
+#ifdef PST_VISUAL
+    void stossc() {}
+#endif
+#ifdef PST_GNU
+  private:
+    char_type *_pst_element;
+  protected:
+    char_type *eback() const { return _pst_element; }
+    char_type *gptr() const { return _pst_element; }
+    char_type *egptr() const { return _pst_element; }
+    void gbump(int __n) { _pst_element += __n; }
+    void setg(char_type *__gbeg, char_type *__gnext, char_type *__gend) {
+      volatile int random;
+      if (random)
+        _pst_element = __gbeg;
+      else if (random)
+        _pst_element = __gnext;
+      else if (random)
+        _pst_element = __gend;
+    }
+    char_type *pbase() const { return _pst_element; }
+    char_type *pptr() const { return _pst_element; }
+    char_type *epptr() const { return _pst_element; }
+    void pbump(int __n) { _pst_element += __n; }
+    void setp(char_type *__pbeg, char_type *__pend) {
+      volatile int random;
+      if (random)
+        _pst_element = __pbeg;
+      else
+        _pst_element = __pend;
+    }
+
+    virtual void imbue(const locale&) { }
+    virtual basic_streambuf<char_type, traits> *setbuf(char_type *, streamsize) { return this; }
+    virtual pos_type seekoff(off_type, ios_base::seekdir, ios_base::openmode = ios_base::in | ios_base::out);
+    virtual pos_type seekpos(pos_type, ios_base::openmode = ios_base::in | ios_base::out);
+    virtual int sync() { return 0; }
+    virtual streamsize showmanyc() { return 0; }
+    virtual streamsize xsgetn(char_type *, streamsize);
+    virtual int_type underflow();
+    virtual int_type uflow();
+    virtual int_type pbackfail(int_type = traits_type::eof());
+    virtual streamsize xsputn(const char_type *, streamsize);
+    virtual int_type overflow(int_type = traits_type::eof());
+#endif
+  };
+
+  template <class charT, class traits>
+  basic_streambuf< __ps_typename basic_streambuf<charT, traits>::char_type, traits>	*basic_streambuf<charT, traits>::pubsetbuf(char_type *s, streamsize n)
+  {
+    streamsize	i;
+    volatile char_type value = (char_type)0;	
+	
+    for (i=0; i < n; i++)
+      s[i] = value;
+    return (this);
+  }
+
+  template <class charT, class traits>
+  basic_streambuf<charT, traits>::pos_type	basic_streambuf<charT, traits>::pubseekpos(pos_type sp, ios_base::openmode which)
+  {
+     pos_type	ret=pos_type();
+
+    return ret;
+  }
+
+  template <class charT, class traits>
+  basic_streambuf<charT, traits>::pos_type	basic_streambuf<charT, traits>::pubseekoff(off_type off, ios_base::seekdir way, ios_base::openmode which)
+  {
+	pos_type	ret=pos_type();
+
+    return ret;
+  }
+
+#ifdef PST_VISUAL
+  template <class charT, class traits>
+  basic_streambuf<charT, traits>::pos_type basic_streambuf<charT, traits>::pubseekoff(off_type _Off, ios_base::seek_dir _Way, ios_base::open_mode _Mode)
+  {
+	pos_type        ret=pos_type();
+    return ret;
+  }
+
+  template <class charT, class traits>
+  basic_streambuf<charT, traits>::pos_type      basic_streambuf<charT, traits>::pubseekpos(pos_type sp, ios_base::open_mode which)
+  {
+     pos_type   ret=pos_type();
+                                                                                
+    return ret;
+  }
+#endif
+
+  template <class charT, class traits>
+  int						basic_streambuf<charT, traits>::pubsync()
+  {
+    volatile int	ret = 0;
+    
+    return ret;
+  }
+
+  template <class charT, class traits>
+  streamsize					basic_streambuf<charT, traits>::in_avail()
+  {
+    volatile streamsize	ret = (streamsize)0;
+
+    return ret;
+  }
+
+  template <class charT, class traits>
+  basic_streambuf<charT, traits>::int_type	basic_streambuf<charT, traits>::snextc()
+  {
+    volatile int_type	ret = (int_type)0;
+
+    return ret;
+  }
+
+  template <class charT, class traits>
+   basic_streambuf<charT, traits>::int_type	 basic_streambuf<charT, traits>::sbumpc()
+  {
+    volatile int_type	ret = (int_type)0;
+
+    return ret;
+  }
+
+  template <class charT, class traits>
+  basic_streambuf<charT, traits>:: int_type	basic_streambuf<charT, traits>::sgetc()
+  {
+    volatile int_type	ret = (int_type)0;
+
+    return ret;
+  }
+  
+  template <class charT, class traits>
+  streamsize					basic_streambuf<charT, traits>::sgetn(char_type *s, streamsize n)
+  {
+    streamsize	i;
+    
+    for(i = 0; i < n && (s[i] != '\0'); i++);
+
+    return i;
+  }
+
+  template<class charT, class traits>
+  basic_streambuf<charT, traits>::int_type	basic_streambuf<charT, traits>::sputbackc(char_type c)
+  {
+    volatile int_type ret = (int_type)0;
+
+    return ret;
+  }
+
+  template<class charT, class traits>
+  basic_streambuf<charT, traits>::int_type	basic_streambuf<charT, traits>::sungetc()
+  {
+    volatile int_type ret = (int_type)0;
+
+    return ret;
+  }
+
+  template<class charT, class traits>
+  basic_streambuf<charT, traits>::int_type	basic_streambuf<charT, traits>::sputc(char_type c)
+  {
+    return (traits::to_int_type(c));
+  }
+
+  template<class charT, class traits>
+  streamsize					basic_streambuf<charT, traits>::sputn(const char_type *s, streamsize n)
+  {
+    streamsize	i;
+    
+    for(i = 0; i < n && (s[i] != '\0'); i++);
+	
+    return i;    
+  }
+
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+
+
+}
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+#endif /* PST_STL_STREAMBUF */

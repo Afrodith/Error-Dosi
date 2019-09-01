@@ -1,0 +1,474 @@
+/*
+ *
+ * This file and its contents are the property of The MathWorks, Inc.
+ * 
+ * This file contains confidential proprietary information.
+ * The reproduction, distribution, utilization or the communication
+ * of this file or any part thereof is strictly prohibited.
+ * Offenders will be held liable for the payment of damages.
+ *
+ * Copyright 1999-2012 The MathWorks, Inc.
+ *
+ */
+#ifndef PST_STL_DEQUE
+#define PST_STL_DEQUE
+
+#include <__polyspace__container.h>
+
+// macros undefined at the end of file
+#define OUT_OF_RANGE(cond) assert (!(cond))
+#define LENGTH_ERROR(cond) assert (!(cond))
+#define VALID_RANGE(f,l) assert ((f!=0 && l!=0) && f<=l)
+#define VALID_SIZE(s) assert(s <= PST_CONTAINER_MAX_SIZE && s >= 0)
+#define VALID_SIZE_MAX(s,n) assert(s  <= PST_CONTAINER_MAX_SIZE - n)
+#define VALID_SIZE_MIN(s,n) assert(s     >= n)
+#define NON_NULL(p) assert(p != 0)
+
+#define RESET_ELEMENTS()  { value_type* volatile random_element ; _pst_elements = new value_type(*random_element) ; }  // create "first" element
+#define ADD_ELEMENT(t) { volatile int random_alias = 0 ; if (random_alias) _pst_elements = new value_type(t) ; }
+#define ITERATOR_ELEMENT(i) i(_pst_elements) 
+
+
+#include <is_integer_type.h>
+
+namespace std {
+
+#ifdef PST_VISUAL
+#pragma pack(push, 8) /* push default value */
+#endif
+
+  template<class InputIterator, class value_type, __ps_bool is_int_type> struct __PST_DEQUE_ADD_ELEMENTS_T  { };
+  template<class InputIterator, class value_type>                   struct __PST_DEQUE_ADD_ELEMENTS_T<InputIterator, value_type, __ps_false> 
+  {
+    static size_t add(InputIterator __first, InputIterator __last, value_type *&_pst_elements )
+      {
+	size_t nbelt = 0;
+	for (InputIterator tmp = __first; tmp != __last; ++tmp)
+	{
+	    ADD_ELEMENT(*tmp) ;
+	    nbelt++;
+	}
+	VALID_SIZE(nbelt) ;
+	return nbelt;
+      } ; 
+  } ;
+
+  // specialization for pointer
+  template<class Pointed, class value_type>                   struct __PST_DEQUE_ADD_ELEMENTS_T<Pointed*, value_type, __ps_false>
+  {
+    static size_t add(Pointed* __first, Pointed*  __last, value_type *&_pst_elements )
+    {
+      VALID_RANGE(__first,__last);
+      VALID_SIZE(__last - __first);
+      for (Pointed* tmp = __first; tmp != __last; ++tmp)  {  ADD_ELEMENT(*tmp) ; }
+      return __last - __first;
+    } ;
+  } ;
+
+  template<class InputIterator, class value_type>                   struct __PST_DEQUE_ADD_ELEMENTS_T<InputIterator, value_type, __ps_true> 
+  { 
+    static size_t add(InputIterator first, InputIterator last, value_type *&_pst_elements) 
+      {
+	VALID_SIZE(first); 
+	ADD_ELEMENT(last) ;
+	return first;
+      }
+  } ;
+
+  PST_TEMPLATE_DECL_DEF_FOR_CONTAINER(T) 
+  class deque 
+  {
+  public:
+    
+    // types
+    typedef T value_type;
+    typedef value_type& reference;
+    typedef const value_type& const_reference;
+    typedef size_t size_type;
+    typedef ptrdiff_t difference_type;
+    typedef PST_ALLOCATOR allocator_type;
+    typedef value_type* pointer;
+    typedef const value_type* const_pointer;
+
+#if defined(__PST_STL_DEQUE_CONST_ITERATOR_DIFFER_ITERATOR__)
+    typedef __pst__generic_iterator<random_access_iterator_tag, T> iterator;
+    typedef __pst__generic_iterator<random_access_iterator_tag, const T> const_iterator;
+    typedef __pst__reverse_iterator<const_iterator> const_reverse_iterator;
+    typedef __pst__reverse_iterator<iterator> reverse_iterator;
+#else
+    // implementation choice : norm specify that deque (and all sequence container) iterator
+    //  should be at least forward_iterator; for deque, random_access_iterator seems more suitable
+    typedef __pst__generic_iterator<random_access_iterator_tag, T> iterator;
+    // implementation choice: const_iterator is the same as iterator, this avoids
+    // the need for an implicit conversion from const_iterator to iterator
+    typedef iterator const_iterator;
+
+    typedef __pst__reverse_iterator<iterator> reverse_iterator;
+    // implementation choice: const_reverse_iterator is the same as reverse_iterator, this avoids
+    // the need for an implicit conversion from const_reverse_iterator to reverse_iterator
+    typedef reverse_iterator const_reverse_iterator;
+#endif /* #if defined(__PST_STL_DEQUE_CONST_ITERATOR_DIFFER_ITERATOR__) */
+
+  private:
+    // the current number of elements 
+    // contained in the deque
+    size_type _size;
+    pointer _pst_elements ;
+
+  public:    
+
+    // construct/copy/destroy
+
+    deque(PST_ALLOCATOR_DECL1) 
+      { 
+	_size=0; 
+	RESET_ELEMENTS() ;
+      }
+
+
+    __ps_explicit deque(size_type n, const value_type& value = value_type() PST_ALLOCATOR_DECL_LAST) 
+      {
+	VALID_SIZE(n);
+	_size = n;
+	RESET_ELEMENTS() ;
+	volatile int random = 0 ;	
+	while (random) _pst_elements = new value_type(value) ;
+      }
+
+    deque(const PST_TEMPLATE_CONTAINER_NAME1(deque,T)& x) 
+      { 
+	_size = x.size() ; 
+	_pst_elements = new value_type(*x._pst_elements) ; 
+      }
+
+
+    ~deque() 
+      { 
+	_size = 0; 
+	_pst_elements = 0 ;
+      }
+    
+    template<class InputIterator>
+    deque(InputIterator first, InputIterator last PST_ALLOCATOR_DECL_LAST) 
+      {
+	RESET_ELEMENTS() ;
+	_size = __PST_DEQUE_ADD_ELEMENTS_T<InputIterator, value_type,
+	  __polyspace_is_int_type<InputIterator>::is_int_type >::add(first, 
+								     last,
+								     _pst_elements ); 
+      }
+   
+    PST_TEMPLATE_CONTAINER_NAME1(deque,T)& operator=(const PST_TEMPLATE_CONTAINER_NAME1(deque,T)& x) 
+      {
+	_size = x.size();
+	_pst_elements = new value_type(*(x._pst_elements)) ;
+	return *this;
+      }
+
+
+    void assign(size_type n, const value_type& val)
+      {
+	VALID_SIZE(n);
+	_size = n;
+	volatile int random = 0;
+	while (random) ADD_ELEMENT(val) ;
+      }
+
+    template <class InputIterator>
+    void assign(InputIterator first, InputIterator last) 
+      {
+	RESET_ELEMENTS() ;
+	_size = __PST_DEQUE_ADD_ELEMENTS_T<InputIterator, value_type,
+	  __polyspace_is_int_type<InputIterator>::is_int_type >::add(first,
+								     last,
+								     _pst_elements );
+      }
+
+    // As we don't use the template argument allocator, 
+    // we don't matter about its type
+    allocator_type get_allocator() const 
+      {
+	PST_RETURN_STAT_FOR_GET_ALLOCATOR ;
+      }
+    
+    // iterators
+    
+    iterator begin() {
+      return ITERATOR_ELEMENT(iterator) ;
+    }
+
+    const_iterator begin() const {
+      return ITERATOR_ELEMENT(const_iterator) ;
+    }
+
+    iterator end() {
+      return ITERATOR_ELEMENT(iterator) ;
+    }
+
+    const_iterator end() const {
+      return ITERATOR_ELEMENT(const_iterator) ;
+    }
+
+    reverse_iterator rbegin() {
+      return ITERATOR_ELEMENT(reverse_iterator) ;
+    }
+
+    const_reverse_iterator rbegin() const {
+      return ITERATOR_ELEMENT(const_reverse_iterator) ;
+    }
+
+    reverse_iterator rend() {
+      return ITERATOR_ELEMENT(reverse_iterator) ;
+    }
+
+    const_reverse_iterator rend() const {
+      return ITERATOR_ELEMENT(const_reverse_iterator) ; 
+    }
+
+    // capacity
+    size_type size() const
+      { 
+	return _size; 
+      }
+
+    // Returns the greatest unsigned
+    // int value.
+    size_type max_size() const 
+      {
+	return PST_CONTAINER_MAX_SIZE;
+      }
+
+    __ps_bool empty() const
+      { 
+	return _size == 0; 
+      }
+
+    
+
+    void resize(size_type new_size, value_type x = value_type()) 
+      {
+	VALID_SIZE(new_size);
+	_size = new_size;
+	volatile int random = 0;
+	while (random) ADD_ELEMENT(x) ;
+      }    
+    
+    reference operator[](size_type n) 
+      { 
+	OUT_OF_RANGE(n >= _size || n < 0);
+	iterator it = ITERATOR_ELEMENT(iterator) ;
+	return *it;
+      }
+
+    const_reference operator[](size_type n) const 
+      { 
+	OUT_OF_RANGE(n >= _size || n < 0);
+	const_iterator it = ITERATOR_ELEMENT(const_iterator) ;
+	return *it;
+      }
+
+    reference at(size_type n) 
+      {
+	OUT_OF_RANGE(n >= _size);
+	iterator it = ITERATOR_ELEMENT(iterator) ;
+	return *it;
+      }
+
+    const_reference at(size_type n) const 
+      {
+	OUT_OF_RANGE(n >= _size);
+	const_iterator it = ITERATOR_ELEMENT(const_iterator) ;
+	return *it;
+      }
+
+    reference front() { 
+      return *begin();  // too complicated ?
+    }
+
+    const_reference front() const { 
+      return *begin(); // too complicated ?
+    }
+
+    reference back() { 
+      return *begin(); // sementically __ps_false ... but correct for verifier with begin impl.
+    }
+
+    const_reference back() const {
+      return *begin(); // sementically __ps_false ... but correct for verifier with begin impl.
+    }
+
+
+    // modifiers
+
+    void push_back(const value_type& x) 
+      {
+	VALID_SIZE_MAX(_size,1);
+	_size++ ;
+	ADD_ELEMENT(x) ;
+      }
+
+    void push_front(const value_type& x) 
+      {
+	VALID_SIZE_MAX(_size,1);
+	_size++ ;
+	ADD_ELEMENT(x) ;
+      }
+
+    void pop_back() 
+      {
+	VALID_SIZE_MIN(_size,1);
+	_size--;
+      }
+
+    void pop_front() 
+      {
+	VALID_SIZE_MIN(_size,1);
+	_size--;
+      }
+
+
+    iterator insert(iterator position, const value_type& x) 
+      {
+	NON_NULL(position);
+        VALID_SIZE_MAX(_size,1);
+	_size++;
+	ADD_ELEMENT(x) ;
+	return ITERATOR_ELEMENT(iterator);
+      }
+    
+    void insert(iterator position, size_type n, const value_type& x) 
+      {
+	NON_NULL(position);
+        VALID_SIZE_MAX(_size,n);
+	_size += n;
+	volatile int random = 0 ; while (random) ADD_ELEMENT(x) ;
+      }
+
+    template<class InputIterator>	
+    void insert(iterator pos, InputIterator first, InputIterator last) 
+      {
+	size_t added = __PST_DEQUE_ADD_ELEMENTS_T<InputIterator, value_type,
+	  __polyspace_is_int_type<InputIterator>::is_int_type >::add(first, 
+								     last,
+								     _pst_elements ); 
+	VALID_SIZE_MAX(_size, added);
+	_size += added;
+      }
+
+    
+    iterator erase(iterator position) 
+      {
+	NON_NULL(position);
+        VALID_SIZE_MIN(_size,1);
+	_size--;
+	return position;
+      } 
+
+    iterator erase(iterator first, iterator last) 
+      {
+	VALID_RANGE(first, last);
+        VALID_SIZE_MIN(_size,(last - first));
+	_size -= last - first;
+	return first;
+      }
+
+    // swaps x and *this
+    void swap(PST_TEMPLATE_CONTAINER_NAME1(deque,T)& x) 
+      {
+	size_type n = _size;	
+	_size = x.size();
+	x._size = n ;
+	pointer tmp = x._pst_elements ;
+	x._pst_elements = _pst_elements ;
+	_pst_elements = tmp ; 
+      }
+
+    void clear() 
+      { 
+	_size = 0;
+	RESET_ELEMENTS() ;
+      }
+
+
+  }; // class deque 
+
+  // non-member operators
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER1(class T)
+  __ps_bool operator==(const PST_TEMPLATE_CONTAINER_NAME1(deque,T)& x, const PST_TEMPLATE_CONTAINER_NAME1(deque,T)& y) 
+  {
+      volatile __ps_bool b = true;
+      if (x.size() != y.size())
+      return __ps_false;
+      return b;
+    }
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER1(class T)
+  __ps_bool operator<(const PST_TEMPLATE_CONTAINER_NAME1(deque,T)& x, const PST_TEMPLATE_CONTAINER_NAME1(deque,T)& y) 
+  {
+    volatile __ps_bool b = false;
+    return b;
+  }
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER1(class T)
+  __ps_bool operator!=(const PST_TEMPLATE_CONTAINER_NAME1(deque,T)& x, const PST_TEMPLATE_CONTAINER_NAME1(deque,T)& y) 
+  {
+      volatile __ps_bool b;
+      if (x.size() != y.size())
+      return __ps_true;
+      return b;
+    }
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER1(class T)
+  __ps_bool operator>(const PST_TEMPLATE_CONTAINER_NAME1(deque,T)& x, const PST_TEMPLATE_CONTAINER_NAME1(deque,T)& y) 
+  {
+    volatile __ps_bool b = false;
+    return b;
+  }
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER1(class T)
+  __ps_bool operator>=(const PST_TEMPLATE_CONTAINER_NAME1(deque,T)& x, const PST_TEMPLATE_CONTAINER_NAME1(deque,T)& y) 
+  {
+     volatile __ps_bool b = false;
+     return b;
+  }
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER1(class T)
+  __ps_bool operator<=(const PST_TEMPLATE_CONTAINER_NAME1(deque,T)& x, const PST_TEMPLATE_CONTAINER_NAME1(deque,T)& y) 
+  {
+     volatile __ps_bool b = false;
+     return b;
+  }
+  
+  PST_TEMPLATE_DECL_FOR_CONTAINER1(class T)
+  void swap(PST_TEMPLATE_CONTAINER_NAME1(deque,T)& x, PST_TEMPLATE_CONTAINER_NAME1(deque,T)& y) 
+  {
+    x.swap(y);
+  }
+
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+
+} // namespace std
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+// undef macros defined in this file
+#undef OUT_OF_RANGE
+#undef LENGTH_ERROR
+#undef ADD_ELEMENT
+#undef RESET_ELEMENT
+#undef ITERATOR_ELEMENT
+#undef VALID_RANGE
+#undef VALID_SIZE
+#undef VALID_SIZE_MAX
+#undef VALID_SIZE_MIN
+#undef NON_NULL
+
+#endif /* PST_STL_DEQUE */
+

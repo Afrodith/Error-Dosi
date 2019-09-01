@@ -1,0 +1,4 @@
+#Gallbladder Pancreas Esophagus Ovary/Testis Ureter/Urethra Small_Intestine_Lumen Spinal_Cord Eyes Large_Intestine_Lumen Lung Heart Kidney Spleen Thymus Artery Cartilage Bladder Large_Intestine Marrow_Red Small_Intestine Stomach Stomach_Lumen Muscle Fat Skin Bone Liver Skull Tongue
+Ear_Cartilage Ear_Skin Brain_Total 
+0.003	0.002	0.005	0.001	0.001	0.000	0.119	0.210	0.002	0.006	0.005	0.002	0.003	0.008	0.001	0.007	0.001	0.002	0.07	0.002	0.003	0.003	0.02	0.00	0.00	0.013	0.004	1.06	0.00	0.00	0.00	0.234
+

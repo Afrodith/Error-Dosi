@@ -1,0 +1,64 @@
+/*
+ *
+ * This file and its contents are the property of The MathWorks, Inc.
+ * 
+ * This file contains confidential proprietary information.
+ * The reproduction, distribution, utilization or the communication
+ * of this file or any part thereof is strictly prohibited.
+ * Offenders will be held liable for the payment of damages.
+ *
+ * Copyright 1999-2012 The MathWorks, Inc.
+ *
+ */
+#ifndef PST_STL_IOMANIP
+#define PST_STL_IOMANIP
+
+// Provide the full definition for __pst_smanip_typ before including 
+// __polyspace__ios_base.h in order to avoid compilation errors in dependencies
+// due to the fact that its type is incomplete.
+#ifdef PST_VISUAL
+#pragma pack(push, 8) /* push default value */
+#endif
+
+namespace std
+{
+        struct __pst_smanip_typ { } ;
+}
+
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+
+#include <__polyspace__ios_base.h>
+
+#ifdef PST_VISUAL
+#pragma pack(push, 8) /* push default value */
+#endif
+
+namespace std
+{
+	//
+	// we can do ostream << setprecision(5) << 3 ;
+	//           istream >> setbase(2) >> i ;
+	//
+
+	inline __pst_smanip_typ resetiosflags(ios_base::fmtflags mask) { return __pst_smanip_typ() ;}
+	inline __pst_smanip_typ setiosflags(ios_base::fmtflags mask) { return __pst_smanip_typ() ;}
+	inline __pst_smanip_typ setbase(int base) { return __pst_smanip_typ() ; }
+	template<class charT> 
+	inline __pst_smanip_typ setfill(charT c) { return __pst_smanip_typ() ;}
+	inline __pst_smanip_typ setprecision(int n){ return __pst_smanip_typ() ;}
+	inline __pst_smanip_typ setw(int n){ return __pst_smanip_typ() ;}	
+}
+
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+#endif /* PST_STL_IOMANIP */

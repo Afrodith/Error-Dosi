@@ -18,7 +18,7 @@
 #ifndef vvMeshActor_h
 #define vvMeshActor_h
 #include "vvMesh.h"
-#include "vvImage.h"
+#include "VV/common/vvImage.h"
 
 class vtkActor;
 class vtkPolyDataMapper;

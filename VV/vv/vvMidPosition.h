@@ -20,7 +20,7 @@
 #include <string>
 #include <QThread>
 #include <QProgressDialog>
-#include "vvImage.h"
+#include "VV/common/vvImage.h"
 #include "vvSlicerManager.h"
 
 class vvMidPosition : public QThread

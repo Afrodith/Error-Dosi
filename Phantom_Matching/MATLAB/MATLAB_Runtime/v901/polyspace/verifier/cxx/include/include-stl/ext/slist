@@ -1,0 +1,432 @@
+/*
+ *
+ * This file and its contents are the property of The MathWorks, Inc.
+ * 
+ * This file contains confidential proprietary information.
+ * The reproduction, distribution, utilization or the communication
+ * of this file or any part thereof is strictly prohibited.
+ * Offenders will be held liable for the payment of damages.
+ *
+ * Copyright 1999-2012 The MathWorks, Inc.
+ *
+ */
+#ifndef PST_SLIST
+#define PST_SLIST
+
+#include <__polyspace__container.h>
+// For pair
+#include <utility>
+
+#ifdef PST_VISUAL
+#pragma pack(push,8)
+#endif
+
+// pst verification macros
+
+#define VALID_SIZE_MAX(s,n) assert((s) < (n))
+
+// pst internal macros
+
+#define RESET_ELEMENTS()  { value_type* volatile random_element ; _pst_elements = new value_type(*random_element) ; }
+        // create "first" element
+#define ADD_ELEMENT(t) { volatile int random_alias = 0 ; if (random_alias) *(_pst_elements) = (value_type &) t ; }
+#define ITERATOR_ELEMENT(i) i(_pst_elements)
+
+#ifdef PST_VISUAL
+ #define PST_SLIST_NAMESPACE stdext
+#else
+ #define PST_SLIST_NAMESPACE std
+#endif
+
+namespace PST_SLIST_NAMESPACE
+{
+
+  template <class Tp, class Alloc = allocator<Tp> >
+  class slist {
+  public:
+     	typedef Tp value_type;
+	typedef value_type *pointer;
+	typedef const pointer const_pointer;
+	typedef value_type& reference;
+	typedef const reference const_reference;
+	typedef size_t size_type;
+	typedef ptrdiff_t difference_type;
+	typedef __pst__generic_iterator<forward_iterator_tag, value_type> iterator;
+	typedef iterator const_iterator;
+	typedef Alloc allocator_type;
+  private:
+	size_type _size;
+	size_type _max_size;
+    	pointer _pst_elements;
+	allocator_type m_alloc;
+  public:
+      slist(const allocator_type& _alloc = allocator_type())
+	: _size(0), _max_size(PST_CONTAINER_MAX_SIZE), m_alloc(_alloc) {
+        RESET_ELEMENTS();
+      }
+      slist(size_type x)
+	: _size(0), _max_size(x) {
+	RESET_ELEMENTS();
+      }
+      template <class InputIterator>
+      slist(InputIterator it1, InputIterator it2,
+	    const allocator_type& _alloc = allocator_type())
+	: _size(0), _max_size(PST_CONTAINER_MAX_SIZE), m_alloc(_alloc) { 
+	RESET_ELEMENTS();
+	for (InputIterator temp = it1; temp != it2; ++temp) {
+            VALID_SIZE_MAX(_size, _max_size);
+            ADD_ELEMENT(*temp);
+            _size++;
+        }
+      }
+      slist(const slist& x)
+	: _size(x._size), _max_size(x._max_size), 
+	  _pst_elements(x._pst_elements) {
+      }
+      ~slist() {
+	_size = 0;
+	_pst_elements = 0;
+      }
+      allocator_type get_allocator() const { return m_alloc; }
+      slist& operator= (const slist& x) {
+	_size = x._size;
+	_max_size = x._max_size;
+	_pst_elements = x._pst_elements;
+	return *this;
+      }
+      const_iterator begin() const { return ITERATOR_ELEMENT(const_iterator); }
+      iterator begin() { return ITERATOR_ELEMENT(iterator); }
+      const_iterator end() const { return ITERATOR_ELEMENT(const_iterator); }
+      iterator end() { return ITERATOR_ELEMENT(iterator); }
+      size_type size() const { return _size; }
+      size_type max_size() const { return _max_size; }      
+      __ps_bool empty() const { return _size == 0; }
+      void swap(slist& l) {
+	size_type tmp = _size;
+        _size = l._size;
+        l._size = tmp;
+        pointer tmp2 = l._pst_elements;
+        l._pst_elements = _pst_elements;
+        _pst_elements = tmp2;
+      }
+      reference front() { 
+	assert(_size > 0);
+	return *_pst_elements; 
+      }
+      const_reference front() const {
+	assert(_size > 0);
+	return *_pst_elements;
+      }
+      void push_front(const value_type& x) {
+	VALID_SIZE_MAX(_size, _max_size);
+	_size++;
+	ADD_ELEMENT(x);
+      }
+      void pop_front() {
+	assert(_size > 0);
+	_size--;
+      }
+      iterator previous(iterator it) { 
+	assert(_size > 0);
+	return ITERATOR_ELEMENT(iterator); 
+      }
+      const_iterator previous(iterator it) const {
+	assert(_size > 0);
+	return ITERATOR_ELEMENT(const_iterator);
+      }
+      iterator insert_after(iterator it, const value_type& x) {
+	VALID_SIZE_MAX(_size, _max_size);
+	_size++ ;
+	ADD_ELEMENT(x) ;
+	return ITERATOR_ELEMENT(iterator) ;
+      }
+      iterator insert_after(iterator it) {
+	VALID_SIZE_MAX(_size, _max_size);
+	_size++;
+	return ITERATOR_ELEMENT(iterator) ;
+      }
+      void insert_after(iterator it, size_type n, const value_type& x) {
+	assert(_size + n <= _max_size);
+	_size += n;
+	ADD_ELEMENT(x);
+      }
+      template <class InputIterator>
+      void insert_after(iterator it, InputIterator it1, InputIterator it2) {
+	for (InputIterator temp = it1; temp != it2; ++temp) {
+	   VALID_SIZE_MAX(_size, _max_size);
+           _size++;
+	   ADD_ELEMENT(*temp);
+        }
+      }
+      iterator insert(iterator it, const value_type& x) {
+	VALID_SIZE_MAX(_size, _max_size);
+        _size++;
+	ADD_ELEMENT(x);
+        return ITERATOR_ELEMENT(iterator) ;
+      }
+      iterator insert(iterator it) {
+	VALID_SIZE_MAX(_size, _max_size);
+        _size++;
+        return ITERATOR_ELEMENT(iterator) ;
+      }
+      void insert(iterator it, size_type n, const value_type& x) {
+	assert(_size + n <= _max_size);
+	_size += n;
+	ADD_ELEMENT(x);
+      }
+      template <class InputIterator>
+      void insert(iterator it, InputIterator it1, InputIterator it2) {
+        for (InputIterator temp = it1; temp != it2; ++temp) {
+           VALID_SIZE_MAX(_size, _max_size);
+           _size++;
+           ADD_ELEMENT(*temp);
+        }
+      }
+      iterator erase_after(iterator it) {
+	assert(_size > 1);
+	_size--;
+	return ITERATOR_ELEMENT(iterator);
+      }
+      iterator erase_after(iterator it1, iterator it2) {
+	iterator temp = it1;
+	++temp;
+	for ( ; temp != it2; ++temp) {
+	   assert(_size > 0);
+	   _size--;
+	}
+	return ITERATOR_ELEMENT(iterator);
+      }
+      iterator erase(iterator it) {
+	assert(_size > 0);
+	_size--;
+	return ITERATOR_ELEMENT(iterator);
+      }
+      iterator erase(iterator it1, iterator it2) {
+        for (iterator temp = it1; temp != it2; ++temp) {
+           assert(_size > 0);
+           _size--;
+        }
+        return ITERATOR_ELEMENT(iterator);
+      }
+      void resize(size_type n, const value_type& x) {
+	assert(_size < n);
+	_size = n;
+	ADD_ELEMENT(x);
+      }
+      void resize(size_type n) {
+	assert(_size < n);
+	_size = n;
+      }
+      void clear() {
+ 	_size = 0;
+	RESET_ELEMENTS();
+      }
+      void splice_after(iterator it, iterator it1, iterator it2) {
+	assert(_size > 0);
+	volatile size_type pst_random;
+	size_type cpt = pst_random;
+	assert(cpt <= _size);
+	_size -= cpt;
+      }
+      void splice_after(iterator it, iterator it1) {
+	assert(_size > 0);
+        volatile size_type pst_random;
+        size_type cpt = pst_random;
+        assert(cpt <= _size);
+        _size -= cpt;
+      }
+      void splice(iterator it, slist& x) {
+	assert(_size > 0);
+        volatile size_type pst_random;
+        size_type cpt = pst_random;
+        assert(cpt <= _size);
+        _size -= cpt;
+	x._size += cpt;
+	if (pst_random)
+	   *(x._pst_elements) = *(_pst_elements);
+      }
+      void splice(iterator it, slist& x, iterator it1) {
+	assert(_size > 0);
+        volatile size_type pst_random;
+        size_type cpt = pst_random;
+        assert(cpt <= _size);
+        _size -= cpt;
+	x._size += cpt;
+	if (pst_random)
+	   *(x._pst_elements) = *(_pst_elements);
+      }
+      void splice(iterator it, slist& x, iterator it1, iterator it2) {
+	assert(_size > 0);
+        volatile size_type pst_random;
+        size_type cpt = pst_random;
+        assert(cpt <= _size);
+        _size -= cpt;
+	x._size += cpt;
+	if (pst_random)
+	   *(x._pst_elements) = *(_pst_elements);
+      }
+      void reverse() { }
+      void remove(const value_type& x) {
+        volatile size_type pst_random;
+        size_type cpt = pst_random;
+        assert(cpt <= _size);
+        _size -= cpt;
+      }
+      void unique() {
+        volatile size_type pst_random;
+        size_type cpt = pst_random;
+        assert(cpt <= _size);
+        _size -= cpt;
+      }
+      void merge(slist& x) {
+        volatile size_type pst_random;
+        size_type cpt = pst_random;
+        assert(cpt <= x._size);
+        _size += cpt;
+	ADD_ELEMENT(*(x._pst_elements));
+      }
+      void sort() { }
+      template <class Predicate>
+      void remove_if(Predicate pred) {
+	value_type * volatile elt;
+	__ps_bool b = pred(*(value_type *) elt);
+	volatile size_type pst_random;
+        size_type cpt = pst_random;
+        assert(cpt <= _size);
+        _size -= cpt;
+      }
+      template <class BinaryPredicate>
+      void unique(BinaryPredicate bpred) {
+	value_type * volatile elt;
+	__ps_bool b = bpred(*(value_type *) elt, *(value_type *) elt);
+	volatile size_type pst_random;
+        size_type cpt = pst_random;
+        assert(cpt <= _size);
+        _size -= cpt;
+      }
+      template <class StrictWeakOrdering>
+      void merge(slist& l, StrictWeakOrdering comp) {
+	value_type * volatile elt;
+        __ps_bool b = comp(*(value_type *) elt, *(value_type *) elt);
+        volatile size_type pst_random;
+        size_type cpt = pst_random;
+        assert(cpt <= l._size);
+        _size += cpt;
+	ADD_ELEMENT(*(l._pst_elements));
+      }
+      template <class StrictWeakOrdering>
+      void sort(StrictWeakOrdering comp) {
+	value_type * volatile elt;
+        __ps_bool b = comp(*(value_type *) elt, *(value_type *) elt);
+      }
+      void assign(size_type n, const_reference x) {
+	ADD_ELEMENT(x);
+      }
+      template <class InputIterator>
+      void assign(InputIterator it1, InputIterator it2) {
+	for (InputIterator temp = it1; temp != it2; ++temp) {
+	  ADD_ELEMENT(*temp);
+	}
+      }
+      iterator before_begin() { return ITERATOR_ELEMENT(iterator); }
+      void push_front() {
+	VALID_SIZE_MAX(_size, _max_size);
+	_size++;
+      }
+      void splice_after(iterator it, slist& l) {
+	assert(_size > 0);
+        volatile size_type pst_random;
+        size_type cpt = pst_random;
+        assert(cpt <= _size);
+        _size -= cpt;
+        l._size += cpt;
+        if (pst_random)
+           *(l._pst_elements) = *(_pst_elements);
+      }
+  };
+
+  template <class Tp, class Alloc>
+  __ps_bool operator== (const slist<Tp, Alloc>& x, const slist<Tp, Alloc> y) 
+  {
+    volatile __ps_bool pst_random;
+    return (x.size() == y.size()) ? pst_random : __ps_false;
+  }
+
+  template <class Tp, class Alloc>
+  __ps_bool operator!= (const slist<Tp, Alloc>& x, const slist<Tp, Alloc> y) 
+  {
+    return ! (x == y);
+  }
+
+  template <class Tp, class Alloc>
+  __ps_bool operator< (const slist<Tp, Alloc>& x, const slist<Tp, Alloc> y)
+  {
+    volatile __ps_bool pst_random;
+    return pst_random;
+  }
+
+  template <class Tp, class Alloc>
+  __ps_bool operator> (const slist<Tp, Alloc>& x, const slist<Tp, Alloc> y)
+  {
+    volatile __ps_bool pst_random;
+    return pst_random;
+  }
+
+  template <class Tp, class Alloc>
+  __ps_bool operator<= (const slist<Tp, Alloc>& x, const slist<Tp, Alloc> y)
+  {
+    volatile __ps_bool pst_random;
+    return pst_random;
+  }
+
+  template <class Tp, class Alloc>
+  __ps_bool operator>= (const slist<Tp, Alloc>& x, const slist<Tp, Alloc> y)
+  {
+    volatile __ps_bool pst_random;
+    return pst_random;
+  }
+
+  template <class Tp, class Alloc>
+  void swap(slist<Tp, Alloc>& x, slist<Tp, Alloc> y)
+  {
+    x.swap(y);
+  }
+
+#ifndef PST_VISUAL
+  template <class Tp, class Alloc>
+  class insert_iterator<slist<Tp, Alloc> > {
+  public:
+    typedef output_iterator_tag iterator_category;
+    typedef void value_type;
+    typedef void difference_type;
+    typedef void pointer;
+    typedef void reference;
+    typedef slist<Tp, Alloc> container_type;
+  private:
+    container_type *m_cont;
+  public:
+    insert_iterator(container_type& _cont) : m_cont(&_cont) { }
+    insert_iterator(container_type& _cont, __ps_typename container_type::iterator)
+       : m_cont(&_cont) { }
+    insert_iterator<container_type>& operator= (const __ps_typename container_type::value_type& x) {
+      return *this;
+    }
+    insert_iterator<container_type>& operator* () { return *this; }
+    insert_iterator<container_type>& operator++() { return *this; }
+    insert_iterator<container_type>& operator++(int) { return *this; }
+  };
+#endif
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace PST_SLIST_NAMESPACE ;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+}
+
+#ifdef PST_VISUAL
+#pragma pack(pop)
+#endif
+
+#endif

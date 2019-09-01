@@ -23,7 +23,7 @@
 
 #include <itkObjectFactory.h>
 
-#include "vvImage.h"
+#include "VV/common/vvImage.h"
 
 class vtkPolyData;
 class vtkImageData;

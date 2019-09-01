@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>663</width>
-    <height>485</height>
+    <width>923</width>
+    <height>711</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,8 +22,8 @@
   <widget class="QPushButton" name="pushButton">
    <property name="geometry">
     <rect>
-     <x>120</x>
-     <y>400</y>
+     <x>90</x>
+     <y>520</y>
      <width>91</width>
      <height>41</height>
     </rect>
@@ -36,11 +36,41 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>130</y>
-     <width>171</width>
+     <y>120</y>
+     <width>211</width>
      <height>21</height>
     </rect>
    </property>
+   <item>
+    <property name="text">
+     <string>Amersham_Health_6711</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Bebig_Theragenics</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>M-19_HDR</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Nucletron_mHDR-v1</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Nucletron_mPDR-v2</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Varian_VS2000</string>
+    </property>
+   </item>
   </widget>
   <widget class="QLabel" name="label">
    <property name="geometry">
@@ -59,7 +89,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>100</y>
+     <y>90</y>
      <width>171</width>
      <height>17</height>
     </rect>
@@ -71,8 +101,8 @@
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>410</x>
-     <y>460</y>
+     <x>530</x>
+     <y>610</y>
      <width>131</width>
      <height>17</height>
     </rect>
@@ -86,8 +116,8 @@
     <rect>
      <x>330</x>
      <y>50</y>
-     <width>291</width>
-     <height>391</height>
+     <width>481</width>
+     <height>521</height>
     </rect>
    </property>
    <property name="frameShape">

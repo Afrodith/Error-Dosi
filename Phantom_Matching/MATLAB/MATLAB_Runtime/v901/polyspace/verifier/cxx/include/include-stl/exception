@@ -1,0 +1,123 @@
+/* Edison Design Group, 1995-2014. */
+/*
+exception -- Include file for exception handling (see 18.6)
+*/
+#ifndef _EXCEPTION_STDH
+#define _EXCEPTION_STDH
+
+#ifdef PST_HAS_EXCEPTION
+
+/* This lets users disable the EDG supplied exception classes. */
+#ifndef __NO_EDG_EXCEPTION_CLASSES
+
+#ifdef PST_VISUAL
+#pragma pack(push, 8) /* push default value */
+#endif
+
+#if (defined __EDG_RUNTIME_USES_NAMESPACES) && (defined PST_HAS_NAMESPACE)
+namespace std {
+#endif /* ifdef __EDG_RUNTIME_USES_NAMESPACES */
+  class exception {
+  public:
+    exception() throw();
+#ifdef PST_VISUAL
+    exception(const char *) throw () ;        // VISUAL COMPATIBILITY
+#endif
+    exception(const exception&) throw();
+    exception& operator=(const exception&) throw();
+    virtual ~exception() throw();
+    virtual const char* what() const throw();
+  };
+
+/* POLYSPACE : inline empty definitions */
+
+  inline exception::exception() throw()  {  }
+
+  inline exception::exception(const exception&) throw()  {  }
+#ifdef PST_VISUAL
+  inline exception::exception(const char *s) throw() { }
+#endif
+  inline exception& exception::operator=(const exception&) throw() { return *this ; }
+
+  inline exception::~exception() throw() {}
+
+  inline const char* exception::what() const throw() { return "" ; }
+
+/* POLYSPACE : end inline */
+
+  /*
+  If bool is not supported, use a typedef for bool.
+  */
+  #ifdef _BOOL
+  typedef bool __bool;
+  #else /* ifndef _BOOL */
+  typedef int __bool;
+  #endif /* ifdef _BOOL */
+
+  class bad_exception : public exception {
+  public:
+    bad_exception() throw();
+#ifdef PST_VISUAL
+    bad_exception(const char *) throw() ;     // VISUAL COMPATIBILITY
+#endif
+    bad_exception(const bad_exception&) throw();
+    bad_exception& operator=(const bad_exception&) throw();
+    virtual ~bad_exception() throw();
+    virtual const char* what() const throw();
+  };
+
+/* POLYSPACE : inline empty definitions */
+
+  inline bad_exception::bad_exception() throw()  {  }
+
+  inline bad_exception::bad_exception(const bad_exception& rhs) throw() : exception(rhs) { }
+#ifdef PST_VISUAL
+  inline bad_exception::bad_exception(const char *s) throw() : exception(s) { }
+#endif
+  inline bad_exception& bad_exception::operator=(const bad_exception& rhs) throw() 
+  {
+    exception::operator=(rhs);
+    return *this;
+  }
+
+  inline bad_exception::~bad_exception() throw() {}
+
+  inline const char* bad_exception::what() const throw() { return "" ; }
+
+/* POLYSPACE : end inline */
+
+
+  typedef void (*terminate_handler)();
+  extern terminate_handler set_terminate(terminate_handler) throw();
+
+  typedef void (*unexpected_handler)();
+  extern unexpected_handler set_unexpected(unexpected_handler) throw();
+
+  /* unexpected and terminate are in the WP definition of exception.h.
+     It is not clear why. */
+  void terminate();
+  void unexpected();
+
+  extern __bool uncaught_exception() throw();
+
+#if (defined __EDG_RUNTIME_USES_NAMESPACES) && (defined PST_HAS_NAMESPACE)
+}  /* namespace std */
+
+#if (defined __EDG_IMPLICIT_USING_STD) || (defined __PST_IMPLICIT_USING_STD)
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __EDG_IMPLICIT_USING_STD */
+
+#endif /* ifdef __EDG_RUNTIME_USES_NAMESPACES */
+
+#ifdef PST_VISUAL
+#pragma pack(pop) /* return back to previous value */
+#endif
+
+#endif /* ifndef __NO_EDG_EXCEPTION_CLASSES */
+
+#endif /* ifdef PST_HAS_EXCEPTION */
+
+#endif /* _EXCEPTION_STDH */
+

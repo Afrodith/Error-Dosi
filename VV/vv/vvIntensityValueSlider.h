@@ -28,11 +28,11 @@
 #include <QDialog>
 
 // clitk 
-#include "clitkCommon.h"
+#include "VV/common/clitkCommon.h"
 
 // vv
 #include "ui_vvIntensityValueSlider.h"
-#include "vvImage.h"
+#include "VV/common/vvImage.h"
 #include "vtkImageData.h"
 
 //------------------------------------------------------------------------------

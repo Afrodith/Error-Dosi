@@ -18,24 +18,23 @@
 #ifndef VVTOOLRIGIDREG_H
 #define VVTOOLRIGIDREG_H
 
-#include "vvToolBase.h"
-#include "vvToolWidgetBase.h"
-#include "vvMainWindow.h"
+//#include "vvToolBase.h"
+//#include "vvToolWidgetBase.h"
+#include <QDialog>
+#include "vvSlicerManager.h"
 #include "ui_vvToolRigidReg.h"
 #include "vtkMatrix4x4.h"
 
+
 //------------------------------------------------------------------------------
-class vvToolRigidReg:
-    public vvToolWidgetBase,
-    public vvToolBase<vvToolRigidReg>,
-    private Ui::vvToolRigidReg
+class vvToolRigidReg: public QWidget, private Ui::vvToolRigidReg
 {
   Q_OBJECT
 public:
-  vvToolRigidReg(vvMainWindowBase * parent=0, Qt::WindowFlags f=0);
+  vvToolRigidReg(QWidget * parent=0, Qt::WindowFlags f=0);
   ~vvToolRigidReg();
   static void Initialize();
-  virtual void InputIsSelected(vvSlicerManager *input);
+  void InputIsSelected(vvSlicerManager *input);
 
 public slots:
   virtual void apply();
@@ -53,6 +52,15 @@ public slots:
 
 protected:
   Ui::vvToolRigidReg ui;
+  std::vector<vvSlicerManager*> mSlicerManagersCompatible;
+  vvSlicerManager * mCurrentSlicerManager;
+  int mCurrentCompatibleIndex;
+  vvImage * mCurrentImage;
+  bool mIsInitialized;
+  QWidget * mWidgetForTab;
+
+
+
   vvSlicerManager * mInput;
   vtkSmartPointer<vtkMatrix4x4> mInitialMatrix;
   void ExtentMax(const double [8][4], double [2][3]);

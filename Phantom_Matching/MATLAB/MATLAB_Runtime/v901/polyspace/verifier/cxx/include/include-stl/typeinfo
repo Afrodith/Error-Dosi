@@ -1,0 +1,178 @@
+/* Edison Design Group, 1995-2014. */
+/*
+typeinfo.h -- Include file for type information (18.5.1)
+*/
+#ifndef _TYPEINFO_STDH
+#define _TYPEINFO_STDH
+
+#ifdef PST_HAS_EXCEPTION
+
+#include <exception>
+
+#if (defined __EDG_RUNTIME_USES_NAMESPACES) && (defined PST_HAS_NAMESPACE)
+namespace std {
+#endif /* ifdef __EDG_RUNTIME_USES_NAMESPACES */
+
+#ifdef PST_VISUAL
+#pragma pack(push, 8) /* push default value */
+#endif
+
+  /*
+  If bool is not supported, use a typedef for bool.
+  */
+  #ifdef _BOOL
+  typedef bool __bool;
+  #else /* ifndef _BOOL */
+  typedef int __bool;
+  #endif /* ifdef _BOOL */
+
+#ifdef PST_VISUAL
+#if (defined __EDG_RUNTIME_USES_NAMESPACES) && (defined PST_HAS_NAMESPACE)
+} /* namespace std */
+#endif
+#endif
+
+/* The following pragma is used so that the compiler knows that this definition
+   of type_info is the one that corresponds to the type returned by typeid. */
+#pragma define_type_info
+  class type_info {
+  public:
+    virtual ~type_info();
+    __bool operator==(const type_info&) const;
+    __bool operator!=(const type_info&) const;
+    __bool before(const type_info&) const;
+    const char* name() const;
+  private:
+    type_info& operator=(const type_info&);  // Not actually defined
+#if 0
+#else /* 0 */
+  protected:
+    // Protected instead of private to suppress the "no accessible
+    // constructor" warning
+#endif /* 0 */
+    type_info(const type_info&);  // Not actually defined
+#ifdef __EDG_IA64_ABI
+  private:
+    const char *__type_name;
+#endif /* ifdef __EDG_IA64_ABI */
+  };
+
+/* POLYSPACE : inline empty definitions */
+
+  inline type_info::~type_info() {}
+
+  inline __bool type_info::operator==(const type_info& rhs) const 
+  {
+    volatile __bool random;
+    return random;
+  }
+
+  inline __bool type_info::operator!=(const type_info& rhs) const
+  {
+    volatile __bool random;
+    return random;
+  }	
+
+  inline __bool type_info::before(const type_info& rhs) const
+  {
+    volatile __bool random;
+    return random;    
+  }
+
+ /* type_info::name() is a regular stub */
+
+/* POLYSPACE : end inline */
+
+#ifdef PST_VISUAL
+#if (defined __EDG_RUNTIME_USES_NAMESPACES) && (defined PST_HAS_NAMESPACE)
+namespace std {
+  using ::type_info;
+#endif
+#endif
+
+  class bad_cast : public exception {
+  public:
+    bad_cast() throw();
+#ifdef PST_VISUAL
+    bad_cast(const char *) throw();   // VISUAL COMPATIBILITY
+#endif
+    bad_cast(const bad_cast&) throw();
+    bad_cast& operator=(const bad_cast&) throw();
+    virtual ~bad_cast() throw();
+    virtual const char* what() const throw();
+  };
+
+/* POLYSPACE : inline empty definitions */
+
+  inline bad_cast::bad_cast() throw() { }
+
+  inline bad_cast::bad_cast(const bad_cast& rhs) throw() : exception(rhs)  {  }
+
+#ifdef PST_VISUAL
+  inline bad_cast::bad_cast(const char *c) throw() : exception(c) { } 
+#endif
+
+  inline bad_cast& bad_cast::operator=(const bad_cast& rhs) throw()
+  {
+    exception::operator=(rhs);
+    return *this;
+  }
+
+  inline bad_cast::~bad_cast() throw()  {  }
+
+  inline const char* bad_cast::what() const throw()  { return "";  }
+
+/* POLYSPACE : end inline */
+
+  class bad_typeid : public exception {
+  public:
+    bad_typeid() throw();
+#ifdef PST_VISUAL
+    bad_typeid(const char *) throw();   // VISUAL COMPATIBILITY
+#endif
+    bad_typeid(const bad_typeid&) throw();
+    bad_typeid& operator=(const bad_typeid&) throw();
+    virtual ~bad_typeid() throw();
+    virtual const char* what() const throw();
+  };
+
+/* POLYSPACE : inline empty definitions */
+
+  inline bad_typeid::bad_typeid() throw() { }
+
+  inline bad_typeid::bad_typeid(const bad_typeid& rhs) throw() : exception(rhs)  {  }
+
+#ifdef PST_VISUAL
+  inline bad_typeid::bad_typeid(const char *c) throw() : exception(c) { } 
+#endif
+
+  inline bad_typeid& bad_typeid::operator=(const bad_typeid& rhs) throw()
+  {
+    exception::operator=(rhs);
+    return *this;
+  }
+
+  inline bad_typeid::~bad_typeid() throw()  {  }
+
+  inline const char* bad_typeid::what() const throw()  { return "";  }
+
+/* POLYSPACE : end inline */
+
+#ifdef PST_VISUAL
+#pragma pack(pop) // pop back to default value
+#endif
+
+#if (defined __EDG_RUNTIME_USES_NAMESPACES) && (defined PST_HAS_NAMESPACE)
+}  /* namespace std */
+
+#if (defined __EDG_IMPLICIT_USING_STD) || (defined __PST_IMPLICIT_USING_STD)
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __EDG_IMPLICIT_USING_STD */
+
+#endif /* ifdef __EDG_RUNTIME_USES_NAMESPACES */
+
+#endif /* ifdef PST_HAS_EXCEPTION */
+
+#endif /* _TYPEINFO_STDH */

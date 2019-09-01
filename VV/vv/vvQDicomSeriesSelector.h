@@ -18,7 +18,7 @@
 #ifndef VVDICOMSERIESSELECTOR_H
 #define VVDICOMSERIESSELECTOR_H
 #include "ui_vvDicomSeriesSelector.h"
-#include "clitkCommon.h"
+#include "VV/common/clitkCommon.h"
 #include "vvQProgressDialogITKCommand.h"
 
 namespace gdcm {class File;}

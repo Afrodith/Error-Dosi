@@ -20,7 +20,7 @@
 #define CLITKCOMMONGENERICFILTER_H
 
 #include "clitkCommon.h"
-#include "clitkFilterBase.h"
+
 
 /*--------------------------------------------------------------------
   DISCLAIMER : I obviously know how to make this mess much clearer and

@@ -20,7 +20,7 @@
 #define CLITKAUTOCROPFILTER_TXX
 
 // clitk
-#include "clitkCommon.h"
+#include "VV/common/clitkCommon.h"
 
 // itk
 #include "itkAutoCropLabelMapFilter.h"

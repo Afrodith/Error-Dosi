@@ -17,7 +17,7 @@
 ===========================================================================**/
 #ifndef vvImageWarp_h
 #define vvImageWarp_h
-#include "vvImage.h"
+#include "VV/common/vvImage.h"
 class QWidget;
 
 /// Allows the computation of a warped image sequence and a difference image sequence, for the purpose of verifying registration results

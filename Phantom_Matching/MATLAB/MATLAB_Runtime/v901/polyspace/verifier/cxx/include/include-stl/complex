@@ -1,0 +1,933 @@
+/*
+ *
+ * This file and its contents are the property of The MathWorks, Inc.
+ * 
+ * This file contains confidential proprietary information.
+ * The reproduction, distribution, utilization or the communication
+ * of this file or any part thereof is strictly prohibited.
+ * Offenders will be held liable for the payment of damages.
+ *
+ * Copyright 1999-2012 The MathWorks, Inc.
+ *
+ */
+#ifndef PST_STL_COMPLEX
+#define PST_STL_COMPLEX
+
+#include <__polyspace__math.h>
+#include <iosfwd>
+
+#ifdef PST_VISUAL
+#pragma pack(push, 8) 
+#endif
+
+namespace std
+{
+  // 26.2.2  Primary template class complex
+  template<__ps_class T>
+  class complex
+  {
+  public:
+    typedef T value_type;
+    
+    complex(const T& re = T(), const T & im = T())
+    {
+      _pst_real = re ;
+      _pst_imag = im ;
+    }
+
+    complex(const complex& src)
+    {
+      _pst_real = src._pst_real ;
+      _pst_imag = src._pst_imag ;
+    }
+
+    template <class U> friend class complex ;
+
+    template<class U>
+    complex(const complex<U>& src)
+    {
+      _pst_real = src._pst_real ;
+      _pst_imag = src._pst_imag ;
+    }     
+
+    T real() const
+    {
+      return _pst_real ;
+    }
+
+    T imag() const
+    {
+      return _pst_imag ; 
+    }
+
+#ifdef PST_VISUAL
+    // visual 6 & 7.1
+
+    T real(const T& v) 
+    {
+      return (_pst_real = v) ;
+    }
+
+    T imag(const T& v) 
+    {
+      return (_pst_imag = v) ; 
+    }
+
+#endif 
+
+    complex<T>& operator=(const T& t)
+    {
+      _pst_real = t;
+      _pst_imag = T() ;
+      return *this ;
+    }
+
+    complex<T>& operator+=(const T& t)
+    {
+      _pst_real += t ;
+      return *this ;
+    }
+
+    complex<T>& operator-=(const T& t)
+    {
+      _pst_real -= t ;    
+      return *this ;
+    }
+
+    complex<T>& operator*=(const T& t)
+    {
+      _pst_real *= t ;
+      _pst_imag *= t ;
+      return *this ;
+    }
+
+    complex<T>& operator/=(const T& t)
+    {
+      _pst_real /= t ;
+      _pst_imag /= t ;
+      return *this ;
+    }
+
+    complex<T>& operator= (const complex<T>& src)
+    {
+      _pst_real = src._pst_real ;
+      _pst_imag = src._pst_imag ;
+      return *this ;
+    }
+
+    template<class U>
+    complex<T>& operator= (const complex<U>& src)
+    {
+      _pst_real = src._pst_real ;
+      _pst_imag = src._pst_imag ;
+      return *this ;
+    }
+
+    template<class U>
+    complex<T>& operator+= (const complex<U>& src)
+    {
+      _pst_real += src._pst_real ;
+      _pst_imag += src._pst_imag ;
+      return *this ;
+    }
+
+    template<class U>
+    complex<T>& operator-= (const complex<U>& src)
+    {
+      _pst_real -= src._pst_real ;
+      _pst_imag -= src._pst_imag ;
+      return *this ;
+    }
+    
+    template<class U>
+    complex<T>& operator*= (const complex<U>& src)
+    {
+      const T res = _pst_real * src._pst_real - _pst_imag * src._pst_imag ;
+      _pst_imag = _pst_real * src._pst_imag + _pst_imag * src._pst_real ;
+      _pst_real = res ;
+      return *this;
+    }
+
+    template<class U>
+    complex<T>& operator/= (const complex<U>& src)
+    {
+      const T tmp =  _pst_real * src._pst_real + _pst_imag * src._pst_imag ;
+      const T n =  src._pst_real *  src._pst_real +  src._pst_imag *  src._pst_imag ; // norm2(src)
+      _pst_imag = (_pst_imag * src._pst_real - _pst_real * src._pst_imag) / n;
+      _pst_real = tmp / n;
+      return *this;
+    }
+
+    // made public so various functions can access data without selector
+    T _pst_real, _pst_imag ;
+  };
+    
+  template<> class complex<float>;
+  template<> class complex<double>;
+  template<> class complex<long double>;
+
+  // 26.2.3 Specialization
+
+  template<>
+  class complex<float>
+  {
+  public:
+    typedef float value_type;
+    
+    complex(float re = 0.0f, float im = 0.0f)
+    {
+      _pst_real = re ;
+      _pst_imag = im ;
+    }
+
+    friend class complex<double> ;
+    friend class complex<long double> ;
+
+    __ps_explicit complex(const complex<double>& src) ; // defined after specializations.
+    __ps_explicit complex(const complex<long double>& src) ; // defined after specializations.
+
+    float real() const
+    {
+      return _pst_real ;
+    }
+
+    float imag() const
+    {
+      return _pst_imag ; 
+    }
+ 
+#ifdef PST_VISUAL
+    // visual 6 & 7.1
+
+    float real(float v) 
+    {
+      return (_pst_real = v) ;
+    }
+
+    float imag(float v)
+    {
+      return (_pst_imag = v) ; 
+    }
+
+#endif 
+
+    complex<float>& operator=(float t)
+    {
+      _pst_real = t;
+      _pst_imag = 0.0f ;
+      return *this ;
+    }
+
+    complex<float>& operator+=(float t)
+    {
+      _pst_real += t ;
+      return *this ;
+    }
+
+    complex<float>& operator-=(float t)
+    {
+      _pst_real -= t ;    
+      return *this ;
+    }
+
+    complex<float>& operator*=(float t)
+    {
+      _pst_real *= t ;
+      _pst_imag *= t ;
+      return *this ;
+    }
+
+    complex<float>& operator/=(float t)
+    {
+      _pst_real /= t ;
+      _pst_imag /= t ;
+      return *this ;
+    }
+
+    complex<float>& operator= (const complex<float>& src)
+    {
+      _pst_real = src._pst_real ;
+      _pst_imag = src._pst_imag ;
+      return *this ;
+    }
+
+    template<class U>
+    complex<float>& operator= (const complex<U>& src)
+    {
+      _pst_real = (float)(src._pst_real) ;
+      _pst_imag = (float)(src._pst_imag) ;
+      return *this ;
+    }
+
+    template<class U>
+    complex<float>& operator+= (const complex<U>& src)
+    {
+      _pst_real += (float)(src._pst_real) ;
+      _pst_imag += (float)(src._pst_imag) ;
+      return *this ;
+    }
+
+    template<class U>
+    complex<float>& operator-= (const complex<U>& src)
+    {
+      _pst_real -= (float)(src._pst_real) ;
+      _pst_imag -= (float)(src._pst_imag) ;
+      return *this ;
+    }
+    
+    template<class U>
+    complex<float>& operator*= (const complex<U>& src)
+    {
+      const float res = _pst_real * src._pst_real - _pst_imag * src._pst_imag ;
+      _pst_imag = _pst_real * src._pst_imag + _pst_imag * src._pst_real ;
+      _pst_real = res ;
+      return *this;
+    }
+
+    template<class U>
+    complex<float>& operator/= (const complex<U>& src)
+    {
+      const float tmp =  _pst_real * src._pst_real + _pst_imag * src._pst_imag ;
+      const float n = (float)(src._pst_real *  src._pst_real +  src._pst_imag *  src._pst_imag) ; // norm2(src)
+      _pst_imag = (_pst_imag * src._pst_real - _pst_real * src._pst_imag) / n;
+      _pst_real = tmp / n;
+      return *this;
+    }
+
+    // made public so various functions can access data without selector
+    float _pst_real, _pst_imag ;
+  };
+
+
+
+  template<>
+  class complex<double>
+  {
+  public:
+    typedef double value_type;
+    
+    complex(double re = 0.0, double im = 0.0)
+    {
+      _pst_real = re ;
+      _pst_imag = im ;
+    }
+
+    friend class complex<float> ;
+    friend class complex<long double> ;
+
+    complex(const complex<float>& src) ;
+    __ps_explicit complex(const complex<long double>& src) ;
+
+    double real() const
+    {
+      return _pst_real ;
+    }
+
+    double imag() const
+    {
+      return _pst_imag ; 
+    }
+ 
+#ifdef PST_VISUAL
+    // visual 6 & 7.1
+
+    double real(double v) 
+    {
+      return (_pst_real = v) ;
+    }
+
+    double imag(double v)
+    {
+      return (_pst_imag = v) ; 
+    }
+
+#endif 
+
+    complex<double>& operator=(double t)
+    {
+      _pst_real = t;
+      _pst_imag = 0.0 ;
+      return *this ;
+    }
+
+    complex<double>& operator+=(double t)
+    {
+      _pst_real += t ;
+      return *this ;
+    }
+
+    complex<double>& operator-=(double t)
+    {
+      _pst_real -= t ;    
+      return *this ;
+    }
+
+    complex<double>& operator*=(double t)
+    {
+      _pst_real *= t ;
+      _pst_imag *= t ;
+      return *this ;
+    }
+
+    complex<double>& operator/=(double t)
+    {
+      _pst_real /= t ;
+      _pst_imag /= t ;
+      return *this ;
+    }
+
+    complex<double>& operator= (const complex<double>& src)
+    {
+      _pst_real = src._pst_real ;
+      _pst_imag = src._pst_imag ;
+      return *this ;
+    }
+
+    template<class U>
+    complex<double>& operator= (const complex<U>& src)
+    {
+      _pst_real = (double)(src._pst_real) ;
+      _pst_imag = (double)(src._pst_imag) ;
+      return *this ;
+    }
+
+    template<class U>
+    complex<double>& operator+= (const complex<U>& src)
+    {
+      _pst_real += (double)(src._pst_real) ;
+      _pst_imag += (double)(src._pst_imag) ;
+      return *this ;
+    }
+
+    template<class U>
+    complex<double>& operator-= (const complex<U>& src)
+    {
+      _pst_real -= (double)(src._pst_real) ;
+      _pst_imag -= (double)(src._pst_imag) ;
+      return *this ;
+    }
+    
+    template<class U>
+    complex<double>& operator*= (const complex<U>& src)
+    {
+      const double res = _pst_real * src._pst_real - _pst_imag * src._pst_imag ;
+      _pst_imag = _pst_real * src._pst_imag + _pst_imag * src._pst_real ;
+      _pst_real = res ;
+      return *this;
+    }
+
+    template<class U>
+    complex<double>& operator/= (const complex<U>& src)
+    {
+      const double tmp =  _pst_real * src._pst_real + _pst_imag * src._pst_imag ;
+      const double n = (double)(src._pst_real *  src._pst_real +  src._pst_imag *  src._pst_imag) ; // norm2(src)
+      _pst_imag = (_pst_imag * src._pst_real - _pst_real * src._pst_imag) / n;
+      _pst_real = tmp / n;
+      return *this;
+    }
+
+    // made public so various functions can access data without selector
+    double _pst_real, _pst_imag ;
+  };
+
+
+
+
+
+
+
+  template<>
+  class complex<long double>
+  {
+  public:
+    typedef long double value_type;
+    
+    complex(long double re = 0.0L, long double im = 0.0L)
+    {
+      _pst_real = re ;
+      _pst_imag = im ;
+    }
+
+    friend class complex<float> ;
+    friend class complex<double> ;
+
+    complex(const complex<float>& src) ;
+    complex(const complex<double>& src) ;
+
+    long double real() const
+    {
+      return _pst_real ;
+    }
+
+    long double imag() const
+    {
+      return _pst_imag ; 
+    }
+ 
+#ifdef PST_VISUAL
+    // visual 6
+
+    long double real(long double v) 
+    {
+      return (_pst_real = v) ;
+    }
+
+    long double imag(long double v)
+    {
+      return (_pst_imag = v) ; 
+    }
+
+#endif 
+
+    complex<long double>& operator=(long double t)
+    {
+      _pst_real = t;
+      _pst_imag = 0.0L ;
+      return *this ;
+    }
+
+    complex<long double>& operator+=(long double t)
+    {
+      _pst_real += t ;
+      return *this ;
+    }
+
+    complex<long double>& operator-=(long double t)
+    {
+      _pst_real -= t ;    
+      return *this ;
+    }
+
+    complex<long double>& operator*=(long double t)
+    {
+      _pst_real *= t ;
+      _pst_imag *= t ;
+      return *this ;
+    }
+
+    complex<long double>& operator/=(long double t)
+    {
+      _pst_real /= t ;
+      _pst_imag /= t ;
+      return *this ;
+    }
+
+    complex<long double>& operator= (const complex<long double>& src)
+    {
+      _pst_real = src._pst_real ;
+      _pst_imag = src._pst_imag ;
+      return *this ;
+    }
+
+    template<class U>
+    complex<long double>& operator= (const complex<U>& src)
+    {
+      _pst_real = (long double)(src._pst_real) ;
+      _pst_imag = (long double)(src._pst_imag) ;
+      return *this ;
+    }
+
+    template<class U>
+    complex<long double>& operator+= (const complex<U>& src)
+    {
+      _pst_real += (long double)(src._pst_real) ;
+      _pst_imag += (long double)(src._pst_imag) ;
+      return *this ;
+    }
+
+    template<class U>
+    complex<long double>& operator-= (const complex<U>& src)
+    {
+      _pst_real -= (long double)(src._pst_real) ;
+      _pst_imag -= (long double)(src._pst_imag) ;
+      return *this ;
+    }
+    
+    template<class U>
+    complex<long double>& operator*= (const complex<U>& src)
+    {
+      const long double res = _pst_real * src._pst_real - _pst_imag * src._pst_imag ;
+      _pst_imag = _pst_real * src._pst_imag + _pst_imag * src._pst_real ;
+      _pst_real = res ;
+      return *this;
+    }
+
+    template<class U>
+    complex<long double>& operator/= (const complex<U>& src)
+    {
+      const long double tmp =  _pst_real * src._pst_real + _pst_imag * src._pst_imag ;
+      const long double n = (long double)(src._pst_real *  src._pst_real +  src._pst_imag *  src._pst_imag) ; // norm2(src)
+      _pst_imag = (_pst_imag * src._pst_real - _pst_real * src._pst_imag) / n;
+      _pst_real = tmp / n;
+      return *this;
+    }
+
+    // made public so various functions can access data without selector
+    long double _pst_real, _pst_imag ;
+  };
+
+  inline complex<long double>::complex(const complex<float>& src)
+  {
+    _pst_real = src._pst_real ;
+    _pst_imag = src._pst_imag ;
+  }
+
+  inline complex<long double>::complex(const complex<double>& src)
+  {
+    _pst_real = src._pst_real ;
+    _pst_imag = src._pst_imag ;
+  }
+
+  inline complex<double>::complex(const complex<float>& src)
+  {
+    _pst_real = src._pst_real ;
+    _pst_imag = src._pst_imag ;
+  }
+
+  inline complex<double>::complex(const complex<long double>& src)
+  {
+    _pst_real = src._pst_real ;
+    _pst_imag = src._pst_imag ;
+  }
+
+  inline complex<float>::complex(const complex<double>& src)
+  {
+    _pst_real = src._pst_real ;
+    _pst_imag = src._pst_imag ;
+  }
+
+  inline complex<float>::complex(const complex<long double>& src)
+  {
+    _pst_real = src._pst_real ;
+    _pst_imag = src._pst_imag ;
+  }
+
+
+  // 26.2.6  operators :
+
+  template<class T>
+  complex<T> operator+(const complex<T>& x, const complex<T>& y)
+  { 
+    return complex<T>(x._pst_real + y._pst_real, x._pst_imag + y._pst_imag) ;
+  }
+
+  template<class T>
+  complex<T> operator+(const complex<T>& x, const T& t)
+  { 
+    return complex<T>(x._pst_real + t, x._pst_imag) ;
+  }
+
+  template<class T>
+  complex<T> operator+(const T& t, const complex<T>& y)
+  { 
+    return complex<T>(t + y._pst_real, y._pst_imag) ;
+  }
+
+  template<class T>
+  complex<T> operator-(const complex<T>& x, const complex<T>& y)
+  { 
+    return complex<T>(x._pst_real - y._pst_real, x._pst_imag - y._pst_imag) ;
+  }
+
+  template<class T>
+  complex<T> operator-(const complex<T>& x, const T& t)
+  { 
+    return complex<T>(x._pst_real - t, x._pst_imag) ;
+  }
+
+  template<class T>
+  complex<T> operator-(const T& t, const complex<T>& y)
+  { 
+    return complex<T>(t - y._pst_real, -y._pst_imag) ;
+  }
+
+
+  template<class T>
+  complex<T> operator*(const complex<T>& x, const complex<T>& y)
+  { 
+    return complex<T>(x._pst_real * y._pst_real - x._pst_imag * y._pst_imag, 
+		   x._pst_real * y._pst_imag + x._pst_imag * y._pst_real) ;
+  }
+
+  template<class T>
+  complex<T> operator*(const complex<T>& x, const T& t)
+  { 
+    return complex<T>(x._pst_real * t, x._pst_imag * t) ;
+  }
+
+  template<class T>
+  complex<T> operator*(const T& t, const complex<T>& y)
+  { 
+    return complex<T>(t * y._pst_real, t * y._pst_imag) ;
+  }
+
+
+  template<class T>
+  complex<T> operator/(const complex<T>& x, const complex<T>& y)
+  { 
+    const T n =  y._pst_real *  y._pst_real +  y._pst_imag *  y._pst_imag ; // norm2(y)
+    return complex<T>( (x._pst_real * y._pst_real + x._pst_imag * y._pst_imag)/n, 
+		    (x._pst_imag * y._pst_real - x._pst_real * y._pst_imag)/n) ;
+  }
+
+  template<class T>
+  complex<T> operator/(const complex<T>& x, const T& t)
+  { 
+    return complex<T>(x._pst_real / t, x._pst_imag / t) ;
+  }
+
+  template<class T>
+  complex<T> operator/(const T& t, const complex<T>& y)
+  { 
+    const T n =  y._pst_real *  y._pst_real +  y._pst_imag *  y._pst_imag ; // norm2(y)
+    return complex<T>(t * y._pst_real / n , - t * y._pst_imag / n) ;
+  }
+
+  template<class T>
+  complex<T> operator+(const complex<T>& x)
+  {
+    return x ;
+  }
+
+  template<class T>
+  complex<T> operator-(const complex<T>& x)
+  {
+    return complex<T>(-x._pst_real, -x._pst_imag) ;
+  }
+
+  template<class T>
+  __ps_bool operator==(const complex<T>& x, const complex<T>& y)
+  { 
+    return (x._pst_real==y._pst_real)&&(x._pst_imag==y._pst_imag) ;
+  }
+
+  template<class T>
+  __ps_bool operator==(const complex<T>& x, const T& t)
+  { 
+    return (x._pst_real==t)&&(x._pst_imag==T()) ;
+  }
+
+  template<class T>
+  __ps_bool operator==(const T& t, const complex<T>& y)
+  { 
+    return (t==y._pst_real)&&(y._pst_imag==T()) ;
+  }
+
+  template<class T>
+  __ps_bool operator!=(const complex<T>& x, const complex<T>& y)
+  { 
+    return (x._pst_real!=y._pst_real)||(x._pst_imag!=y._pst_imag) ;
+  }
+
+  template<class T>
+  __ps_bool operator!=(const complex<T>& x, const T& t)
+  { 
+    return (x._pst_real!=t)||(x._pst_imag!=T()) ;
+  }
+
+  template<class T>
+  __ps_bool operator!=(const T& t, const complex<T>& y)
+  { 
+    return (t!=y._pst_real)||(y._pst_imag!=T()) ;
+  }
+
+  template<class T, class charT, class traits>
+  basic_istream<charT, traits>& operator>>(basic_istream<charT, traits>& in, complex<T>& x)
+  {
+    volatile T t = T() ;
+    x._pst_imag = t ; // randon init 
+    x._pst_real = t ;
+    return in ;
+  }
+
+  template<class T, class charT, class traits>
+  basic_ostream<charT, traits>& operator<<(basic_ostream<charT, traits>& out, const complex<T>& x)
+  {
+    T t = x._pst_real ; // simulate reading
+      t = x._pst_imag ;      
+    return out ;
+  }
+
+  // 26.2.7 values 
+
+  template<class T>
+  T real(const complex<T>& x)
+  {
+    return x._pst_real ;
+  }
+
+  template<class T>
+  T imag(const complex<T>& x)
+  {
+    return x._pst_imag ;
+  }
+
+  template<class T>
+  T abs(const complex<T>& x)
+  {
+    return sqrt(x._pst_real * x._pst_real + x._pst_imag * x._pst_imag) ; 
+  }
+
+  template<class T>
+  T arg(const complex<T>& x)
+  {
+    return atan2(x._pst_imag, x._pst_real) ;
+  }
+
+  template<class T>
+  T norm(const complex<T>& x)
+  {
+    return x._pst_real * x._pst_real + x._pst_imag * x._pst_imag ;
+  }
+
+  template<class T>
+  complex<T> conj(const complex<T>& x)
+  {
+    return complex<T>(x._pst_real, -x._pst_imag) ;
+  }  
+
+  template<class T>
+  complex<T> polar(const T& rho, const T& theta = 0) // = 0 added in TC1
+  {
+    return complex<T>(rho * cos(theta), rho*sin(theta)) ;
+  }
+
+  // 26.2.8 : complex transcendental
+
+  template<class T>
+  complex<T> cos(const complex<T>& x)
+  {
+    return complex<T>(cos(x._pst_real)*cosh(x._pst_imag),  -sin(x._pst_real) * sinh(x._pst_imag)) ;
+  }
+
+  template<class T>
+  complex<T> cosh(const complex<T>& x)
+  {
+    return complex<T>(cosh(x._pst_real)*cos(x._pst_imag),  sinh(x._pst_real) * sin(x._pst_imag)) ;
+  }
+
+  template<class T>
+  complex<T> exp(const complex<T>& x)
+  {
+    const T rho = exp(x._pst_real) ;
+    return complex<T>(rho * cos(x._pst_imag), rho*sin(x._pst_imag)) ;
+  }
+
+  template<class T>
+  complex<T> log(const complex<T>& x)
+  {
+    const T abs = sqrt(x._pst_real * x._pst_real + x._pst_imag * x._pst_imag) ; 
+    const T arg = atan2(x._pst_imag, x._pst_real) ;
+    return complex<T>(log(abs), arg) ;
+  }
+    
+  template<class T>
+  complex<T> log10(const complex<T>& x)
+  {
+    const T abs = sqrt(x._pst_real * x._pst_real + x._pst_imag * x._pst_imag) ;
+    const T arg = atan2(x._pst_imag, x._pst_real) ;
+    const T log10 = log(T(10.0)) ;
+    return complex<T>(log(abs)/log10, arg/log10) ;
+  }
+
+  template<class T>
+  complex<T> sin(const complex<T>& x)
+  {
+    return complex<T>(sin(x._pst_real)*cosh(x._pst_imag),  cos(x._pst_real) * sinh(x._pst_imag)) ;
+  }
+
+  template<class T>
+  complex<T> sinh(const complex<T>& x)
+  {
+    return complex<T>(sinh(x._pst_real)*cos(x._pst_imag),  cosh(x._pst_real) * sin(x._pst_imag)) ;
+  }
+
+  template<class T>
+  complex<T> sqrt(const complex<T>& x)
+  {
+    const T abs = sqrt(x._pst_real * x._pst_real + x._pst_imag * x._pst_imag) ;
+
+    if (abs==T(0))
+      {
+	return complex<T>(T(0), T(0)) ;
+      }
+    else if (x._pst_real > 0)
+      {
+	const T nr = sqrt(0.5 * (abs + x._pst_real)) ;
+	return complex<T>(nr,  x._pst_imag / (2*nr)) ;
+      }
+    else
+      {
+	T ni = sqrt(0.5 * (abs - x._pst_real)) ;
+	return (x._pst_imag < 0) ? complex<T>(x._pst_imag / (-2*ni), -ni) : complex<T>(x._pst_imag / (2*ni), ni) ;
+      }
+  }
+
+  template<class T>
+  complex<T> tan(const complex<T>& x)
+  {
+    return sin(x)/cos(x) ;
+  }
+
+
+  template<class T>
+  complex<T> tanh(const complex<T>& x)
+  {
+    return sinh(x)/cosh(x) ;
+  }
+
+  template<class T>
+  complex<T> pow(const complex<T>& x, int n) 
+  {
+    if (n<0) return T(1) / pow(x, -n) ;
+    if (n==0)
+      return T(1) ;
+      
+    complex<T> ret = x ;
+    for (int i=1; i<n; i++)
+      {
+	ret*= x ;
+      }	
+    return ret ;
+  }
+
+  template<class T>
+  complex<T> pow(const complex<T>& x, const T& t)
+  {
+    complex<T> tmp = log(x);
+    volatile int x_is_null = 0 ;
+    // Cast the result of exp() to the type 'T' in order to avoid an error in
+    // case exp() is not overloaded for a type other than 'double'.
+    return x_is_null ? complex<T>(0, 0) : polar((T) exp(t * tmp._pst_real), t * tmp._pst_imag);
+  }
+
+  template<class T>
+  complex<T> pow(const complex<T>& x, const complex<T>& y)
+  {
+    volatile int x_is_null = 0 ;
+    return x_is_null ? complex<T>(0, 0) : exp(y * log(x));
+  }
+
+  template<class T>
+  complex<T> pow(const T& t, const complex<T>& y)
+  {
+    // Cast the result of pow() to the type 'T' in order to avoid an error in
+    // case pow() is not overloaded for a type other than 'double'.
+    return (t == T()) ?  complex<T>(0, 0): polar((T) pow(t, y._pst_real), (T) (y._pst_imag * log(t)));      
+  }
+
+} //namespace std ;
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+
+#endif /* PST_STL_COMPLEX */
+
+

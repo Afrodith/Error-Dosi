@@ -18,7 +18,7 @@
 #ifndef VVBINARYIMAGEOVERLAYACTOR_H
 #define VVBINARYIMAGEOVERLAYACTOR_H
 
-#include "clitkCommon.h"
+#include "VV/common/clitkCommon.h"
 #include "vvSlicer.h"
 
 class vtkImageClip;

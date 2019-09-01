@@ -1,0 +1,257 @@
+/*
+ *
+ * This file and its contents are the property of The MathWorks, Inc.
+ * 
+ * This file contains confidential proprietary information.
+ * The reproduction, distribution, utilization or the communication
+ * of this file or any part thereof is strictly prohibited.
+ * Offenders will be held liable for the payment of damages.
+ *
+ * Copyright 1999-2012 The MathWorks, Inc.
+ *
+ */
+#ifndef PST_STL_FSTREAM
+#define PST_STL_FSTREAM
+
+#include <iosfwd>
+#include <ios>
+#include <iostream>
+#include <streambuf>
+
+#ifdef PST_VISUAL
+#pragma pack(push, 8) /* push default value */
+#endif
+
+namespace std
+{
+  template< class charT, class traits>
+  class basic_filebuf : public basic_streambuf<charT, traits>
+  {
+  public:
+		
+    // CONSTRUCTORS/ DESTRUCTORS //
+    basic_filebuf(){}
+    ~basic_filebuf() {}	
+    
+    // MEMBERS //
+    __ps_bool	is_open() const {volatile __ps_bool ret = false;  return ret;}
+    
+#ifdef 	PST_VISUAL
+		
+    basic_filebuf<charT, traits>	*open(const char *s, ios_base::openmode mode, int _Pot = (int)ios_base::_Openprot)
+    {
+      basic_filebuf<charT, traits>	* volatile	ret;
+      while (*s != '\0')
+	s++;
+      return ret;
+    }
+
+    	
+    basic_filebuf<charT, traits>	*open(const char *s, ios_base::open_mode mode)
+    {
+      return (open(s, (ios_base::openmode)mode));
+    }
+
+    
+    /* This part is deactivated beacause the Protected section is not supported */
+    /*
+    typedef basic_filebuf<charT, traits>		_Myt;	
+  protected:	
+    virtual __ps_typename traits::int_type		overflow(__ps_typename traits::int_type meta = traits::eof())
+    {
+      volatile __ps_typename traits::int_type ret;
+      return ret;
+    }
+    
+    virtual __ps_typename traits::int_type		pbackfail(__ps_typename traits::int_type meta = traits::eof())
+    {
+      volatile __ps_typename traits::int_type ret;
+      return ret;
+    }
+
+    virtual __ps_typename traits::int_type		underflow()
+    {
+      volatile __ps_typename traits::int_type ret;
+      return ret;
+    }
+
+    virtual __ps_typename traits::int_type		uflow()
+    {
+      volatile __ps_typename traits::int_type ret;
+      return ret;
+    } 	
+
+    virtual __ps_typename traits::pos_type		seekoff(__ps_typename traits::off_type ot, ios_base::seekdir _w, ios_base::openmode om = (ios_base::openmode)(ios_base::in|ios_base::out))
+    {
+      volatile int Random;
+      return streampos(Random);
+    }
+
+    virtual __ps_typename traits::pos_type		seekpos(__ps_typename traits::pos_type pt, ios_base::openmode om = (ios_base::openmode)(ios_base::in|ios_base::out))
+    {
+      volatile int Random;
+      return streampos(Random);
+    }
+
+    virtual basic_filebuf<charT, traits>		*setbuf(charT *first, streamsize second)
+    {
+      volatile int Random;
+      
+      if (Random)
+	return 0;
+      else
+	return this;
+    }
+
+    virtual int					sync()
+    {
+      volatile int	ret;
+      return ret;
+    }
+    */
+	
+#else
+      /* Not PST_VISUAL */	
+      basic_filebuf<charT, traits>	*open(const char *s, ios_base::openmode mode)
+      {
+	basic_filebuf<charT, traits>	* volatile	ret;
+	while (*s != '\0')
+	  s++;
+	return ret;
+      }
+    
+#endif
+        
+    public:	
+      basic_filebuf<charT, traits>	*close() 
+	{volatile int Random = 0; return ((Random)?this:0);}
+    };
+
+
+
+	
+  template< class charT, class traits>
+  class basic_ifstream : public basic_istream<charT, traits>
+  {
+  public:
+    // CONSTRUCTORS / DESTRUCTORS // 
+    basic_ifstream(){}
+    __ps_explicit basic_ifstream(const char*s, ios_base::openmode = ios_base::in)
+    { while (*s != '\0') s++; }
+    
+    // MEMBRES //
+    basic_filebuf<charT, traits>	*rdbuf() const
+    {
+      basic_filebuf<charT, traits>	*volatile	ret;
+      return ret;
+    }
+
+    __ps_bool is_open(){volatile __ps_bool ret = false; return ret;}
+
+#ifdef  PST_VISUAL
+		
+    void open(const char*s, ios_base::openmode mode = ios_base::in, int _Pot= (int)ios_base::_Openprot)
+    { 
+      while (*s != '\0') s++; 
+    }
+#else
+      /* Not PST_VISUAL */
+    void open(const char*s, ios_base::openmode mode = ios_base::in)
+    { 
+      while (*s != '\0') s++; 
+    }
+#endif
+    void	close(){}
+  };
+ 
+  template< class charT, class traits>
+  class basic_ofstream : public basic_ostream<charT, traits>
+  {
+  public:
+    // CONSTRUCTORS / DESTRUCTORS // 
+    basic_ofstream(){}
+    __ps_explicit basic_ofstream(const char*s, ios_base::openmode = ios_base::out)
+    { while (*s != '\0') s++; }
+    
+    // MEMBRES //
+    basic_filebuf<charT, traits>	*rdbuf() const
+     { 
+       basic_filebuf<charT, traits>	*volatile ret;
+       return ret;
+     }
+			
+    __ps_bool is_open(){volatile __ps_bool ret = false; return ret;}
+			
+#ifdef PST_VISUAL
+
+    void open(const char*s, ios_base::openmode mode = ios_base::out, int _Prot=(int)ios_base::_Openprot)
+    {
+      while (*s != '\0')
+	s++;
+    }
+
+    void open(const char *s, ios_base::open_mode mode)
+    {
+      while (*s != '\0')
+	s++;
+    }	
+
+#else
+      /* Not PST_VISUAL */
+
+    void open(const char*s, ios_base::openmode mode = ios_base::out)
+    {
+      while (*s != '\0') s++; 
+    }
+			
+#endif
+    void	close(){}
+  };
+ 
+  template< class charT, class traits>
+  class basic_fstream : public basic_iostream<charT, traits>
+  {
+  public:
+    // CONSTRUCTORS / DESTRUCTORS // 
+    basic_fstream(){}
+    __ps_explicit basic_fstream(const char*s, ios_base::openmode = ios_base::in | ios_base::out)
+    { while (*s != '\0') s++; }
+	
+      // MEMBRES //
+    basic_filebuf<charT, traits>	*rdbuf() const
+    {  basic_filebuf<charT, traits>	*volatile ret; return ret; }
+
+    __ps_bool is_open(){volatile __ps_bool ret = false; return ret;}
+			
+#ifdef PST_VISUAL
+				
+    void open(const char*s, ios_base::openmode mode = ios_base::in | ios_base::out, int Prot=(int)ios_base::_Openprot)
+    { while (*s != '\0') s++; }
+
+    void open(const char*s, ios_base::open_mode mode)
+    { while (*s != '\0') s++; }
+
+#else	
+      /* Not PST_VISUAL */
+				
+    void open(const char*s, ios_base::openmode mode = ios_base::in | ios_base::out)
+    { while (*s != '\0') s++; }	
+
+#endif	
+    void	close(){}
+  };
+  
+	
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+}
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+#endif /* PST_STL_FSTREAM */
+

@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QFile>
+#include <QGraphicsScene>
 #include "CTDosimetry.h"
 #include "NMDosimetry.h"
 #include "Brachytherapy.h"

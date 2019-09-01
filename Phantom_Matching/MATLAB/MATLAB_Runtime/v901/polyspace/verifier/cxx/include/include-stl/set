@@ -1,0 +1,788 @@
+/* Copyright 2012 The MathWorks, Inc. */
+
+#ifndef PST_STL_SET
+#define PST_STL_SET
+
+#include <utility>
+#include <functional>
+#include <__polyspace__container.h>
+
+
+namespace std
+{
+
+#ifdef PST_VISUAL
+#pragma pack(push, 8) /* push default value */
+#endif
+
+// pst verification macros
+
+#define VALID_SIZE(s) assert(s <= PST_CONTAINER_MAX_SIZE)
+#define VALID_SIZE_MAX(s,n) assert(s + n <= PST_CONTAINER_MAX_SIZE)
+#define VALID_SIZE_MIN(s,n) assert(s     >= n)
+
+// pst internal macros
+
+#define RESET_ELEMENTS()  { value_type* volatile random_element ; _pst_elements = new value_type(*random_element) ; }  
+	// create "first" element
+#define ADD_ELEMENT(t) { volatile int random_alias = 0 ; if (random_alias) _pst_elements = new value_type(t) ; }
+#define ITERATOR_ELEMENT(i) i(_pst_elements) 
+
+// pst compatibility with Visual 6&7.1 includes
+
+#ifdef PST_VISUAL
+  #define PST_SET_ERASE_ITERATOR_RETURN_TYPE iterator
+  #define PST_SET_ERASE_ITERATOR_RETURN_STAT return ITERATOR_ELEMENT(iterator) ;
+#else /* PST_VISUAL */
+  #define PST_SET_ERASE_ITERATOR_RETURN_TYPE void
+  #define PST_SET_ERASE_ITERATOR_RETURN_STAT 
+#endif /* PST_VISUAL */
+
+
+  PST_TEMPLATE_DECL_DEF_FOR_CONTAINER_SET(Key, Compare, less<Key>)
+  class	set
+  {
+  public:
+    typedef Key                  key_type ;
+    typedef Key                  value_type ;
+    typedef Compare              key_compare ;
+    typedef Compare              value_compare ;
+    typedef PST_ALLOCATOR        allocator_type ; 
+    typedef value_type&          reference ;
+    typedef const value_type&    const_reference ;
+    typedef value_type*          pointer ;
+    typedef const value_type*    const_pointer ;
+    typedef size_t               size_type;
+    typedef ptrdiff_t            difference_type;
+
+#if defined(__PST_STL_SET_CONST_ITERATOR_DIFFER_ITERATOR__)
+    typedef __pst__generic_iterator<bidirectional_iterator_tag, value_type> iterator;
+    typedef __pst__generic_iterator<bidirectional_iterator_tag, const value_type> const_iterator;
+    typedef __pst__reverse_iterator<const_iterator> const_reverse_iterator;
+    typedef __pst__reverse_iterator<iterator> reverse_iterator;
+#else
+    typedef __pst__generic_iterator<bidirectional_iterator_tag, value_type> iterator;
+    // implementation choice: const_iterator is the same as iterator, this avoids
+    // the need for an implicit conversion from const_iterator to iterator
+    typedef iterator const_iterator;
+    typedef __pst__reverse_iterator<iterator> reverse_iterator;
+    // implementation choice: const_reverse_iterator is the same as reverse_iterator, this avoids
+    // the need for an implicit conversion from const_reverse_iterator to reverse_iterator
+    typedef reverse_iterator const_reverse_iterator;
+#endif /* #if defined(__PST_STL_SET_CONST_ITERATOR_DIFFER_ITERATOR__) */
+
+    // 23.3.3.1 constructor/copy/destroy
+
+    __ps_explicit set(const Compare& comp = Compare() PST_ALLOCATOR_DECL_LAST) 
+      : _size(0)
+    {
+      RESET_ELEMENTS() ;
+    }
+
+    template <class InputIterator>
+    set(InputIterator first, InputIterator last, const Compare& comp = Compare() PST_ALLOCATOR_DECL_LAST)
+      : _size(0)
+    {
+      RESET_ELEMENTS() ;
+      for(InputIterator temp = first ; temp != last; ++temp)
+      { 
+	//value_type dummy = *temp ; // read entry
+        ADD_ELEMENT(*temp) ;
+	_size++ ;  
+      }
+    }
+
+    set(const PST_TEMPLATE_CONTAINER_NAME2(set, Key, Compare)& src)
+      : _size(src._size)
+    {
+      _pst_elements = new value_type(*src._pst_elements) ;
+    }
+
+    ~set() { }
+
+    PST_TEMPLATE_CONTAINER_NAME2(set, Key, Compare)& operator=(const PST_TEMPLATE_CONTAINER_NAME2(set, Key, Compare)& src)
+    {
+      _size = src._size ;
+      _pst_elements = new value_type(*src._pst_elements) ;
+      return *this ;
+    }
+
+    // even if not really required in the norm, assume need it
+    allocator_type get_allocator() const
+    {
+      PST_RETURN_STAT_FOR_GET_ALLOCATOR ;
+    }
+
+
+    // iterator
+
+    iterator begin() {
+       return ITERATOR_ELEMENT(iterator) ;
+    }
+
+    const_iterator begin() const {
+       return ITERATOR_ELEMENT(const_iterator) ;
+    }
+
+    iterator end() {
+       return ITERATOR_ELEMENT(iterator) ;
+    }
+
+    const_iterator end() const {
+       return ITERATOR_ELEMENT(const_iterator) ;
+    }
+
+    reverse_iterator rbegin() {
+       return ITERATOR_ELEMENT(reverse_iterator) ;
+    }
+
+    const_reverse_iterator rbegin() const {
+       return ITERATOR_ELEMENT(const_reverse_iterator) ;
+    }
+
+    reverse_iterator rend() {
+       return ITERATOR_ELEMENT(reverse_iterator) ;
+    }
+
+    const_reverse_iterator rend() const {
+       return ITERATOR_ELEMENT(const_reverse_iterator) ; 
+    }
+
+    // capacity
+
+    __ps_bool empty() const
+    {
+      return _size==0 ;
+    }
+
+    size_type size() const
+    {
+      return _size ;
+    }
+
+    size_type max_size() const
+    {
+      return PST_CONTAINER_MAX_SIZE ;
+    }
+
+
+    // modifiers
+
+    pair<iterator, __ps_bool> insert(const value_type& x)
+    {
+      volatile int random = 0 ;
+
+      if (random)
+      {
+	return make_pair(ITERATOR_ELEMENT(iterator), __ps_false) ;
+      }
+      else
+      {
+	_size++ ;
+	ADD_ELEMENT(x) ; // read of x is done here
+	return make_pair(ITERATOR_ELEMENT(iterator), __ps_true) ;
+      }
+    }
+    
+    iterator insert(iterator position, const value_type& x)  // same as insert(x)
+    {
+      volatile int random = 0 ;
+      iterator dummy(position) ; // read entry
+
+      if (random)
+      {
+	return ITERATOR_ELEMENT(iterator) ;
+      }
+      else
+      {
+	_size++ ;
+	ADD_ELEMENT(x) ; // read of x is done here
+	return ITERATOR_ELEMENT(iterator) ;
+      }
+    }
+        
+    template <class InputIterator>
+    void insert(InputIterator first, InputIterator last)
+    {
+      volatile int random = 0 ;
+      for(InputIterator temp = first ; temp != last; ++temp)
+      { 
+	if (random) /* if element are not yet inserted */
+        {
+	  _size++ ;  
+          ADD_ELEMENT(*temp) ; // read entry
+	}
+      }
+    }
+  
+    PST_SET_ERASE_ITERATOR_RETURN_TYPE erase(iterator position)
+    {
+       iterator dummy(position) ; // read entry
+       assert(_size>0) ; // iterator should be valid on this
+       _size-- ;
+       PST_SET_ERASE_ITERATOR_RETURN_STAT
+    }
+
+    size_t erase(const key_type& x) // return the number of elements erased 0 or 1
+    {
+      
+      if (_size==0)
+	return 0 ;  // if no elements, cannot erase any
+
+      key_type dummy(x) ; // read entry
+
+      volatile int random = 0 ;
+      if (random) 
+      {
+        _size-- ;
+	return 1 ;
+      }
+      else
+      {
+	return 0 ;
+      }
+    }
+
+    PST_SET_ERASE_ITERATOR_RETURN_TYPE erase(iterator first, iterator last)
+    {
+      // because we assume iterator are valid on this, all object in range are destroyed
+      for(iterator temp = first ; temp != last; ++temp)
+      {
+	assert(_size>0) ;
+	_size-- ;  
+      }
+      PST_SET_ERASE_ITERATOR_RETURN_STAT
+    }
+
+    void swap(PST_TEMPLATE_CONTAINER_NAME2(set, Key, Compare)& x) 
+    {
+      size_t tmp = _size ;
+      _size = x._size ;
+      x._size = tmp ;
+
+      pointer tmp2 = x._pst_elements ;
+      x._pst_elements = _pst_elements ;
+      _pst_elements = tmp2 ; 
+    }
+
+    void clear()
+    {
+      _size = 0 ;
+      RESET_ELEMENTS() ;
+    }
+
+    // observers
+    key_compare key_comp() const
+    {
+      volatile key_compare k ;
+      return *(key_compare*)&k ;
+    }
+
+    value_compare value_comp() const
+    {
+      volatile key_compare k ;
+      return *(key_compare*)&k ;
+    }
+
+
+    iterator find(const key_type& x) 
+    {
+      // if begin() & end() will be more precise
+      // we can give a random on between begin() & end()
+      key_type dummy(x) ; // read entry
+      return ITERATOR_ELEMENT(iterator) ;
+    }
+
+    const_iterator find(const key_type& x) const
+    {
+      key_type dummy(x) ; // read entry
+      return ITERATOR_ELEMENT(const_iterator) ;
+    }
+
+    size_t count(const key_type& x) const 
+    {
+      if (_size==0)
+	return 0 ;   // if no elements ...
+
+      volatile int rand = 0 ;
+      return rand ? 0 : 1 ;
+    }
+	
+    iterator lower_bound(const key_type& x) 
+    {
+      // if begin() & end() will be more precise
+      // we can give a random on between begin() & end()
+      // because we does not store Compare object, it is useless to try to applly constraints
+      //  such as       assert( (ret==end()) || !(Compare()(ret->first,x))) ;
+      key_type dummy(x) ; // read entry
+      return ITERATOR_ELEMENT(iterator);
+    }
+
+    const_iterator lower_bound(const key_type& x) const
+    {
+      key_type dummy(x) ; // read entry
+      return ITERATOR_ELEMENT(const_iterator);
+    }
+
+    iterator upper_bound(const key_type& x) 
+    {
+      // if begin() & end() will be more precise
+      // we can give a random on between begin() & end()
+
+      key_type dummy(x) ; // read entry
+      return ITERATOR_ELEMENT(iterator);
+    }
+
+    const_iterator upper_bound(const key_type& x) const
+    {
+      key_type dummy(x) ; // read entry
+      return ITERATOR_ELEMENT(const_iterator);
+    }
+
+    pair<iterator, iterator> equal_range(const key_type& x) 
+    {
+      // if begin() & end() will be more precise
+      // we can give a random on between begin() & end()
+      return make_pair(lower_bound(x), upper_bound(x)) ;
+    }
+
+    pair<const_iterator, const_iterator> equal_range(const key_type& x) const
+    {
+      return make_pair(lower_bound(x), upper_bound(x)) ;
+    }
+
+    friend __ps_bool std::operator==(const PST_TEMPLATE_CONTAINER_NAME2(set, Key, Compare)& x,
+			        const PST_TEMPLATE_CONTAINER_NAME2(set, Key, Compare)& y) ;
+
+  private:
+    
+    size_t _size ;
+    pointer _pst_elements ;
+  } ;
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER2(class Key, class Compare)
+  void swap(PST_TEMPLATE_CONTAINER_NAME2(set, Key, Compare)& x,
+	    PST_TEMPLATE_CONTAINER_NAME2(set, Key, Compare)& y)
+  {
+    x.swap(y) ;
+  }
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER2(class Key, class Compare)
+  __ps_bool operator==(const PST_TEMPLATE_CONTAINER_NAME2(set, Key, Compare)& x,
+		  const PST_TEMPLATE_CONTAINER_NAME2(set, Key, Compare)& y)
+  {
+    volatile int rand = 0 ;
+    return (x._size == y._size) ? rand : __ps_false ;
+  }
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER2(class Key, class Compare)
+  __ps_bool operator!=(const PST_TEMPLATE_CONTAINER_NAME2(set, Key, Compare)& x,
+		  const PST_TEMPLATE_CONTAINER_NAME2(set, Key, Compare)& y)
+  {
+    return !(x==y) ;
+  }
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER2(class Key, class Compare)
+  __ps_bool operator<(const PST_TEMPLATE_CONTAINER_NAME2(set, Key, Compare)& x,
+		 const PST_TEMPLATE_CONTAINER_NAME2(set, Key, Compare)& y)
+  {
+    volatile int rand = 0 ;
+    return rand ;
+  }
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER2(class Key, class Compare)
+  __ps_bool operator<=(const PST_TEMPLATE_CONTAINER_NAME2(set, Key, Compare)& x,
+		  const PST_TEMPLATE_CONTAINER_NAME2(set, Key, Compare)& y)
+  {
+    volatile int rand = 0 ;
+    return rand ;
+  }
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER2(class Key, class Compare)
+  __ps_bool operator> (const PST_TEMPLATE_CONTAINER_NAME2(set, Key, Compare)& x,
+		  const PST_TEMPLATE_CONTAINER_NAME2(set, Key, Compare)& y)
+  {
+    volatile int rand = 0 ;
+    return rand ;
+  }
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER2(class Key, class Compare)
+  __ps_bool operator>=(const PST_TEMPLATE_CONTAINER_NAME2(set, Key, Compare)& x,
+		  const PST_TEMPLATE_CONTAINER_NAME2(set, Key, Compare)& y)
+  {
+    volatile int rand = 0 ;
+    return rand ;
+  }
+
+
+  // only difference from set :
+  //   - absence of operator[]
+  //   - difference of return and implemetation of insert( ... ) methods
+  //   - difference in implementation of count(const key_type&), erase(const key_type&)
+
+  PST_TEMPLATE_DECL_DEF_FOR_CONTAINER_SET(Key, Compare, less<Key>)
+  class	multiset
+  {
+  public:
+    typedef Key                  key_type ;
+    typedef Key                  value_type ;
+    typedef Compare              key_compare ;
+    typedef Compare              value_compare ;
+
+    typedef PST_ALLOCATOR        allocator_type ;
+    typedef value_type&          reference ;
+    typedef const value_type&    const_reference ;
+    typedef value_type*          pointer ;
+    typedef const value_type*    const_pointer ;
+    typedef size_t               size_type;
+    typedef ptrdiff_t            difference_type;
+
+    typedef __pst__generic_iterator<bidirectional_iterator_tag, value_type> iterator;
+    // implementation choice: const_iterator is the same as iterator, this avoids
+    // the need for an implicit conversion from const_iterator to iterator
+    typedef iterator const_iterator;
+    typedef __pst__reverse_iterator<iterator> reverse_iterator;
+    // implementation choice: const_reverse_iterator is the same as reverse_iterator, this avoids
+    // the need for an implicit conversion from const_reverse_iterator to reverse_iterator
+    typedef reverse_iterator const_reverse_iterator;
+
+    // 23.3.1.1 constructor/copy/destroy
+
+    __ps_explicit multiset(const Compare& comp = Compare() PST_ALLOCATOR_DECL_LAST) 
+      : _size(0)
+    {
+      RESET_ELEMENTS() ;
+    }
+
+    template <class InputIterator>
+    multiset(InputIterator first, InputIterator last, const Compare& comp = Compare() PST_ALLOCATOR_DECL_LAST)
+      : _size(0)
+    {
+      RESET_ELEMENTS() ;
+      for(InputIterator temp = first ; temp != last; ++temp)
+      { 
+        ADD_ELEMENT(*temp) ;
+	_size++ ;  
+      }
+    }
+
+    multiset(const PST_TEMPLATE_CONTAINER_NAME2(multiset, Key, Compare)& src)
+      : _size(src._size)
+    {
+       _pst_elements = new value_type(*src._pst_elements) ;
+    }
+
+    ~multiset() { }
+
+    PST_TEMPLATE_CONTAINER_NAME2(multiset, Key, Compare)& operator=(const PST_TEMPLATE_CONTAINER_NAME2(multiset, Key, Compare)& src)
+    {
+      _size = src._size ;
+      _pst_elements = new value_type(*src._pst_elements) ;
+      return *this ;
+    }
+
+    // even if not really required in the norm, assume need it
+    allocator_type get_allocator() const
+    {
+      PST_RETURN_STAT_FOR_GET_ALLOCATOR ;
+    }
+
+
+    // iterators
+
+    iterator begin() {
+       return ITERATOR_ELEMENT(iterator) ;
+    }
+
+    const_iterator begin() const {
+       return ITERATOR_ELEMENT(const_iterator) ;
+    }
+
+    iterator end() {
+       return ITERATOR_ELEMENT(iterator) ;
+    }
+
+    const_iterator end() const {
+       return ITERATOR_ELEMENT(const_iterator) ;
+    }
+
+    reverse_iterator rbegin() {
+       return ITERATOR_ELEMENT(reverse_iterator) ;
+    }
+
+    const_reverse_iterator rbegin() const {
+       return ITERATOR_ELEMENT(const_reverse_iterator) ;
+    }
+
+    reverse_iterator rend() {
+       return ITERATOR_ELEMENT(reverse_iterator) ;
+    }
+
+    const_reverse_iterator rend() const {
+       return ITERATOR_ELEMENT(const_reverse_iterator) ; 
+    }
+
+
+    // capacity
+
+    __ps_bool empty() const
+    {
+      return _size==0 ;
+    }
+
+    size_type size() const
+    {
+      return _size ;
+    }
+
+    size_type max_size() const
+    {
+      return PST_CONTAINER_MAX_SIZE ;
+    }
+
+
+
+    // modifiers 
+
+    iterator insert(const value_type& x)
+    {
+	_size++ ;
+	ADD_ELEMENT(x) ; // read of x is done here
+	return ITERATOR_ELEMENT(iterator) ;
+    }
+    
+    iterator insert(iterator position, const value_type& x)  // same as insert(x)
+    {
+      iterator dummy(position) ; // read entry
+      _size++ ;
+      ADD_ELEMENT(x) ; // read of x is done here
+      return ITERATOR_ELEMENT(iterator) ;
+    }
+        
+    template <class InputIterator>
+    void insert(InputIterator first, InputIterator last)
+    {
+      for(InputIterator temp = first ; temp != last; ++temp)
+      { 
+        ADD_ELEMENT(*temp) ; // read entry
+        _size++ ;  
+      }
+    }
+
+    PST_SET_ERASE_ITERATOR_RETURN_TYPE erase(iterator position)
+    {
+       iterator dummy(position) ; // read entry
+       assert(_size>0) ; // iterator should be valid on this
+       _size-- ;
+       PST_SET_ERASE_ITERATOR_RETURN_STAT
+    }
+
+
+    size_t erase(const key_type& x) // return the number of elements erased
+    {
+      key_type dummy(x) ; // read entry
+
+      volatile size_t random = 0 ;
+      size_t cpt = random ;
+      assert(cpt <= _size) ;  // number of element to be removed
+      _size -= cpt ;
+      return cpt ;
+    }
+
+    PST_SET_ERASE_ITERATOR_RETURN_TYPE erase(iterator first, iterator last)
+    {
+      // because we assume iterator are valid on this, all object in range are destroyed
+      for(iterator temp = first ; temp != last; ++temp)
+      {
+	assert(_size>0) ; //  iterator are valid on this
+	_size-- ;  
+      }
+      PST_SET_ERASE_ITERATOR_RETURN_STAT
+    }
+
+    void swap(PST_TEMPLATE_CONTAINER_NAME2(multiset, Key, Compare)& x) 
+    {
+      size_t tmp = _size ;
+      _size = x._size ;
+      x._size = tmp ;
+
+      pointer tmp2 = x._pst_elements ;
+      x._pst_elements = _pst_elements ;
+      _pst_elements = tmp2 ; 
+    }
+
+    void clear()
+    {
+      _size = 0 ;
+      RESET_ELEMENTS() ;
+    }
+
+    // observers
+    key_compare key_comp() const
+    {
+      volatile key_compare k ;
+      return *(key_compare*)&k ;
+    }
+
+    value_compare value_comp() const
+    {
+      volatile key_compare k ;
+      return value_compare(*(key_compare*)&k) ;
+    }
+
+    
+    // 23.3.1.3
+
+    iterator find(const key_type& x) 
+    {
+      // if begin() & end() will be more precise
+      // we can give a random on between begin() & end()
+      key_type dummy(x) ; // read entry
+      return ITERATOR_ELEMENT(iterator) ;
+    }
+
+    const_iterator find(const key_type& x) const
+    {
+      key_type dummy(x) ; // read entry
+      return ITERATOR_ELEMENT(const_iterator) ;
+    }
+
+    size_t count(const key_type& x) const 
+    {
+      key_type dummy(x) ; // read entry
+
+      volatile size_t random = 0 ;
+      size_t cpt = random ;
+      assert(cpt <= _size) ;  // number of element to be counted
+      return cpt ;
+    }
+
+    iterator lower_bound(const key_type& x) 
+    {
+      // if begin() & end() will be more precise
+      // we can give a random on between begin() & end()
+      key_type dummy(x) ; // read entry
+      return ITERATOR_ELEMENT(iterator);
+    }
+
+    const_iterator lower_bound(const key_type& x) const
+    {
+      key_type dummy(x) ; // read entry
+      return ITERATOR_ELEMENT(const_iterator);
+    }
+
+    iterator upper_bound(const key_type& x) 
+    {
+      // if begin() & end() will be more precise
+      // we can give a random on between begin() & end()
+
+      key_type dummy(x) ; // read entry
+      return ITERATOR_ELEMENT(iterator);
+    }
+
+    const_iterator upper_bound(const key_type& x) const
+    {
+      key_type dummy(x) ; // read entry
+      return ITERATOR_ELEMENT(const_iterator);
+    }
+
+    pair<iterator, iterator> equal_range(const key_type& x) 
+    {
+      // if begin() & end() will be more precise
+      // we can give a random on between begin() & end()
+      return make_pair(lower_bound(x), upper_bound(x)) ;
+    }
+
+    pair<const_iterator, const_iterator> equal_range(const key_type& x) const
+    {
+      return make_pair(lower_bound(x), upper_bound(x)) ;
+    }
+
+    friend __ps_bool std::operator==(const PST_TEMPLATE_CONTAINER_NAME2(multiset, Key, Compare)& x,
+			        const PST_TEMPLATE_CONTAINER_NAME2(multiset, Key, Compare)& y) ;
+
+  private:
+    
+    size_t _size ;
+    pointer _pst_elements ;
+  } ;
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER2(class Key, class Compare)
+  void swap(PST_TEMPLATE_CONTAINER_NAME2(multiset, Key, Compare)& x,
+	    PST_TEMPLATE_CONTAINER_NAME2(multiset, Key, Compare)& y)
+  {
+    x.swap(y) ;
+  }
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER2(class Key, class Compare)
+  __ps_bool operator==(const PST_TEMPLATE_CONTAINER_NAME2(multiset, Key, Compare)& x,
+		  const PST_TEMPLATE_CONTAINER_NAME2(multiset, Key, Compare)& y)
+  {
+    volatile int rand = 0 ;
+    return (x._size == y._size) ? rand : __ps_false ;
+  }
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER2(class Key, class Compare)
+  __ps_bool operator!=(const PST_TEMPLATE_CONTAINER_NAME2(multiset, Key, Compare)& x,
+		  const PST_TEMPLATE_CONTAINER_NAME2(multiset, Key, Compare)& y)
+  {
+    return !(x==y) ;
+  }
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER2(class Key, class Compare)
+  __ps_bool operator<(const PST_TEMPLATE_CONTAINER_NAME2(multiset, Key, Compare)& x,
+		 const PST_TEMPLATE_CONTAINER_NAME2(multiset, Key, Compare)& y)
+  {
+    volatile int rand = 0 ;
+    return rand ;
+  }
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER2(class Key, class Compare)
+  __ps_bool operator<=(const PST_TEMPLATE_CONTAINER_NAME2(multiset, Key, Compare)& x,
+		  const PST_TEMPLATE_CONTAINER_NAME2(multiset, Key, Compare)& y)
+  {
+    volatile int rand = 0 ;
+    return rand ;
+  }
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER2(class Key, class Compare)
+  __ps_bool operator> (const PST_TEMPLATE_CONTAINER_NAME2(multiset, Key, Compare)& x,
+		  const PST_TEMPLATE_CONTAINER_NAME2(multiset, Key, Compare)& y)
+  {
+    volatile int rand = 0 ;
+    return rand ;
+  }
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER2(class Key, class Compare)
+  __ps_bool operator>=(const PST_TEMPLATE_CONTAINER_NAME2(multiset, Key, Compare)& x,
+		  const PST_TEMPLATE_CONTAINER_NAME2(multiset, Key, Compare)& y)
+  {
+    volatile int rand = 0 ;
+    return rand ;
+  }
+
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+
+
+}
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+#undef VALID_SIZE
+#undef VALID_SIZE_MAX
+#undef VALID_SIZE_MIN
+
+#undef RESET_ELEMENTS
+#undef ADD_ELEMENT
+#undef ITERATOR_ELEMENT
+
+#undef PST_SET_ERASE_ITERATOR_RETURN_TYPE
+#undef PST_SET_ERASE_ITERATOR_RETURN_STAT
+
+#endif /* PST_STL_SET */

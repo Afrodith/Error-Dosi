@@ -1,0 +1,1670 @@
+/*
+ *
+ * This file and its contents are the property of The MathWorks, Inc.
+ * 
+ * This file contains confidential proprietary information.
+ * The reproduction, distribution, utilization or the communication
+ * of this file or any part thereof is strictly prohibited.
+ * Offenders will be held liable for the payment of damages.
+ *
+ * Copyright 1999-2012 The MathWorks, Inc.
+ *
+ */
+
+#ifndef PST_STL_STRING
+#define PST_STL_STRING
+
+// new PST definition for string class
+// this interface contains all the
+// specifications described in the
+// C++ standard ISO
+
+#include <__polyspace__stdlib.h>
+#include <iosfwd>
+#include <__polyspace__string.h>
+#include <__polyspace__char_traits.h>
+
+// needed for forward declarations
+#include <__polyspace__allocator.h>
+
+
+#ifdef PST_VISUAL
+#pragma pack(push, 8) /* pop back to previous value */
+#endif
+
+/* forward declaration may be needed for <stdexcept> */
+namespace std
+{
+
+   PST_TEMPLATE_DECL_DEF_FOR_BASIC_STRING_CLASSES(charT, traits, char_traits<charT>)
+   class basic_string ;
+
+   typedef basic_string<char, char_traits<char> > string;
+   typedef basic_string<wchar_t, char_traits<wchar_t> > wstring;
+
+}
+
+// get <iterator>
+// get <memory>
+// get <stdexcept>
+#include <__polyspace__container.h>
+
+
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+
+#include <is_integer_type.h>
+
+
+// macros undefined at the end of file
+
+// norm realy unclear about max_size()  => should be < npos
+// remarks :
+//  max_size() should be representable as signed unless s[max_size()] would overflow
+//  65535 seems to be resaonably enough ...
+
+#define STRING_MAX_SIZE 65535u
+
+#define OUT_OF_RANGE(cond) assert (!(cond))
+
+#define VALID_RANGE(f,l) assert ((f!=0 && l!=0) && f<=l)
+#define VALID_ITERATOR_ON_THIS(i) assert( i!=0 && (begin()<=i) && (i<=end()))
+
+// LENGTH_ERROR macros:
+
+//  check if we can build a string whose size is s
+//         TC1 say that we must compare with max_size()
+#define VALID_SIZE(s) assert((s) <= STRING_MAX_SIZE && (s) >= 0)
+
+//check if we can add n element when current size is s
+//  if n==STRING_MAX_SIZE+1 assert is red !
+// n should be a local variable
+#define VALID_SIZE_MAX(s,n) assert( ((n) <= STRING_MAX_SIZE) && ((s)  <= (STRING_MAX_SIZE - (n))))
+
+//check if we can remove n element when current size is s
+#define VALID_SIZE_MIN(s,n) assert((s)     >= (n))
+
+
+#define PST_MIN(a,b) (((a) < (b))?(a):(b))
+#define NON_NULL(p) assert((p) != 0)
+
+#define RETURN_ITERATOR(iterator, pos)      \
+     charT* dat = __ps_get_iterator();     \
+     return (iterator)(dat + pos) ;
+
+#define RETURN_ANY_ITERATOR(iterator)                                              \
+     volatile size_type r = (size_type)0; size_type pos = r ; assert( r<=_size ) ; \
+     charT* dat =  __ps_get_iterator();                                           \
+     return (iterator)(dat + pos) ;
+
+#ifdef PST_VISUAL
+#pragma pack(push, 8) /* push default value */
+#endif
+
+namespace std { 
+
+  template<class InputIterator, __ps_bool is_int_type> struct __PST_TEST_STRING  { };
+  template<class InputIterator>                   struct __PST_TEST_STRING <InputIterator, __ps_false> 
+  {
+    static size_t _get_size(InputIterator first, InputIterator last)
+    {
+      size_t sz = 0 ;
+      //VALID_RANGE(first, last);
+
+      // Valid range macro require < to be defined on InputIterator, thats not allways __ps_true
+      //  if range is not valid, we should get a NTL above
+
+      for (InputIterator tmp = first; tmp != last; ++tmp,sz++) ;
+
+      VALID_SIZE(sz);
+      return sz;
+    }
+  } ;
+
+  // specialization for pointer
+  template<class Pointed>                   struct __PST_TEST_STRING <Pointed *, __ps_false> 
+  {	
+    static size_t _get_size(Pointed* first, Pointed* last)
+    {
+      size_t sz;
+      VALID_RANGE(first, last);
+      sz = last - first;
+      VALID_SIZE(sz);
+      return sz;
+    }
+  } ;
+
+  template<class InputIterator>                  struct __PST_TEST_STRING<InputIterator, __ps_true> 
+  { 
+    static size_t _get_size(InputIterator first, InputIterator last) 
+    {
+      size_t ret = static_cast<size_t>(first) ;
+      VALID_SIZE(ret) ;
+      return ret;
+    }
+  } ;
+
+  
+// helper :
+
+#define PST_TEMPLATE_GET_SIZE(InputIterator, first, last) \
+ __PST_TEST_STRING<InputIterator, __polyspace_is_int_type<InputIterator>::is_int_type>::_get_size(first, last);
+
+
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+class basic_string {
+
+public:
+
+  //types
+  typedef size_t size_type;
+  typedef traits traits_type;
+  typedef __ps_typename traits::char_type value_type;
+  typedef ptrdiff_t difference_type;
+  typedef PST_ALLOCATOR allocator_type;
+  typedef charT& reference;
+  typedef const charT& const_reference;
+  typedef charT* pointer;
+  typedef const charT* const_pointer;
+#if 0
+  /* The iterators should be defined this way. Anyway, it would lead to some precision losses. */
+  typedef __pst__normal_iterator<basic_string, pointer> iterator;
+  typedef __pst__normal_iterator<basic_string, const_pointer> const_iterator;
+#else
+  typedef pointer iterator;
+  typedef const_pointer const_iterator;
+#endif
+  typedef reverse_iterator<const_iterator> const_reverse_iterator;
+  typedef reverse_iterator<iterator> reverse_iterator;
+  
+private:
+
+  // the length of the string
+  size_type _size;
+
+public:
+  // must not be initialized inside of the class.
+  static const size_type npos;
+  
+  // Constructors - Destructors
+  // template<class charT, class traits> 
+  // basic_string::basic_string()
+  // constructs an object of class basic_string.
+  // It is the default constructor.
+  // Postconditions : size() == 0 and capacity() is 
+  // an unspecified positive value; we need to compute
+  // the capacity of the string only for
+  // the access function capacity()
+  
+  __ps_explicit basic_string(PST_ALLOCATOR_DECL1){
+    _size = 0 ;
+  }
+
+  // Constructs an object of class basic_string
+  // whose length is determined by choosing
+  // the smallest value between n and str.size().
+
+  basic_string(const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& str, 
+	       size_type pos=0, size_type n=npos 
+	       PST_ALLOCATOR_DECL_LAST) {
+    size_type s = str._size;
+    OUT_OF_RANGE(pos > s);
+    size_type min = PST_MIN(n, (s - pos));
+    VALID_SIZE(min);
+    _size = min;
+  }
+  
+  // Constructs an object of class basic_string
+  // whose size is initialized with n.
+  // Pre : s must not be a null pointer
+
+  basic_string(const charT* s, size_type n PST_ALLOCATOR_DECL_LAST){
+
+    NON_NULL(s);
+    VALID_SIZE(n);
+    _size = n;
+  }
+
+  // Constructs an object of class basic_string
+  // whose initial size is determined by the length 
+  // of the parameter s.
+  // Pre : s must not be a null pointer
+  
+  basic_string(const charT* s PST_ALLOCATOR_DECL_LAST){
+   
+    NON_NULL(s);
+    const charT *ptr = s;
+    size_type i = 0;
+    
+    while(*ptr!=0){ i++;ptr++;}
+    
+    VALID_SIZE(i);
+    _size = i;
+  }
+  
+  // Constructs an object of class basic_string
+  // whose size is initialized with n.
+  basic_string(size_type n, charT c PST_ALLOCATOR_DECL_LAST){
+    VALID_SIZE(n);
+    _size = n; 
+  }
+
+  // Constructor with Iterators :
+  // Pre : [first, last) is a valid range
+  // This constructor cannot be specialized
+  // inside the class, otherwise it would force
+  // to specialize the whole class too.
+  template<class InputIterator>
+  basic_string(InputIterator first, InputIterator last PST_ALLOCATOR_DECL_LAST) {
+
+    // The right version of the method _get_size
+    // will be instantiated, according to whether
+    // __polyspace_is_int_type<Inputerator>::is_int_type is __ps_true or __ps_false.
+
+    _size = PST_TEMPLATE_GET_SIZE(InputIterator, first, last) ;
+  }
+
+
+  // destructor : as it is static analysis, 
+  // no need to call functions such as free or
+  // delete. But the size is reset to 0, so as
+  // to specify that the string no longer has any
+  // elements (as it is destroyed).
+  
+  ~basic_string(){ }
+
+  // As we don't use the template argument allocator, 
+  // we don't matter about its type
+  allocator_type get_allocator() const {
+      PST_RETURN_STAT_FOR_GET_ALLOCATOR ;
+  }
+  
+  // *this is resized to str.size();
+  
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& operator=(const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& str){
+    
+    _size = str._size;
+    
+    return *this;
+  }
+
+  // To compute the new size of the
+  // string controlled by *this, we
+  // need to count the number of 
+  // char-like objects contained in
+  // s : it necessarily ends with 
+  // a null pointer (otherwise it
+  // would be an infinite string !).
+
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& operator=(const charT* s){
+
+    NON_NULL(s);
+    const charT *ptr = s; 
+    size_type i = 0;
+
+    while(*ptr!=0){ i++; ptr++; }
+
+    VALID_SIZE(i);
+    _size = i;
+    return *this;
+  }
+
+  // a string made of one character is
+  // assigned to the string controlled
+  // by *this : the size is set to 1.
+  
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& operator=(charT c){
+    _size = 1;
+    return *this;
+  }
+
+private:
+  // unique source of iterator
+  charT *__ps_get_iterator() const {
+    return (_size>0) ? new charT[_size] : new charT(); 
+  }
+
+public:
+
+  // iterators
+
+  iterator begin() {
+    RETURN_ITERATOR(iterator, 0) ;    
+  }
+
+  // Idem as above, but the iterator
+  // is const.
+  
+  const_iterator begin() const {
+    RETURN_ITERATOR(const_iterator, 0) ;
+  }
+
+
+  // Idem as begin().
+  
+  iterator end() {
+    RETURN_ITERATOR(iterator, _size);
+  }
+
+  const_iterator end() const {
+    RETURN_ITERATOR(const_iterator, _size);
+  }
+
+  // Idem as begin().
+  
+  reverse_iterator rbegin() {
+    RETURN_ITERATOR(reverse_iterator, 0) ;
+  }
+
+  // Idem as begin() const.
+
+  const_reverse_iterator rbegin() const{
+    RETURN_ITERATOR(const_reverse_iterator, 0) ;
+  }
+
+
+  // Idem as end().
+
+  reverse_iterator rend() {
+    RETURN_ITERATOR(reverse_iterator, _size) ;
+  }
+  
+  // Idem as end() const.
+
+  const_reverse_iterator rend() const  {    
+    RETURN_ITERATOR(const_reverse_iterator, _size) ;
+  }
+
+  // capacity
+ 
+  // The access function to the 
+  // size of the string controlled
+  // by *this.
+  size_type size() const {
+    return _size;
+  }
+
+  // Idem as size().
+  
+  size_type length() const  { 
+    return _size;
+  }
+
+  // Returns the maximum size of the
+  // string controlled by *this :
+  // We chose the greatest unsigned
+  // integer value.
+
+  size_type max_size() const { 
+    return STRING_MAX_SIZE;
+  }
+  
+  // Reset the length of 
+  // the string controlled by *this
+  // to n.
+  
+  void resize(size_type n, charT c='\0'){
+    VALID_SIZE(n) ; 
+    _size = n;      
+  }
+
+  // Returns the size of the allocated storage
+  // in the string. The only condition on
+  // this variable is that it must be >= size()
+  
+  size_type capacity() const { 
+    volatile size_type delta = (size_type)0;
+    return (_size + delta);
+  }
+
+  // This method modifies the capacity of the string.
+  // The capacity cannot be greater than the maximal size.
+  // size() remains the same.
+  void reserve(size_type res_arg = 0) {
+     VALID_SIZE(res_arg) ;
+  }
+
+  // This method is equivalent to erase( begin(), end()):
+  // it removes all the elements of the string
+  // controlled by *this.
+  // So the size of the string becomes null.
+  
+  void clear() { _size = 0; }
+
+  // Says if the string is empty.
+  // To avoid link between methods of
+  // the class, it returns an indifferent
+  // value.
+  
+  __ps_bool empty() const { 
+    return (_size == 0);
+  }
+  
+  // element access 
+
+  // This function returns the 
+  // element contained at position pos
+  // in the string. 
+  // Pre : pos <= size()
+  
+  const_reference operator[](size_type pos) const {
+
+    OUT_OF_RANGE( pos > _size );
+    
+    if (pos==_size) return *(new charT()) ;
+	
+    volatile  charT c = '\0';
+    
+    charT* dat = new charT[pos+1];
+    dat[pos] = c; // it is a strange idea to construct an array and to initialize only one element ...
+    return (const_reference)(dat[pos]);
+  }
+
+  // This function returns the element
+  // at position pos in the string, only if
+  // pos < size(). Otherwise, the behavior
+  // is undefined.
+  
+  reference operator[](size_type pos){
+    OUT_OF_RANGE( pos >= _size ); // if pos = size() the return is undefined for non-const version 21.3.4 - 1
+    
+    volatile charT c = '\0';
+    
+    charT* dat = new charT[pos+1];
+    dat[pos] = c;
+    return (reference)(dat[pos]);
+  }
+  
+
+  // This function returns the element
+  // of the string at position n, n
+  // must be < size(). 
+  
+  const_reference at(size_type n) const {
+
+    OUT_OF_RANGE(n >= _size) ;
+    
+    volatile charT c = '\0';
+    
+    charT* dat = new charT[n+1];
+    dat[n] = c;
+    return (dat[n]);
+  }
+  
+  // This function returns the element
+  // at position n in the string, with
+  // the condition n < size().
+  
+  reference at (size_type n) {
+    
+    OUT_OF_RANGE(n >= _size);
+    volatile charT c = '\0';
+    
+    charT* dat = new charT[n+1];
+    dat[n] = c;
+    return (reference)dat[n];
+  }
+
+  // modifiers 
+
+  // This function appends rhs
+  // to the string controlled by *this.
+  // So the current size is increased
+  // with rhs.size().
+  
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& operator+= (const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& rhs){
+    size_type s = rhs._size;
+    VALID_SIZE_MAX(_size, s);
+    _size += s;    
+    return *this;
+  }
+
+  // The string s is appended to 
+  // the string controlled by *this.
+  // The current size is increased with
+  // the length of s.
+  
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& operator+= (const charT* s) {
+
+    NON_NULL(s);      
+    const charT *ptr = s;
+    size_type i = 0;
+
+    while(*ptr!=0){ i++;ptr++;}
+    VALID_SIZE_MAX(_size, i);
+    _size += i;
+    return *this;
+  }
+
+
+  // This function append the character
+  // c to the string controlled by *this.
+  // The current size is increased of 1.
+  
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& operator+=(charT c) { 
+    VALID_SIZE_MAX(_size,1);
+    _size++;
+    return *this; 
+  }
+
+
+  // This method appends the string str
+  // to the string controlled by *this.
+  // The current size is increased with
+  // str.size().
+
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& append(const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& str){
+    size_type t = str._size;
+    VALID_SIZE_MAX(_size,t);
+    _size += t;
+    return *this;
+  }
+
+
+  // This function appends the remaining
+  // elements of the string str, from position
+  // pos, to the string controlled by *this,
+  // with the condition that pos <= str.size().
+  // The current size is increased with
+  // the smallest of n and str.size() - pos.
+
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& append (const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& str, size_type pos,
+				       size_type n){
+    size_type str_size = str._size;
+    OUT_OF_RANGE(pos > str_size);
+    size_type min = PST_MIN((str_size - pos), n);
+    VALID_SIZE_MAX(_size, min);
+    _size += min;
+    return *this;
+  }
+
+  // This function appends the string s
+  // to the string controlled by *this.
+  // The current size is increased by
+  // the length of s.
+  
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& append (const charT* s, size_type n){ 
+    NON_NULL(s);
+    VALID_SIZE_MAX(_size, n);
+    _size += n;
+    return *this; 
+  }
+
+
+  // This function appends the string s
+  // to the string controlled by *this.
+  // The current size is increased by
+  // the length of s.
+  // To compute the length of s, 
+  // One way is to count the
+  // number of non-null char-like objects
+  // contained in s.
+
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& append (const charT* s){
+    NON_NULL(s);
+    const charT *ptr = s;
+    size_type i = 0;
+    while(*ptr!=0){ i++;ptr++;}
+
+    VALID_SIZE_MAX(_size, i);
+    _size += i;
+    return *this;
+  }
+  
+  // This function appends the character c
+  // to the string controlled by *this.
+  // The current size is increased by 1.
+  
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& append (size_type n, charT c){
+    VALID_SIZE_MAX(_size,n);
+    _size += n;
+    return *this;
+  }
+
+  // This method appends the string
+  // delimited by first and last
+  // to the string controlled by *this.
+  template<class InputIterator>
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& append (InputIterator first, InputIterator last) {
+    PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits) str_to_append = basic_string(first, last);
+    size_type tmp = PST_TEMPLATE_GET_SIZE(InputIterator, first, last)
+    VALID_SIZE_MAX(_size, tmp) ;
+    _size += tmp ;
+    return *this;
+  } 
+
+  void push_back(const charT) {
+    VALID_SIZE_MAX(_size,1);
+    ++_size;
+  }
+
+  // This method assigns str to 
+  // the string controlled by *this.
+  // The current size is set to str.size().
+  
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& assign(const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& str){
+    _size = str._size;
+    return *this;
+  }
+
+
+  // This method assigns the 
+  // string begining at position
+  // pos in str to the string 
+  // controlled by *this.
+  // The current size of the string
+  // is set to the smallest of n and
+  // str.size() - pos (which has to be > 0).
+  
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& assign (const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& str, size_type pos,
+				       size_type n){
+    int str_size = str._size - pos;
+    OUT_OF_RANGE(str_size < 0);
+    size_type min = PST_MIN(str_size, n);
+    VALID_SIZE(min);
+    _size = min;
+    return *this;
+  }
+
+  // This method assigns s to the
+  // string controlled by *this.
+  // The current size is set to the
+  // length of s, which must be n.
+
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& assign (const charT* s, size_type n){
+    NON_NULL(s);
+    VALID_SIZE(n);
+    _size = n;
+    return *this;
+  }
+
+  
+  // This method assigns s to the
+  // string controlled by *this.
+  // The current size is set to the
+  // length of s.
+
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& assign (const charT* s){
+    NON_NULL(s);
+    const charT *ptr = s;
+    size_type i = 0;
+    while(*ptr!=0){ i++; ptr++; }
+    VALID_SIZE(i);    
+    _size = i;
+    return *this;
+  }
+  
+  // This method assigns the character c
+  // to the string controlled by *this,
+  // the initial size() is set to n.
+
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& assign (size_type n, charT c)  {
+    VALID_SIZE(n);
+    _size = n;
+    return *this;
+  }
+
+  // This method assigns the string
+  // delimited by first and last to
+  // to the string controlled by *this.
+  template<class InputIterator> 
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& assign(InputIterator first, InputIterator last) {
+    PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits) str_to_assign = basic_string(first, last);
+    _size = __PST_TEST_STRING<InputIterator, __polyspace_is_int_type<InputIterator>::is_int_type>::_get_size(first, last);
+    return *this;
+  } 
+
+
+  // This method inserts a str into
+  // the string controlled by *this.
+  // The current size is increased
+  // by str.size().
+
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& insert(size_type pos1, const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& str){
+    OUT_OF_RANGE(pos1 > _size);
+    size_type tmp = str._size ;
+    VALID_SIZE_MAX(_size, tmp) ;
+    _size += tmp;
+    return *this;
+  }
+
+
+  // This method inserts a string
+  // of length rlen at position pos2
+  // in the string controlled by *this.
+  // rlen is determined by the smallest of
+  // n and str.size() - pos2.
+  
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& 
+  insert (size_type pos1, 
+          const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& str, 
+          size_type pos2, size_type n = npos){
+    size_type str_size = str._size;
+    OUT_OF_RANGE(pos1 > _size || pos2 > str_size);
+    size_type rlen = PST_MIN(str_size - pos2, n);
+    VALID_SIZE_MAX(_size, rlen) ;
+    _size += rlen;
+    return *this;
+  }
+
+
+  // This method inserts the string s
+  // at position pos of the string
+  // controlled by *this. We must have
+  // pos <= size().
+  // The current size is increased by
+  // the length of s, which must be n.
+
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& insert (size_type pos, const charT* s, size_type n){
+    NON_NULL(s);
+    OUT_OF_RANGE(pos > _size);
+    VALID_SIZE_MAX(_size, n) ;
+    _size += n;  
+    return *this;
+  }
+
+  // Idem as above, except that the
+  // length of s is not given and then
+  // must be computed.
+  
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& insert (size_type pos, const charT* s) {
+    NON_NULL(s);
+    OUT_OF_RANGE(pos > _size);
+
+    const charT *ptr = s;
+    size_type sz = 0;
+    while(*ptr!=0){ sz++; ptr++; }
+    VALID_SIZE_MAX(_size, sz) ;
+    _size += sz;
+    return *this;
+  }
+
+  // This method inserts the character c n times
+  // in the string controlled by *this, at position pos.
+  // pos must be smaller than _size.
+  // The current size is increased by n.
+ 
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& insert (size_type pos, size_type n, charT c){
+    OUT_OF_RANGE(pos > _size);
+    VALID_SIZE_MAX(_size, n) ;
+    _size += n;  
+    return *this;    
+  }
+
+#ifdef PST_VISUAL
+
+  // this  method inserts one character
+  // in the string
+  // the size is increased by 1.
+
+   iterator insert(iterator p) 
+   {
+      return insert(p, '\0') ;
+   }
+
+#endif /* PST_VISUAL */
+
+  // this  method inserts one character
+  // in the string
+  // the size is increased by 1.
+  iterator insert(iterator p, charT c) {
+    NON_NULL(p);
+    VALID_ITERATOR_ON_THIS(p) ;
+
+    VALID_SIZE_MAX(_size, 1);
+    _size++;
+
+    RETURN_ANY_ITERATOR(iterator) ;
+  }
+
+  // This method inserts the character 
+  // c n times in the string controlled
+  // by *this. The size is increased by 
+  // n.
+  void insert(iterator p, size_type n, charT c) {
+    VALID_ITERATOR_ON_THIS(p) ;
+    VALID_SIZE_MAX(_size, n);
+    _size += n;
+  }
+
+  // This method inserts the string 
+  // contained in [first, last) at 
+  // position pointed to by p in the
+  // string controlled by *this.
+  template<class InputIterator>
+  void insert(iterator p, InputIterator first, InputIterator last) {
+    VALID_ITERATOR_ON_THIS(p) ;
+    size_type tmp = PST_TEMPLATE_GET_SIZE(InputIterator, first, last) ;
+    VALID_SIZE_MAX(_size, tmp) ;
+    _size += tmp ;
+  }
+
+  // This method erases characters from 
+  // position pos (pos must be smaller than size()).
+  // The current size is set to the smaller
+  // of n and size() - pos.
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& erase (size_type pos = 0, size_type n = npos){
+    OUT_OF_RANGE(_size < pos);
+    size_type min = PST_MIN(_size-pos, n);
+    VALID_SIZE_MIN(_size, min);
+    _size -= min;
+    return *this;
+  }
+  
+  // This method removes the
+  // character referred to by p.
+  // The current size is decreased
+  // by one.
+  // The pre-condition "position is a 
+  // valid iterator on *this" is checked
+  // by assertion on size().
+  
+  iterator erase(iterator position) {  
+    VALID_ITERATOR_ON_THIS(position) ;
+    VALID_SIZE_MIN(_size,1); 
+    _size--;
+    RETURN_ANY_ITERATOR(iterator) ;
+  }
+
+  // To compute the new size of
+  // the string controlled by  *this,
+  // we must assume that pointer f is
+  // prior to pointer l.
+  
+  iterator erase(iterator f, iterator l) {
+    size_type n=0;
+    VALID_RANGE(f,l);
+    while (f!=l)
+      { f++; n++; }
+    VALID_SIZE_MIN(_size, n);
+    _size -= n;
+    RETURN_ANY_ITERATOR(iterator) ;
+  }
+
+  // This method replaces from position pos1
+  // *this by str.
+  // Pre :  (pos1 <= size()) 
+    
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& replace (size_type pos, size_type n1, 
+			 const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& str) {
+    size_type rlen = str._size;
+    OUT_OF_RANGE(pos > _size);
+    size_type xlen = PST_MIN(n1,  _size - pos) ; 
+    VALID_SIZE_MAX(_size-xlen, rlen);
+    _size -= xlen ; // we are sure thats xlen < _size, we prevent overflow
+    _size += rlen ;
+    return *this;
+  }
+
+
+  // Precondition : pos1 <= size() && pos2 <= str.size()
+  // The effective length xlen of the string to be removed
+  // is the smallest of n1 and size() - pos1.
+  // The effective length rlen of the string to be inserted
+  // is the smallest of n2 and str.size().
+  
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& replace (size_type pos1, size_type n1, 
+					const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& str,
+					size_type pos2, size_type n2) {
+    size_type t = str._size;
+    size_type rlen, xlen;
+    
+    OUT_OF_RANGE(pos1 > _size || pos2 > t);
+    
+    rlen = PST_MIN(n2,t - pos2) ;
+    xlen = PST_MIN(n1,_size - pos1) ;
+
+    VALID_SIZE_MAX(_size-xlen, rlen) ;
+    _size -= xlen ; // we are sure thats xlen < _size
+    _size += rlen ;
+    return *this;
+  }
+
+  // This method replaces 
+  // the string controlled by *this with s,
+  // from position pos.
+  // Pre : pos <= size().
+  
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& replace (size_type pos, size_type n1, const charT* s,
+					size_type n2) {  
+    NON_NULL(s);
+    OUT_OF_RANGE(pos > _size);
+
+    size_type xlen = PST_MIN(n1, _size - pos) ;
+
+    VALID_SIZE_MAX(_size-xlen, n2);
+    _size -= xlen ; // we are sure thats xlen < _size, we prevent overflow
+    _size += n2 ;
+    return *this;
+  }
+
+  // This method replaces 
+  // the string controlled by *this
+  // from position pos (pos <= size())
+  // by s.
+
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& replace (size_type pos, size_type n1, const charT* s) {
+
+    NON_NULL(s);
+    OUT_OF_RANGE(pos > _size);
+    size_type xlen = PST_MIN(n1, _size - pos) ;
+
+    const charT *ptr = s ;
+    size_type sz = 0;
+    while(*ptr!=0){ sz++; ptr++; }
+
+    VALID_SIZE_MAX(_size-xlen, sz) ;
+    _size -= xlen ; // we are sure thats xlen < _size, we prevent overflow
+    _size += sz ;
+    return *this;
+  }
+
+  // This method replaces at most n2
+  // characters in the string
+  // controlled by *this.
+  
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& replace (size_type pos, size_type n1, size_type n2,
+					charT c) {
+    OUT_OF_RANGE(pos > _size);
+    size_type xlen = PST_MIN(n1 , _size - pos) ;
+    VALID_SIZE_MAX(_size-xlen, n2);
+    _size -= xlen ;
+    _size += n2 ; 
+    return *this;
+  }
+  
+  // The norm specifies that
+  // this method replaces the string controlled by
+  // *this with a string of length
+  // size() - (i2 - i1) + str.size(). 
+  // Pre : [i1,i2) is a valid range in
+  // the string controlled by *this.
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& replace (iterator i1, iterator i2, const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& str) { 
+    VALID_RANGE(i1, i2);
+    size_type xlen = i2-i1 ;
+    size_type rlen = str._size ;
+    VALID_SIZE_MIN(_size, xlen) ; // we can remove xlen elements ...
+    VALID_SIZE_MAX(_size-xlen, rlen) ; //we can add after that rlen elements
+    _size -= xlen ; // we are sure thats xlen < _size, we prevent overflow
+    _size += rlen ;
+    return *this; 
+  }
+  
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& replace (iterator i1, iterator i2, const charT* s, size_type n){
+    NON_NULL(s);
+    VALID_RANGE(i1, i2);
+    size_type xlen = i2-i1 ;
+    VALID_SIZE_MIN(_size, xlen) ; // we can remove xlen elements ...
+    VALID_SIZE_MAX(_size-xlen, n) ; //we can add after that n elements
+    _size -= xlen ; // we are sure thats xlen < _size, we prevent overflow
+    _size += n ;
+    return *this; 
+  }
+
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& replace (iterator i1, iterator i2, const charT* s) {
+    NON_NULL(s);
+    const charT *ptr = s;
+    size_type rlen = 0;
+    while(*ptr!=0){ rlen++;ptr++;}    
+
+    VALID_RANGE(i1, i2);
+    size_type xlen = i2-i1 ;
+
+    VALID_SIZE_MIN(_size, xlen) ; // we can remove xlen elements ...
+    VALID_SIZE_MAX(_size-xlen, rlen) ; //we can add after that rlen elements
+    _size -= xlen ; // we are sure thats xlen < _size, we prevent overflow
+    _size += rlen ;
+    return *this; 
+  }
+
+  // This method replaces the range [i1; i2[  of the string by c.
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& replace (iterator i1, iterator i2, size_type n, charT c) {
+    VALID_RANGE(i1, i2);
+    size_type xlen = i2-i1 ;
+    VALID_SIZE_MIN(_size, xlen) ; // we can remove xlen elements ...
+    VALID_SIZE_MAX(_size-xlen, n) ; //we can add after that n elements
+    _size -= xlen ; // we are sure thats xlen < _size, we prevent overflow
+    _size += n ;
+    return *this; 
+  }
+  
+  // This method replaces the string controlled
+  // *this with the string contained in [i3; i4)
+  // Pre : [i1; i2) and [i3; i4) must be valid ranges.
+  template<class InputIterator>
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& replace (iterator i1, iterator i2, InputIterator i3, InputIterator i4) {
+    VALID_RANGE(i1, i2);
+    size_type xlen = i2-i1 ;
+    size_type rlen = PST_TEMPLATE_GET_SIZE(InputIterator, i3, i4)
+    VALID_SIZE_MIN(_size, xlen) ; // we can remove xlen elements ...
+    VALID_SIZE_MAX(_size-xlen, rlen) ; //we can add after that rlen elements
+    _size -= xlen ; // we are sure thats xlen < _size, we prevent overflow
+    _size += rlen ;
+    return *this;
+
+  }
+
+  // This method copies the string
+  // controlled by *this into s.
+  // it returns the size of 
+  // the string copied. 
+  // s shall designate an array at least of
+  // rlen elements, with rlen defined by the
+  // smallest of n and size() - pos.
+  // We matter only about the size.
+  // What should be copied into s
+  // is not taken into account for the
+  // moment
+
+  size_type copy (charT* s, size_type n, size_type pos = 0) const {
+ 
+    NON_NULL(s);
+    size_type rlen = 0;
+    OUT_OF_RANGE(pos > _size);   
+    rlen = PST_MIN(n,  _size - pos) ;
+
+    size_type j=0;
+
+    if (_size != 0) {
+      for (; j < rlen; j++) {
+	volatile charT c = '\0';
+        charT  b = c;
+        assert(b!='\0');
+
+	s[j] = b;
+      }
+    }
+    return rlen;
+  }
+
+
+  // Swaps s.data() with the string controlled
+  // by *this. The current size is set to s.size().
+  // s.size() is set to size().
+
+  void swap (PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits) &s){ 
+
+    size_type size_tmp = s._size; 
+    s._size = _size;
+    _size = size_tmp;
+  }
+  
+  // string operations
+  
+  // Returns the string controlled by *this.
+  // We chose to fill the string with indifferent
+  // values, and to matter only about the size.
+
+  const charT* data () const { 
+    if (_size == 0) return new charT;
+    volatile charT c = '\0';
+    charT* _dat = new charT[_size];
+    for (size_type j=0;j< _size ;j++) {
+      _dat[j] = c;
+    }
+    return _dat;
+  }
+  
+  // Idem as data(), but the string ends
+  // with the character '\0'.
+  const charT* c_str () const { 
+    charT* _dat;
+
+    if (_size == 0) {
+      _dat = new charT[1];      
+      _dat[0] = '\0';
+    }
+
+    else {  
+      size_type j;
+      volatile charT c = '\0';
+      _dat = new charT[_size + 1];
+      for (j = 0; j < _size; j++) {
+	_dat[j] = c;
+      }
+      _dat[j] = '\0';
+    }
+
+    return _dat;
+  }
+
+  // All of the following methods return the position
+  // in the string controlled by *this of the
+  // first substring matching the string given as a parameter.
+  // As we chose not to manage the contain of the string, an 
+  // indifferent value is returned.
+
+  size_type find (const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& str, size_type pos = 0) const {
+    volatile size_type ind = (size_type)0;
+    return ind;
+  }
+
+  size_type find (const charT* s, size_type pos, size_type n) const {
+    NON_NULL(s);
+    VALID_SIZE(n) ;
+    volatile size_type ind = (size_type)0;
+    return ind;
+  }
+
+  size_type find (const charT* s, size_type pos = 0) const {
+    NON_NULL(s);
+    volatile size_type ind = (size_type)0;
+    return ind;
+  }
+
+  size_type find (charT c, size_type pos = 0) const {
+    volatile size_type ind = (size_type)0;
+    return ind;
+  }
+
+  size_type rfind (const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& str, size_type pos = npos) const {
+    volatile size_type ind = (size_type)0;
+    return ind;
+  }
+
+  size_type rfind (const charT* s, size_type pos, size_type n) const {
+    NON_NULL(s);
+    VALID_SIZE(n) ;
+    volatile size_type ind = (size_type)0;
+    return ind;
+  }
+  size_type rfind (charT* s, size_type pos = npos) const {
+    NON_NULL(s);
+    volatile size_type ind = (size_type)0;
+    return ind;
+  }
+
+  size_type rfind (charT c, size_type pos = npos) const {
+    volatile size_type ind = (size_type)0;
+    return ind;
+  }
+  
+  size_type find_first_of (const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& str, size_type pos = 0) const {
+    volatile size_type ind = (size_type)0;
+    return ind;
+  }
+
+  size_type find_first_of (const charT* s, size_type pos, size_type n) const {
+    NON_NULL(s);
+    VALID_SIZE(n) ;
+    volatile size_type ind = (size_type)0;
+    return ind;
+  }
+
+  size_type find_first_of (const charT* s, size_type pos = 0) const {
+    NON_NULL(s);
+    volatile size_type ind = (size_type)0;
+    return ind;
+  }
+
+  size_type find_first_of (charT c, size_type pos = 0) const {
+    volatile size_type ind = (size_type)0;
+    return ind;
+  }
+
+  size_type find_last_of (const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& str, size_type pos = npos) const {
+    volatile size_type ind = (size_type)0;
+    return ind;
+  }
+
+  size_type find_last_of (const charT* s, size_type pos, size_type n) const {
+    NON_NULL(s);
+    VALID_SIZE(n) ;
+    volatile size_type ind = (size_type)0;
+    return ind;
+  }
+
+  size_type find_last_of (const charT* s, size_type pos = npos) const {
+    NON_NULL(s);
+    volatile size_type ind = (size_type)0;
+    return ind;
+  }
+
+  size_type find_last_of (charT c, size_type pos = npos) const {
+    volatile size_type ind = (size_type)0;
+    return ind;
+  }
+
+  size_type find_first_not_of (const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& str, size_type pos = 0) const {
+    volatile size_type ind = (size_type)0;
+    return ind;
+  }
+
+  size_type find_first_not_of (const charT* s, size_type pos, size_type n) const {
+    NON_NULL(s);
+    VALID_SIZE(n) ;
+    volatile size_type ind = (size_type)0;
+    return ind;
+  }
+
+  size_type find_first_not_of (const charT* s, size_type pos = 0) const {
+    NON_NULL(s);
+    volatile size_type ind = (size_type)0;
+    return ind;
+  }
+
+  size_type find_first_not_of (charT c, size_type pos = 0) const {
+    volatile size_type ind = (size_type)0;
+    return ind;
+  }
+  
+  size_type find_last_not_of (const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& str, size_type pos = npos) const {
+    volatile size_type ind = (size_type)0;
+    return ind;
+  }
+
+  size_type find_last_not_of (const charT* s, size_type pos, size_type n) const {
+    NON_NULL(s);
+    VALID_SIZE(n) ;
+    volatile size_type ind = (size_type)0;
+    return ind;
+  }
+
+  size_type find_last_not_of (const charT* s, size_type pos = npos) const {
+    NON_NULL(s);
+    volatile size_type ind = (size_type)0;
+    return ind;
+  }
+
+  size_type find_last_not_of (charT c, size_type pos = npos) const {
+    volatile size_type ind = (size_type)0;
+    return ind;
+  }
+
+  // Precondition : pos <= size().
+  // returns the substring of the
+  // string controlled by *this, 
+  // from position pos.
+  
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits) substr (size_type pos = 0, size_type n = npos) const { 
+    OUT_OF_RANGE(pos > _size);
+    size_type rlen = PST_MIN(n, _size - pos) ;
+    volatile charT c = '\0';
+    return basic_string(rlen, c);    
+  }
+
+  // The following comparison methods do not affect the size of
+  // the string controlled by *this, so an 
+  // indifferent value is returned.
+  
+  int compare (const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& str) const {
+    volatile int i = 0;
+    return i;
+  }
+
+  int compare (size_type pos1, size_type n1, const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& str) const {
+    OUT_OF_RANGE(pos1 > _size) ;
+    volatile int i = 0;
+    return i;
+  }
+
+  int compare (size_type pos1, size_type n1, const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& str,
+	       size_type pos2, size_type n2) const {
+    OUT_OF_RANGE(pos1 > _size) ;
+    OUT_OF_RANGE(pos2 > str._size) ;
+    volatile int i = 0;
+    return i;
+  }
+
+  int compare (const charT* s) const {
+    NON_NULL(s);
+    volatile int i = 0;
+    return i;
+  }
+
+  int compare (size_type pos1, size_type n1, 
+	       const charT* s, size_type n2 = npos) const {
+    NON_NULL(s);
+    OUT_OF_RANGE(pos1 > _size) ;
+    volatile int i = 0;
+    return i;
+  }
+  
+};
+
+
+
+  // static member npos : must be defined outside the class.
+  // norm say -1, put maximum value that can be stored into a size_t for compatibility with -detect-unsigned-overflow
+  //   that change nothing to the final value.
+
+  PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+  const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)::size_type
+  PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)::npos = PST_MAX_SIZE_T ; 
+
+
+  // non member-functions
+  PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)  
+  inline basic_ostream<charT, traits>& operator<<(basic_ostream<charT, traits>& os, const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& str) 
+  {
+    return os;
+  }
+  
+  PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+  basic_istream<charT, traits>& operator>>(basic_istream<charT, traits>& is, PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& str_res) {
+    volatile __ps_typename PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)::size_type str_len;
+    volatile charT c = '\0';
+    charT b = c;
+    assert(b != 0);
+  
+    str_res  = PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)(str_len,b);
+    
+    return is; 
+  }
+
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+basic_istream<charT, traits>& getline (basic_istream<charT, traits>& is, PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& s, charT delim) {
+  volatile int random = 0;
+  __ps_typename PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)::size_type max = s.max_size();
+  __ps_typename PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)::size_type count = 0;
+  if (random) {
+     s.erase();
+     while (count < max && random) {
+       volatile charT c = '\0';
+       assert(c != delim);
+       s.append(1,c);
+       ++count;
+     }
+  }
+  return is;
+}
+
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+basic_istream<charT, traits>& getline (basic_istream<charT, traits>& is, PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& s) {
+  volatile int random = 0;
+  __ps_typename PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)::size_type max = s.max_size();
+  __ps_typename PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)::size_type count = 0;
+  if (random) {
+     s.erase();
+     while (count < max && random) {
+       volatile charT c = '\0';
+       s.append(1,c);
+       ++count;
+     }	
+  }
+  return is;
+}
+
+  
+  // non string members operators
+
+  // All of the operator+ defined here
+  // return a string whose size is the
+  // sum of the sizes of the two parameters
+  // given. The content of the resulting
+  // string is indifferent.
+  
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits) operator+(const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& lhs, 
+				      const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& rhs) {
+
+  __ps_typename PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)::size_type len;
+  len = lhs.size() + rhs.size();
+  if (len != 0) {
+    charT* dat = new charT[len];
+    return PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)(dat,len);
+  }
+  return PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)();
+}
+
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)  
+PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits) operator+(const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& lhs, 
+				      const charT* rhs) {
+  NON_NULL(rhs);
+  const charT* ptr = rhs;
+  __ps_typename PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)::size_type n;
+  n = 0;
+  while (*ptr!=0) { ptr++; n++; }
+  __ps_typename PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)::size_type len;
+  len = n + lhs.size();
+  if (len != 0) {
+    charT* dat = new charT[len];
+    return PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)(dat, len); 
+  }
+  return PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)();
+}
+
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits) operator+(const charT* lhs, 
+				      const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& rhs) { 
+  NON_NULL(lhs);
+  const charT* ptr =lhs;
+  __ps_typename PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)::size_type n = 0;
+  while (*ptr!=0) { ptr++; n++; }
+  __ps_typename PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)::size_type len;
+  len = n + rhs.size();
+  if (len != 0) {
+    charT* dat = new charT[len];
+    return PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)(dat, len); 
+  }
+  return PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)();
+}
+
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits) operator+(const charT lhs,
+				      const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& rhs) {
+
+  __ps_typename PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)::size_type len = rhs.size()+1;
+  charT* dat = new charT[len];
+  return PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)(dat, len);
+}
+
+
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits) 
+PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits) operator+(const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& lhs, 
+				      const charT rhs) {
+
+  __ps_typename PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)::size_type len;
+  len = lhs.size()+1;
+  charT* dat = new charT[len];
+  return PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)(dat, len);
+}
+
+  // All of the following comparison operators
+  // do not modify the size of the string controlled
+  // by *this.
+  // As we chose not to manage the contain of the string, an 
+  // indifferent boolean value is returned.
+  // However, to increase precision, the right result is 
+  // returned when possible (for instance, when strings s1 and s2
+  // don't have the same size we can say that they're different...)
+
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+__ps_bool operator==(const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& lhs, const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& rhs)
+{ 
+  if (lhs.size()!=rhs.size())
+    return __ps_false;
+
+  volatile __ps_bool b = false;
+  return b;
+}
+
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+__ps_bool operator==(const charT* lhs, const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& rhs)
+{ 
+  NON_NULL(lhs);
+  const charT *ptr = lhs;
+  size_t size_lhs = 0;
+  while(*ptr!=0){ size_lhs++;ptr++;}
+  if (size_lhs!=rhs.size())
+    return __ps_false;
+  
+  volatile __ps_bool b = false;
+  return b;
+}
+
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+__ps_bool operator==(const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& lhs, const charT* rhs)
+{ 
+  NON_NULL(rhs);
+  const charT *ptr = rhs;
+  size_t size_rhs = 0;
+  while(*ptr!=0){ size_rhs++;ptr++;}
+  if (size_rhs!=lhs.size())
+    return __ps_false;
+  
+  volatile __ps_bool b = false;
+  return b; 
+
+} 
+
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+__ps_bool operator!=(const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& lhs, const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& rhs)
+{
+  if (lhs.size()!=rhs.size())
+    return __ps_true;
+
+  volatile __ps_bool b = false; 
+  return b; 
+} 
+
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+__ps_bool operator!=(const charT* lhs, const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& rhs)
+{ 
+  NON_NULL(lhs);
+  const charT *ptr = lhs;
+  size_t size_lhs = 0;
+  while(*ptr!=0){ size_lhs++; ptr++; }
+
+  if (size_lhs!=rhs.size())
+    return __ps_true;
+
+  volatile __ps_bool b = false;
+  return b; 
+} 
+
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+__ps_bool operator!=(const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& lhs, const charT* rhs)
+{ 
+  NON_NULL(rhs);
+  const charT *ptr = rhs;
+  size_t size_rhs = 0;
+  while(*ptr!=0){ size_rhs++; ptr++; }
+
+  if (size_rhs!=lhs.size())
+    return __ps_true;
+
+  volatile __ps_bool b = false; 
+  return b;
+} 
+  
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)  
+__ps_bool operator<(const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& lhs, const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& rhs)
+{ volatile __ps_bool b = false; return b; } 
+ 
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+__ps_bool operator<(const charT* lhs, const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& rhs) {
+  NON_NULL(lhs);
+  volatile __ps_bool b = false;
+  return b;
+} 
+
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+__ps_bool operator<(const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& lhs, const charT* rhs) {
+  NON_NULL(rhs); 
+  volatile __ps_bool b = false;
+  return b; 
+} 
+
+
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)  
+__ps_bool operator>(const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& lhs, const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& rhs)
+{ volatile __ps_bool b = false; return b; }  
+
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+__ps_bool operator>(const charT* lhs, const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& rhs) {
+  NON_NULL(lhs);
+  volatile __ps_bool b = false; 
+  return b; 
+} 
+
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+__ps_bool operator>(const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& lhs, const charT* rhs) {
+  NON_NULL(rhs);
+  volatile __ps_bool b = false; 
+  return b; 
+} 
+
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+__ps_bool operator<=(const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& lhs, const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& rhs)
+{ volatile __ps_bool b = false; return b; }  
+
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+__ps_bool operator<=(const charT* lhs, const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& rhs) {
+  NON_NULL(lhs);
+  volatile __ps_bool b = false;
+  return b; 
+} 
+
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+__ps_bool operator<=(const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& lhs, const charT* rhs) {
+  NON_NULL(rhs);
+  volatile __ps_bool b = false;
+  return b; 
+} 
+
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+__ps_bool operator>=(const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& lhs, const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& rhs)
+{ volatile __ps_bool b = false; return b; }  
+
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+__ps_bool operator>=(const charT* lhs, const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& rhs) {
+  NON_NULL(lhs);
+  volatile __ps_bool b = false;
+  return b;
+} 
+
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)
+__ps_bool operator>=(const PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& lhs, const charT* rhs) {
+  NON_NULL(rhs);
+  volatile __ps_bool b = false;
+  return b; 
+} 
+  
+// This method swaps the two
+// string given as parameters.
+// Both sizes are correctly
+// updated thanks to operator=.
+
+PST_TEMPLATE_DECL_FOR_CONTAINER2(class charT, class traits)  
+void swap(PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& lhs, PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits)& rhs) {
+
+      PST_TEMPLATE_CONTAINER_NAME2(basic_string, charT, traits) str_tmp = lhs;
+      lhs = rhs;
+      rhs = str_tmp; 
+    
+}
+
+} // end namespace std
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+
+// undef macros defined in this file
+#undef STRING_MAX_SIZE
+
+#undef OUT_OF_RANGE
+
+#undef VALID_RANGE
+#undef VALID_ITERATOR_ON_THIS
+
+#undef VALID_SIZE
+#undef VALID_SIZE_MAX
+#undef VALID_SIZE_MIN
+#undef PST_MIN
+#undef NON_NULL
+
+#undef PST_TEMPLATE_GET_SIZE
+#undef RETURN_ITERATOR
+#undef RETURN_ANY_ITERATOR
+
+#endif /* PST_STL_STRING */

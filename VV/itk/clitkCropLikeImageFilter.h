@@ -21,7 +21,7 @@
 
 // clitk
 #include "clitkBoundingBoxUtils.h"
-#include "clitkImageCommon.h"
+#include "VV/common/clitkImageCommon.h"
 
 // itk
 #include <itkImageToImageFilter.h>

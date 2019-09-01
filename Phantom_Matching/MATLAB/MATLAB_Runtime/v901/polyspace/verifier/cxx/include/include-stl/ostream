@@ -1,0 +1,531 @@
+/*
+ *
+ * This file and its contents are the property of The MathWorks, Inc.
+ * 
+ * This file contains confidential proprietary information.
+ * The reproduction, distribution, utilization or the communication
+ * of this file or any part thereof is strictly prohibited.
+ * Offenders will be held liable for the payment of damages.
+ *
+ * Copyright 1999-2012 The MathWorks, Inc.
+ *
+ */
+#ifndef PST_STL_OSTREAM
+#define PST_STL_OSTREAM
+
+#include <iosfwd>
+#include <ios>
+#include <iomanip>
+
+namespace std
+{
+#ifdef PST_VISUAL 
+#pragma pack(push, 8) /* push default value */
+#endif 
+
+  template <class charT, class traits>
+  class basic_ostream : virtual public basic_ios<charT, traits>
+  {
+    public:
+	// typedef __ps_typename traits::off_type	streamsize;
+	typedef charT				char_type;
+	typedef __ps_typename traits::int_type	int_type;
+	typedef __ps_typename traits::pos_type	pos_type;
+	typedef __ps_typename traits::off_type	off_type;
+	typedef traits				traits_type;
+    	typedef basic_ostream<charT, traits>&				(*__omanip)(basic_ostream<charT, traits> &);
+    	typedef basic_ios<charT, traits>&				(*__manip)(basic_ios<charT, traits> &);
+	typedef ios_base&						(*__iosmanip)(ios_base &);
+	
+	// Constructors and destructors //
+	__ps_explicit basic_ostream(basic_streambuf<char_type, traits> *);
+#ifdef PST_VISUAL
+	basic_ostream(basic_streambuf<char_type, traits> *, __ps_bool){}
+        /* _Uninitialized is declared in xstddef which is always included by
+           polyspace_std_decl.h */
+        basic_ostream(_Uninitialized){}
+#endif
+	basic_ostream(){}
+	~basic_ostream();
+
+#ifdef PST_VISUAL
+	__ps_bool opfx() { volatile __ps_bool random = false; return random; }
+	__ps_bool osfx() { volatile __ps_bool random = false; return random; }
+#endif
+
+	// Formatted output //
+	basic_ostream<charT, traits>	&operator << (__omanip);
+	basic_ostream<charT, traits>	&operator << (__manip);
+	basic_ostream<charT, traits>	&operator << (__iosmanip);
+#ifdef _BOOL
+	basic_ostream<charT, traits>	&operator << (__ps_bool);
+#endif /* _BOOL */
+	basic_ostream<charT, traits>	&operator << (short);
+	basic_ostream<charT, traits>	&operator << (unsigned short);
+	basic_ostream<charT, traits>	&operator << (int);
+	basic_ostream<charT, traits>	&operator << (unsigned int);
+	basic_ostream<charT, traits>	&operator << (long);
+	basic_ostream<charT, traits>	&operator << (unsigned long);
+#ifndef __NO_LONG_LONG
+	basic_ostream<charT, traits>    &operator << (long long);
+	basic_ostream<charT, traits>    &operator << (unsigned long long);
+#endif
+	basic_ostream<charT, traits>	&operator << (float);
+	basic_ostream<charT, traits>	&operator << (double);
+	basic_ostream<charT, traits>	&operator << (long double);
+	basic_ostream<charT, traits>	&operator << (const void *);
+	basic_ostream<charT, traits>	&operator << (basic_streambuf<char_type, traits> *);
+
+	// PST specific : requirements on <iomanip>
+	basic_ostream<charT, traits>	&operator << (__pst_smanip_typ) { return *this ; } ;
+
+	// Unformatted output //
+	basic_ostream<charT, traits>	&put(char_type c);
+	basic_ostream<charT, traits>	&write(const char_type *s, streamsize n);
+
+#ifdef PST_STL_PERMISSIVE_STUB
+	basic_ostream<charT, traits>	&write(const unsigned char*s, streamsize n) 
+	{
+	  for (streamsize i = 0; i < n; i++)
+    	    s[i];
+	  return (*this);
+	}
+
+	basic_ostream<charT, traits>	&write(const signed char*s, streamsize n) 
+	{
+	  for (streamsize i = 0; i < n; i++)
+    	    s[i];
+	  return (*this);
+	}
+#endif /* PST_STL_PERMISSIVE_STUB */
+
+	basic_ostream<charT, traits>	&flush();
+
+	// Seeks //
+	pos_type			tellp();
+	basic_ostream<charT, traits>	&seekp(pos_type);
+	basic_ostream<charT, traits>	&seekp(off_type, ios_base::seekdir);
+  };
+  
+/*
+__ps_explicit basic_ostream (basic_streambuf<charT, traits> *)
+This constructor create the out stream.
+*/
+
+template< class charT, class traits >
+basic_ostream<charT, traits>::basic_ostream(basic_streambuf<char_type, traits> *)
+{}
+
+/*
+~basic_ostream ()
+This destructor destroy the out stream.
+*/
+ 
+template < class charT, class traits >
+basic_ostream<charT, traits>::~basic_ostream()
+{}
+ 
+/*
+  basic_ostream<charT, traits>& operator << (__omanip);
+  Comment   : Call the function of __omanip type and returns the in stream.
+*/
+                                                                                                                                           
+template < class charT, class traits >
+basic_ostream<charT, traits>& basic_ostream<charT, traits>::operator << (__omanip func)
+{
+  return ((*func)(*this));
+}
+                                                                                                                                           
+/*
+  basic_ostream<charT, traits>& operator << (__manip);
+  Comment   : Call the function of __manip type and returns the in stream.
+*/
+
+template < class charT, class traits >
+basic_ostream<charT, traits>& basic_ostream<charT, traits>::operator << (__manip func)
+{
+  return (*this);
+}
+
+/*
+  basic_ostream<charT, traits>& operator << (__iosmanip);
+  Comment   : Call the function of __manip type and returns the in stream.
+*/
+
+template < class charT, class traits >
+basic_ostream<charT, traits>& basic_ostream<charT, traits>::operator << (__iosmanip func)
+{
+  return (*this);
+}
+
+#ifdef _BOOL
+/*
+   basic_ostream<charT, traits>& operator << (__ps_bool);
+   Comment   : Put a __ps_bool in the out stream.
+*/
+ 
+template < class charT, class traits >
+basic_ostream<charT, traits>& basic_ostream<charT, traits>::operator << (__ps_bool b)
+{
+  return (*this);
+}
+#endif /* _BOOL */
+
+/*
+   basic_ostream<charT, traits>& operator << (short);
+   Comment   : Put an integer (short) in the out stream.
+*/
+ 
+template < class charT, class traits >
+basic_ostream<charT, traits>& basic_ostream<charT, traits>::operator << (short n)
+{
+  return (*this);
+}
+
+/*
+   basic_ostream<charT, traits>& operator << (unsigned short);
+   Comment   : Put an integer (short and unsigned) in the out stream.
+*/
+ 
+template < class charT, class traits >
+basic_ostream<charT, traits>& basic_ostream<charT, traits>::operator << (unsigned  short n)
+{
+  return (*this);
+}
+
+/*
+   basic_ostream<charT, traits>& operator << (int);
+   Comment   : Put an integer in the out stream.
+*/
+ 
+template < class charT, class traits >
+basic_ostream<charT, traits>& basic_ostream<charT, traits>::operator << (int n)
+{
+  return (*this);
+}
+
+/*
+   basic_ostream<charT, traits>& operator << (unsigned int);
+   Comment   : Put an integer (unsigned) in the out stream.
+*/
+ 
+template < class charT, class traits >
+basic_ostream<charT, traits>& basic_ostream<charT, traits>::operator << (unsigned int n)
+{
+  return (*this);
+}
+
+/*
+   basic_ostream<charT, traits>& operator << (long);
+   Comment   : Put an integer (long) in the out stream.
+*/
+ 
+template < class charT, class traits >
+basic_ostream<charT, traits>& basic_ostream<charT, traits>::operator << (long n)
+{
+  return (*this);
+}
+
+/*
+   basic_ostream<charT, traits>& operator << (unsigned long);
+   Comment   : Put an integer (unsigned and long) in the out stream.
+*/
+ 
+template < class charT, class traits >
+basic_ostream<charT, traits>& basic_ostream<charT, traits>::operator << (unsigned long b)
+{
+  return (*this);
+}
+
+#ifndef __NO_LONG_LONG
+
+template < class charT, class traits >
+basic_ostream<charT, traits>& basic_ostream<charT, traits>::operator << (long long)
+{
+  return (*this);
+}
+
+template < class charT, class traits >
+basic_ostream<charT, traits>& basic_ostream<charT, traits>::operator << (unsigned long long)
+{
+  return (*this);
+}
+
+#endif
+
+/*
+   basic_ostream<charT, traits>& operator << (float);
+   Comment   : Put a real(simple precision) in the out stream.
+*/
+ 
+template < class charT, class traits >
+basic_ostream<charT, traits>& basic_ostream<charT, traits>::operator << (float r)
+{
+  return (*this);
+}
+
+/*
+   basic_ostream<charT, traits>& operator << (double);
+   Comment   : Put a real (double precision) in the out stream.
+*/
+ 
+template < class charT, class traits >
+basic_ostream<charT, traits>& basic_ostream<charT, traits>::operator << (double r)
+{
+  return (*this);
+}
+
+/*
+   basic_ostream<charT, traits>& operator << (long double);
+   Comment   : Put a real(long and double precision) in the out stream.
+*/
+ 
+template < class charT, class traits >
+basic_ostream<charT, traits>& basic_ostream<charT, traits>::operator << (long double r)
+{
+  return (*this);
+}
+
+/*
+   basic_ostream<charT, traits>& operator << (const void *);
+   Comment   : Put an address in the out stream.
+*/
+ 
+template < class charT, class traits >
+basic_ostream<charT, traits>& basic_ostream<charT, traits>::operator << (const void *add)
+{
+  return (*this);
+}
+
+/*
+   basic_ostream<charT, traits>& operator << (basic_streambuf<char_type, traits> *);
+   Comment   : Put a buffer in the out stream.
+*/
+ 
+
+template < class charT, class traits >
+basic_ostream<charT, traits>& basic_ostream<charT, traits>::operator << (basic_streambuf<char_type, traits> *sb)
+{
+  return (*this);
+}
+
+
+/*
+   basic_ostream<charT, traits>& put (char_type c);
+   Comment   : Put a character in the out stream.
+*/
+ 
+template < class charT, class traits >
+basic_ostream<charT, traits>& basic_ostream<charT, traits>::put(char_type c)
+{
+  return (*this);
+}
+
+/*
+   basic_ostream<charT, traits>& write (const char_type *s, streamsize n);
+   Comment   : Put a string of characters in the out stream.
+*/
+ 
+template < class charT, class traits >
+basic_ostream<charT, traits>& basic_ostream<charT, traits>::write(const char_type *s, streamsize n)
+{
+  int	i;
+  
+  for (i = 0; i < n; i++)
+    s[i];
+  return (*this);
+}
+
+template < class charT, class traits >
+basic_ostream<charT, traits>& basic_ostream<charT, traits>::flush()
+{
+  return (*this);
+}
+
+
+/*
+   pos_type tellp();
+   Comment   : return the pos_type of the pointer in the buffer.
+*/
+
+template < class charT, class traits >
+basic_ostream<charT, traits>::pos_type basic_ostream<charT, traits>::tellp()
+{
+  //volatile 
+  pos_type     ret=pos_type();
+ 
+  return (ret);
+}
+
+
+/*
+   basic_ostream<charT, traits> &seekp(pos_type)
+   Comment      : return the stream.
+*/
+ 
+template <class charT, class traits >
+basic_ostream<charT, traits>    &basic_ostream<charT, traits>::seekp(pos_type pos)
+{
+  return (*this);
+}
+ 
+/*
+   basic_ostream<charT, traits> &seekp(off_type, ios_base::seekdir)
+   Comment      : return the stream.
+*/
+ 
+template <class charT, class traits >
+basic_ostream<charT, traits>    &basic_ostream<charT, traits>::seekp(off_type of, ios_base::seekdir dir)
+{
+  return (*this);
+}
+
+
+/*
+   basic_ostream<charT, traits> &operator << (basic_ostream<charT, traits> &, charT)
+   Comment      : Put a character in the out stream.
+*/
+ 
+template <class charT, class traits >
+basic_ostream<charT, traits>    &operator << (basic_ostream<charT, traits> &os, charT c)
+{
+  return (os);
+}
+
+/*
+   basic_ostream<charT, traits> &operator << (basic_ostream<charT, traits> &, char)
+   Comment      : Put a character in the out stream.
+*/
+ 
+template <class charT, class traits >
+basic_ostream<charT, traits>    &operator << (basic_ostream<charT, traits> &os, char c)
+{
+  return (os);
+}
+
+/*
+   basic_ostream<char, traits> &operator << (basic_ostream<char, traits> &, char)
+   Comment      : Put a character in the out stream.
+*/
+ 
+template <class traits >
+basic_ostream<char, traits>    &operator << (basic_ostream<char, traits> &os, char c)
+{
+  return (os);
+}
+
+/*
+   basic_ostream<char, traits> &operator << (basic_ostream<char, traits> &, signed char)
+   Comment      : Put a character (signed )in the out stream.
+*/
+
+template <class traits >
+basic_ostream<char, traits>    &operator << (basic_ostream<char, traits> &os, signed char c)
+{
+  return (os);
+}
+
+/*
+   basic_ostream<char, traits> &operator << (basic_ostream<char, traits> &, unsigned char)
+   Comment      : Put a character (unsigned) in the out stream.
+*/
+
+template <class traits >
+basic_ostream<char, traits>    &operator << (basic_ostream<char, traits> &os, unsigned char c)
+{
+  return (os);
+}
+
+/*
+   basic_ostream<charT, traits> &operator << (basic_ostream<charT, traits> &, const charT *)
+   Comment      : Put a string of character in the out stream.
+*/
+
+template <class charT, class traits >
+basic_ostream<charT, traits>    &operator << (basic_ostream<charT, traits> &os, const charT *str)
+{
+  while (*str != '\0')
+    str++;
+  return (os);
+}
+
+/*
+   basic_ostream<charT, traits> &operator << (basic_ostream<charT, traits> &, const char *)
+   Comment      : Put a string of character in the out stream.
+*/
+
+template <class charT, class traits >
+basic_ostream<charT, traits>    &operator << (basic_ostream<charT, traits> &os, const char *str)
+{
+  while (*str != '\0')
+    str++;
+  return (os);
+}
+
+/*
+   basic_ostream<char, traits> &operator << (basic_ostream<char, traits> &, const char *)
+   Comment      : Put a string of character in the out stream.
+*/
+
+template <class traits>
+basic_ostream<char, traits>    &operator << (basic_ostream<char, traits> &os, const char *str)
+{
+  while (*str != '\0')
+    str++;
+  return (os);
+}
+
+/*
+   basic_ostream<char, traits> &operator << (basic_ostream<char, traits> &, const signed char *)
+   Comment      : Put a string of character (signed) in the out stream.
+*/
+
+template <class traits>
+basic_ostream<char, traits>    &operator << (basic_ostream<char, traits> &os, const signed char *str)
+{
+  while (*str != '\0')
+    str++;
+  return (os);
+}
+
+/*
+   basic_ostream<char, traits> &operator << (basic_ostream<char, traits> &, const unsigned char *)
+   Comment      : Put a string of character (unsigned) in the out stream.
+*/
+
+template <class traits>
+basic_ostream<char, traits>    &operator << (basic_ostream<char, traits> &os, const unsigned char *str)
+{
+  while (*str != '\0')
+    str++;
+  return (os);
+}
+
+template <class charT, class traits>
+basic_ostream<charT, traits>	&endl(basic_ostream<charT, traits> &os) {return os;}
+template <class charT, class traits>
+basic_ostream<charT, traits>	&ends(basic_ostream<charT, traits> &os) {return os;}
+template <class charT, class traits>
+basic_ostream<charT, traits>	&flush(basic_ostream<charT, traits> &os) {return os;}
+
+
+#ifdef PST_VISUAL
+#pragma pack(pop) /* pop back to previous value */
+#endif
+
+}
+
+#ifdef __PST_IMPLICIT_USING_STD
+/* Implicitly include a using directive for the STD namespace when this
+   preprocessing flag is TRUE. */
+using namespace std;
+#endif /* ifdef __PST_IMPLICIT_USING_STD */
+
+#endif
+
+
+
+
+
+
+
