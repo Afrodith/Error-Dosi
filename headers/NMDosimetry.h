@@ -31,6 +31,25 @@
 
 #include<QTreeWidgetItem>
 
+// vtk
+#include <vtkImageData.h>
+#include <vtkSmartPointer.h>
+#include <vtkInformation.h>
+#include <vtkTransform.h>
+#include <vtkImageActor.h>
+#include <vtkImageMapper3D.h>
+#include <vtkOpenGLImageSliceMapper.h>
+
+// itk
+#include <itkEuler3DTransform.h>
+
+// clitk
+#include "VV/common/clitkTransformUtilities.h"
+#include "VV/common/clitkMatrix.h"
+#include "vtkMatrix4x4.h"
+
+#include "vtkMatrix4x4.h"
+
 
 
 class vtkImageData;
@@ -44,9 +63,8 @@ class vvSlicer;
 class vvSlicerManager;
 
 
-//namespace Ui {
-//class NMDosimetry;
-//}
+
+
 
 class NMDosimetry:public QMainWindow ,private Ui::NMDosimetry
 {
@@ -60,6 +78,7 @@ public:
     QString activityCurves;
     QString sadr;
     QString image_phantom;
+    QVector<double> exportedDoses;
 
     bool firstLoad=true;
 
@@ -80,6 +99,9 @@ public:
     void LoadImages(std::string filenames, vvImageReader::LoadedImageType type);
 
     void DisplayChanged(int index);
+
+
+    QVector<std::string> GetNMPhantomNameFromFile(std::ifstream* p_file);
 
 
 
@@ -165,8 +187,12 @@ private slots:
     bool fileExists(QString);
 
 
+   void injectDosesInImage();
 
 
+    void on_actionreg_triggered();
+
+    void on_pb_clear_clicked();
 
 protected:
 

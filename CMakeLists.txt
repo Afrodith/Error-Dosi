@@ -135,7 +135,7 @@ set(UI
     VV/vv/qt_ui/vvToolRigidReg.ui
 
     )
-set(RCC resources.qrc )
+set(RCC resources.qrc qml.qrc)
 
 file(GLOB vv_common VV/common/"*.")
 file(GLOB vv_itk VV/itk/"*.h" ".txx")
@@ -187,12 +187,24 @@ include_directories(${ITK_USE_FILE})
 # Use the Widgets module from Qt 5
 
 
-find_package(Qt5Core)
-
+find_package(Qt5 REQUIRED COMPONENTS Core Gui Quick Qml 3DCore 3DRender 3DInput 3DLogic 3DExtras 3DAnimation)
 get_target_property(QtCore_location Qt5::Core LOCATION)
+get_target_property(QtQuick_location Qt5::Quick LOCATION)
+get_target_property(QtQml_location Qt5::Qml LOCATION)
+get_target_property(QtGui_location Qt5::Gui LOCATION)
+get_target_property(Qt3DCore_location Qt5::3DCore LOCATION)
+get_target_property(Qt3DRender_location Qt5::3DRender LOCATION)
+get_target_property(Qt3DInput_location Qt5::3DInput LOCATION)
+get_target_property(Qt3DLogic_location Qt5::3DLogic LOCATION)
+get_target_property(Qt3DExtras_location Qt5::3DExtras LOCATION)
+get_target_property(Qt3DAnimation_location Qt5::3DAnimation LOCATION)
+
 
 find_package(Qt5Widgets)
 get_target_property(QtWidgets_location Qt5::Widgets LOCATION)
+
+find_package(Qt5QuickWidgets)
+get_target_property(QtQuickWidgets_location Qt5::QuickWidgets LOCATION)
 
 find_package(Qt5Network)
 get_target_property(QtNetwork_location Qt5::Network LOCATION)
@@ -202,6 +214,8 @@ get_target_property(QtDesigner_location Qt5::Designer LOCATION)
 
 find_package(Qt5PrintSupport)
 get_target_property(QtPrintSupport_location Qt5::PrintSupport LOCATION)
+
+
 
 
 find_package(ITK_LIBRARIES)
@@ -217,7 +231,22 @@ INCLUDE_DIRECTORIES( ${QT_INCLUDE_DIR} ${CMAKE_BINARY_DIR} )
 
  #TARGET_LINK_LIBRARIES(Error-Dosi QVTK ${QT_LIBRARIES} )
 #target_link_libraries(Error-Dosi ${QT_LIBRARIES} ${VTK_LIBRARIES} )
-target_link_libraries(Error-Dosi Qt5::Widgets Qt5::PrintSupport ${VTK_LIBRARIES} ${ITK_LIBRARIES})
+target_link_libraries(Error-Dosi
+     Qt5::Widgets
+     Qt5::QuickWidgets
+     Qt5::PrintSupport
+     ${VTK_LIBRARIES}
+     ${ITK_LIBRARIES}
+     Qt5::Gui
+     Qt5::Quick
+     Qt5::Qml
+     Qt5::3DCore
+     Qt5::3DRender
+     Qt5::3DInput
+     Qt5::3DLogic
+     Qt5::3DExtras
+     Qt5::3DAnimation
+  )
 
 
 if(VTK_VERSION VERSION_GREATER "6.2.0")
@@ -226,7 +255,7 @@ else()
 set(Error-Dosi ${ITK_LIBRARIES} QVTK vtkHybrid)
 endif()
 
-foreach(plugin ${Qt5Network_PLUGINS} ${Qt5SQL_PLUGINS} ${Qt5GUI_PLUGINS} ${Qt5Widgets_PLUGINS} ${Qt5PrintSuppport_PLUGINS})
+foreach(plugin ${Qt5Network_PLUGINS} ${Qt5SQL_PLUGINS} ${Qt5GUI_PLUGINS} ${Qt5Widgets_PLUGINS} ${Qt5PrintSuppport_PLUGINS} ${QtQuick_PLUGINS} ${QtQml_PLUGINS} ${Qt3DCore_PLUGINS} ${Qt3DRender_PLUGINS} ${Qt3DInput_PLUGINS} ${Qt3DLogic_PLUGINS} ${Qt3DExtras_PLUGINS} ${Qt3DAnimation_PLUGINS})
   get_target_property(_loc ${plugin} LOCATION)
   message("Plugin ${plugin} is at location ${_loc}")
 endforeach()

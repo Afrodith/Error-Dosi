@@ -13,11 +13,10 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QDialog>
-#include <QtWidgets/QFrame>
-#include <QtWidgets/QGridLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>
-#include "QVTKWidget.h"
+#include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
 
@@ -29,9 +28,8 @@ public:
     QLabel *label;
     QLabel *label_2;
     QLabel *label_3;
-    QFrame *frame;
-    QGridLayout *gridLayout;
-    QVTKWidget *qvtkWidget;
+    QWidget *verticalLayoutWidget;
+    QVBoxLayout *verticalLayout;
 
     void setupUi(QDialog *Brachytherapy)
     {
@@ -53,6 +51,7 @@ public:
         comboBox->addItem(QString());
         comboBox->addItem(QString());
         comboBox->addItem(QString());
+        comboBox->addItem(QString());
         comboBox->setObjectName(QString::fromUtf8("comboBox"));
         comboBox->setGeometry(QRect(20, 120, 211, 21));
         label = new QLabel(Brachytherapy);
@@ -63,21 +62,18 @@ public:
         label_2->setGeometry(QRect(20, 90, 171, 17));
         label_3 = new QLabel(Brachytherapy);
         label_3->setObjectName(QString::fromUtf8("label_3"));
-        label_3->setGeometry(QRect(530, 610, 131, 17));
-        frame = new QFrame(Brachytherapy);
-        frame->setObjectName(QString::fromUtf8("frame"));
-        frame->setGeometry(QRect(330, 50, 481, 521));
-        frame->setFrameShape(QFrame::StyledPanel);
-        frame->setFrameShadow(QFrame::Raised);
-        gridLayout = new QGridLayout(frame);
-        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
-        qvtkWidget = new QVTKWidget(frame);
-        qvtkWidget->setObjectName(QString::fromUtf8("qvtkWidget"));
-
-        gridLayout->addWidget(qvtkWidget, 0, 0, 1, 1);
-
+        label_3->setGeometry(QRect(530, 620, 131, 17));
+        verticalLayoutWidget = new QWidget(Brachytherapy);
+        verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
+        verticalLayoutWidget->setGeometry(QRect(300, 60, 571, 541));
+        verticalLayout = new QVBoxLayout(verticalLayoutWidget);
+        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        verticalLayout->setContentsMargins(0, 0, 0, 0);
 
         retranslateUi(Brachytherapy);
+
+        comboBox->setCurrentIndex(0);
+
 
         QMetaObject::connectSlotsByName(Brachytherapy);
     } // setupUi
@@ -86,12 +82,13 @@ public:
     {
         Brachytherapy->setWindowTitle(QApplication::translate("Brachytherapy", "Dialog", nullptr));
         pushButton->setText(QApplication::translate("Brachytherapy", "Submit", nullptr));
-        comboBox->setItemText(0, QApplication::translate("Brachytherapy", "Amersham_Health_6711", nullptr));
-        comboBox->setItemText(1, QApplication::translate("Brachytherapy", "Bebig_Theragenics", nullptr));
-        comboBox->setItemText(2, QApplication::translate("Brachytherapy", "M-19_HDR", nullptr));
-        comboBox->setItemText(3, QApplication::translate("Brachytherapy", "Nucletron_mHDR-v1", nullptr));
-        comboBox->setItemText(4, QApplication::translate("Brachytherapy", "Nucletron_mPDR-v2", nullptr));
-        comboBox->setItemText(5, QApplication::translate("Brachytherapy", "Varian_VS2000", nullptr));
+        comboBox->setItemText(0, QString());
+        comboBox->setItemText(1, QApplication::translate("Brachytherapy", "Amersham_Health_6711", nullptr));
+        comboBox->setItemText(2, QApplication::translate("Brachytherapy", "Bebig_Theragenics", nullptr));
+        comboBox->setItemText(3, QApplication::translate("Brachytherapy", "M-19_HDR", nullptr));
+        comboBox->setItemText(4, QApplication::translate("Brachytherapy", "Nucletron_mHDR-v1", nullptr));
+        comboBox->setItemText(5, QApplication::translate("Brachytherapy", "Nucletron_mPDR-v2", nullptr));
+        comboBox->setItemText(6, QApplication::translate("Brachytherapy", "Varian_VS2000", nullptr));
 
         label->setText(QApplication::translate("Brachytherapy", "<html><head/><body><p align=\"center\">Brachytherapy Dosimetry</p></body></html>", nullptr));
         label_2->setText(QApplication::translate("Brachytherapy", "Brachytherapy Sources:", nullptr));

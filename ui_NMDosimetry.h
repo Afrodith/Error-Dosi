@@ -20,6 +20,7 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
+#include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSlider>
@@ -79,6 +80,7 @@ public:
     QAction *actionCustom_Register;
     QAction *actionReset;
     QAction *actionprp;
+    QAction *actionreg;
     QWidget *centralwidget;
     QSplitter *OSplitter;
     QWidget *NOWidget;
@@ -149,7 +151,9 @@ public:
     QLabel *label_3;
     QLineEdit *LE_filename;
     QLabel *label_26;
+    QPushButton *pb_clear;
     QMenuBar *menubar;
+    QMenu *menuaction;
     QStatusBar *statusbar;
 
     void setupUi(QMainWindow *NMDosimetry)
@@ -322,6 +326,8 @@ public:
         actionReset->setObjectName(QString::fromUtf8("actionReset"));
         actionprp = new QAction(NMDosimetry);
         actionprp->setObjectName(QString::fromUtf8("actionprp"));
+        actionreg = new QAction(NMDosimetry);
+        actionreg->setObjectName(QString::fromUtf8("actionreg"));
         centralwidget = new QWidget(NMDosimetry);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         OSplitter = new QSplitter(centralwidget);
@@ -679,15 +685,23 @@ public:
 
         gridLayout->addWidget(label_26, 15, 4, 1, 1);
 
+        pb_clear = new QPushButton(centralwidget);
+        pb_clear->setObjectName(QString::fromUtf8("pb_clear"));
+        pb_clear->setGeometry(QRect(80, 570, 91, 41));
         NMDosimetry->setCentralWidget(centralwidget);
         menubar = new QMenuBar(NMDosimetry);
         menubar->setObjectName(QString::fromUtf8("menubar"));
         menubar->setGeometry(QRect(0, 0, 1205, 22));
         menubar->setDefaultUp(false);
+        menuaction = new QMenu(menubar);
+        menuaction->setObjectName(QString::fromUtf8("menuaction"));
         NMDosimetry->setMenuBar(menubar);
         statusbar = new QStatusBar(NMDosimetry);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
         NMDosimetry->setStatusBar(statusbar);
+
+        menubar->addAction(menuaction->menuAction());
+        menuaction->addAction(actionreg);
 
         retranslateUi(NMDosimetry);
 
@@ -755,6 +769,7 @@ public:
         actionCustom_Register->setText(QApplication::translate("NMDosimetry", "Custom Register", nullptr));
         actionReset->setText(QApplication::translate("NMDosimetry", "Reset", nullptr));
         actionprp->setText(QApplication::translate("NMDosimetry", "prpO", nullptr));
+        actionreg->setText(QApplication::translate("NMDosimetry", "reg", nullptr));
         pb_submit->setText(QApplication::translate("NMDosimetry", "Submit", nullptr));
         label_2->setText(QApplication::translate("NMDosimetry", "<html><head/><body><p align=\"center\">Model Viewer</p></body></html>", nullptr));
         label->setText(QApplication::translate("NMDosimetry", "<html><head/><body><p align=\"center\">NM Dosimetry</p></body></html>", nullptr));
@@ -807,6 +822,8 @@ public:
         label_25->setText(QApplication::translate("NMDosimetry", "Export PDF Filename:", nullptr));
         label_3->setText(QApplication::translate("NMDosimetry", "MBq", nullptr));
         label_26->setText(QApplication::translate("NMDosimetry", ".pdf", nullptr));
+        pb_clear->setText(QApplication::translate("NMDosimetry", "Clear", nullptr));
+        menuaction->setTitle(QApplication::translate("NMDosimetry", "action", nullptr));
     } // retranslateUi
 
 };

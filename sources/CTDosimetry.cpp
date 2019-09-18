@@ -1,6 +1,7 @@
 #include "headers/CTDosimetry.h"
-#include <QFile>
-
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include <algorithm>
 #include <QMessageBox>
 #include <QMimeData>
@@ -9,7 +10,10 @@
 #include <QUrl>
 #include <QSettings>
 #include <QShortcut>
+#include <QDebug>
 #include <QFileSystemWatcher>
+#include <QFileInfo>
+
 
 // VV include
 
@@ -43,7 +47,6 @@
 #include <vtkImageActor.h>
 #include <vtkCornerAnnotation.h>
 #include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
 #include <vtkRendererCollection.h>
 #include <vtkWindowToImageFilter.h>
@@ -88,6 +91,14 @@
 #endif
 
 
+class WordDelimitedByCommas : public std::string
+{};
+
+std::istream& operator>>(std::istream& is, WordDelimitedByCommas& output);
+QVector<std::string> GetPhantomNameFromFile(std::ifstream* p_file);
+
+
+
 CTDosimetry::CTDosimetry(QMainWindow *parent)
 {
     setupUi(this);
@@ -96,16 +107,18 @@ CTDosimetry::CTDosimetry(QMainWindow *parent)
     setAcceptDrops(true); // enable to drop into the windowA
 
 
-    pb_info->installEventFilter(this);
 
-    proc = new QProcess(this);
+    pb_info->installEventFilter(this);
 
     phantom_match = nullptr;
     infoPanel = nullptr;
 
     dicomSeriesSelector = new vvDicomSeriesSelector(this);
 
+    proc = new QProcess(this);
 
+    compute = new vvProgressDialog("test",false);
+    compute->hide();
     infoPanel = new vvInfoPanel();
 
 
@@ -115,9 +128,10 @@ CTDosimetry::CTDosimetry(QMainWindow *parent)
     //setWindowFlags(flags | Qt::WindowStaysOnTopHint);
 
     mInputPathName = "";
-    mCurrentSelectedImageId = "";
-    mCurrentPickedImageId = "";
-    mCurrentPickedImageIndex = 0;
+    mCurrentTime = -1;
+
+
+
 
 
 
@@ -129,8 +143,11 @@ CTDosimetry::CTDosimetry(QMainWindow *parent)
 
     viewMode = 1;
 
+   // dial->hide();
 
-    label_13->hide();
+
+
+
 
 
 
@@ -164,9 +181,21 @@ CTDosimetry::CTDosimetry(QMainWindow *parent)
     connect(SOHorizontalSlider,SIGNAL(valueChanged(int)),this,SLOT(SOHorizontalSliderMoved()));
     connect(SEHorizontalSlider,SIGNAL(valueChanged(int)),this,SLOT(SEHorizontalSliderMoved()));
 
+    //connect everything
+
+
+
+    ///////////////////////////////////////////////
+
+
+
+
 
     connect(viewButton,SIGNAL(clicked()),this, SLOT(ChangeViewMode()));
     connect(colorMapComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(UpdateColorMap()));
+
+
+
 
 
 //    NOViewWidget->hide();
@@ -182,7 +211,6 @@ CTDosimetry::CTDosimetry(QMainWindow *parent)
   #endif
 
 
-
 }
 
 CTDosimetry::~CTDosimetry()
@@ -195,13 +223,8 @@ CTDosimetry::~CTDosimetry()
     delete dicomSeriesSelector;
 }
 
-void CTDosimetry::closeEvent(QCloseEvent* e)
-{
-    e->accept();
-    emit closed();
 
 
-}
 
 
 bool CTDosimetry::eventFilter(QObject *obj,QEvent *event)
@@ -238,6 +261,12 @@ bool CTDosimetry::eventFilter(QObject *obj,QEvent *event)
 
 }
 
+
+
+
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 void CTDosimetry::UpdateMemoryUsage()
 {
   //  clitk::PrintMemory(true);
@@ -247,10 +276,6 @@ void CTDosimetry::UpdateMemoryUsage()
      else infoPanel->setMemoryInMb(QString::number(clitk::GetMemoryUsageInMb())+" MB");
     }
 }
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
 
 
 //------------------------------------------------------------------------------
@@ -261,7 +286,7 @@ void CTDosimetry::OpenDicom()
   //std::cout << "dicomSeriesSelector " << std::endl;
   if (dicomSeriesSelector->exec() == QDialog::Accepted) {
     files = *(dicomSeriesSelector->GetFilenames());
-    LoadImages(files, vvImageReader::DICOM);
+    LoadImages(files[0], vvImageReader::DICOM);
   }
 }
 
@@ -280,18 +305,10 @@ void CTDosimetry::OpenImages()
   std::vector<std::string> vector;
   for (int i = 0; i < files.size(); i++)
     vector.push_back(files[i].toStdString());
-  LoadImages(vector, vvImageReader::IMAGE);
+  LoadImages(files[0].toStdString(), vvImageReader::IMAGE);
 }
 //------------------------------------------------------------------------------
-void CTDosimetry::OpenRecentImage()
-{
-  QAction * caller = qobject_cast<QAction*>(sender());
-  std::vector<std::string> images;
-  images.push_back(caller->text().toStdString());
-  mInputPathName = itksys::SystemTools::GetFilenamePath(images[0]).c_str();
-  LoadImages(images, vvImageReader::IMAGE);
-}
-//------------------------------------------------------------------------------
+
 void CTDosimetry::dragEnterEvent(QDragEnterEvent *event)
 {
   if (event->mimeData()->hasUrls()) {
@@ -308,7 +325,7 @@ void CTDosimetry::dropEvent(QDropEvent *event)
   for (int i=0; i<mimeData->urls().size(); ++i) {
     images.push_back(mimeData->urls()[i].toLocalFile().toStdString());
   }
-  LoadImages(images, vvImageReader::IMAGE);
+  LoadImages(images[0], vvImageReader::IMAGE);
 }
 //------------------------------------------------------------------------------
 
@@ -317,112 +334,108 @@ void CTDosimetry::dropEvent(QDropEvent *event)
 
 
 //------------------------------------------------------------------------------
-void CTDosimetry::LoadImages(std::vector<std::string> files, vvImageReader::LoadedImageType filetype)
+void CTDosimetry::LoadImages(std::string files, vvImageReader::LoadedImageType filetype)
 {
   //Separate the way to open images and dicoms
 
-  if(mSlicerManagers.size()>0)
-  {
+//    if(mSlicerManagers.size()>0)
+//    {
 
-      CloseImage();
+//        CloseImage();
 
 
-  }
-  int fileSize;
-  if (filetype == vvImageReader::IMAGE || filetype == vvImageReader::IMAGEWITHTIME)
-    fileSize = files.size();
-  else
-    fileSize = 1;
+//    }
+
+//  int fileSize;
+//  if (filetype == vvImageReader::IMAGE || filetype == vvImageReader::IMAGEWITHTIME)
+//    fileSize = files.size();
+//  else
+//    fileSize = 1;
 
   // For SLICED, we need the number of slices (ndim and #slices)
-  std::vector<unsigned int> nSlices;
-  nSlices.resize(files.size());
-  std::fill(nSlices.begin(), nSlices.end(), 1);
+  unsigned int nSlices;
+//  nSlices.resize(files.size());
+//  std::fill(nSlices.begin(), nSlices.end(), 1);
   if (filetype == vvImageReader::SLICED) {
-    for (int i = 0; i < fileSize; i++) {
-      itk::ImageIOBase::Pointer header = clitk::readImageHeader(files[i]);
-      QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+   // for (int i = 0; i < fileSize; i++) {
+      itk::ImageIOBase::Pointer header = clitk::readImageHeader(files);
+      this->setCursor(Qt::WaitCursor);
       if (!header) {
-        nSlices[i] = 0;
+        nSlices = 0;
         QString error = "Cannot open file \n";
-        error += files[i].c_str();
+
         QMessageBox::information(this,tr("Reading problem"),error);
         return;
       }
       if (header->GetNumberOfDimensions() < 3) {
-        nSlices[i] = 0;
+        nSlices = 0;
         QString error = "Dimension problem. Cannot slice \n";
-        error += files[i].c_str();
         QMessageBox::information(this,tr("Reading problem"),error);
         return;
       }
-      nSlices[i] = header->GetDimensions( header->GetNumberOfDimensions()-1 );
-    }
+      nSlices = header->GetDimensions( header->GetNumberOfDimensions()-1 );
+  //  }
   }
 
-  //Only add to the list of recently opened files when a single file is opened,
-  //to avoid polluting the list of recently opened files
-
   //init the progress events
-  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-  vvProgressDialog progress("Opening " + files[0],fileSize>1);
+  this->setCursor(Qt::WaitCursor);
+  vvProgressDialog progress("Opening " + files);
   qApp->processEvents();
 
   int numberofsuccesulreads=0;
   //open images as 1 or multiples
-  for (int i = 0; i < fileSize; i++) {
-    progress.SetText("Opening " + files[i]);
-    progress.SetProgress(i,fileSize);
+  //for (int i = 0; i < fileSize; i++) {
+    progress.SetText("Opening " + files);
+    //progress.SetProgress(i,1);
     qApp->processEvents();
 
-    for (unsigned int j = 0; j < nSlices[i]; j++) {
-      //read the image and put it in mSlicerManagers
-      vvSlicerManager* imageManager = new vvSlicerManager(4);
+   // for (unsigned int j = 0; j < nSlices[i]; j++) {
+      //read the image and put it in mSlicerManagerss
+      vvSlicerManager *imageManager = new vvSlicerManager(4);
       qApp->processEvents();
 
       bool SetImageSucceed=false;
 
       // Change filename if an image with the same already exist
-      int number = GetImageDuplicateFilenameNumber(files[i] + std::string("_slice"));
+      int number = GetImageDuplicateFilenameNumber(files + std::string("_slice"));
 
       if (filetype == vvImageReader::IMAGE || filetype == vvImageReader::IMAGEWITHTIME || filetype == vvImageReader::SLICED)
-        SetImageSucceed = imageManager->SetImage(files[i],filetype, number, j);
+        SetImageSucceed = imageManager->SetImage(files,filetype, 0);
       else if (filetype == vvImageReader::DICOM)
-        SetImageSucceed = imageManager->SetImages(files,filetype, number, dicomSeriesSelector->IsPatientCoordianteSystemChecked());
+        SetImageSucceed = imageManager->SetImage(files,filetype, 0, dicomSeriesSelector->IsPatientCoordianteSystemChecked());
       else
-        SetImageSucceed = imageManager->SetImages(files,filetype, number);
+        SetImageSucceed = imageManager->SetImage(files,filetype, 0);
 
       if (!SetImageSucceed) {
-        QApplication::restoreOverrideCursor();
+        this->setCursor(Qt::ArrowCursor);
         QString error = "Cannot open file \n";
         error += imageManager->GetLastError().c_str();
         QMessageBox::information(this,tr("Reading problem"),error);
         delete imageManager;
       } else {
 
-        mSlicerManagers.push_back(imageManager);
+          mSlicerManagers.push_back(imageManager);
 
 
-        QFileInfo fileinfo(imageManager->GetFileName().c_str()); //Do not show the path
+          QFileInfo fileinfo(imageManager->GetFileName().c_str()); //Do not show the path
 
-        qApp->processEvents();
+          qApp->processEvents();
 
-
-        qApp->processEvents();
+          qApp->processEvents();
 
 
 
 
         //set the id of the image
-        QString id = QString::number(mSlicerManagers.size()-1);
 
-        mSlicerManagers.back()->SetId(id.toStdString());
+          //set the id of the image
+          QString id = QString::number(mSlicerManagers.size()-1);
+
+          mSlicerManagers.back()->SetId(id.toStdString());
 
 
-        connect(mSlicerManagers.back(), SIGNAL(currentImageChanged(std::string)),
-          this,SLOT(CurrentImageChanged(std::string)));
-        connect(mSlicerManagers.back(), SIGNAL(currentPickedImageChanged(std::string)),
-          this, SLOT(CurrentPickedImageChanged(std::string)));
+
+
         connect(mSlicerManagers.back(), SIGNAL(UpdatePosition(int, double, double, double, double, double, double, double)),
           this,SLOT(MousePositionChanged(int,double, double, double, double, double, double, double)));
         connect(mSlicerManagers.back(), SIGNAL(UpdateSlice(int,int)),
@@ -443,8 +456,8 @@ void CTDosimetry::LoadImages(std::vector<std::string> files, vvImageReader::Load
         InitSlicers();
         numberofsuccesulreads++;
       }
-    }
-  }
+   // }
+  //}
 
   if (numberofsuccesulreads) {
     NOViewWidget->show();
@@ -453,132 +466,139 @@ void CTDosimetry::LoadImages(std::vector<std::string> files, vvImageReader::Load
     SEViewWidget->show();
 
     InitDisplay();
+    qApp->processEvents();
+
     ShowLastImage();
-    ImageInfoChanged();
+    qApp->processEvents();
 
-    // Try to guess default WindowLevel
-    double range[2];
-    mSlicerManagers.back()->GetImage()->GetFirstVTKImageData()->GetScalarRange(range);
+
+    ///ShowLastImage();
+
+
+
 
   }
-  QApplication::restoreOverrideCursor();
+  this->setCursor(Qt::ArrowCursor);
 }
 //------------------------------------------------------------------------------
 
-
-void CTDosimetry::CurrentImageChanged(std::string id)
+void CTDosimetry::DisplayChanged(int index)
 {
-  if (id == mCurrentSelectedImageId) return; // Do nothing
-  int selected = 0;
-  for (int i = 0; i < mSlicerManagers.size(); i++) {
-    if (mSlicerManagers.back()->GetId() == id) {
-      selected = i;
-    }
+
+  int slicerManagerIndex = index;
+
+  vvSlicer* clickedSlicer = mSlicerManagers.back()->GetSlicer(index);
+
+  // Go over the complete item tree (only 2 levels, parents and children)
+  for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
+    // Trick to avoid redoing twice the job for a key (sr)
+    mSlicerManagers[i]->GetSlicer(index)->GetRenderWindow()->GetInteractor()->SetKeySym("Crap");
+
+
+      // Branch of the clicked one: get check status from actor visibility in slicer
+      // and toggle the clicked one
+
+      // Parent
+      bool vis = clickedSlicer->GetActorVisibility("image", 0);
+      bool draw = clickedSlicer->GetRenderer()->GetDraw();
+
+      // Update slicer (after getting visibility)
+      mSlicerManagers[i]->UpdateSlicer(index, true);
+      mSlicerManagers[i]->UpdateInfoOnCursorPosition(index);
+      DisplaySliders(slicerManagerIndex, index);
+
+      clickedSlicer->SetActorVisibility("image", 0, vis);
+
+
+
   }
 
-  mCurrentSelectedImageId = id;
-
-
-
-  emit SelectedImageHasChanged(mSlicerManagers[selected]);
+  clickedSlicer->Render();
 }
-//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-void CTDosimetry::CurrentPickedImageChanged(std::string id)
-{
-  if (id == mCurrentPickedImageId) return; // Do nothing
-  int selected = 0;
-  for (int i = 0; i < mSlicerManagers.size(); i++) {
-    if (mSlicerManagers.back()->GetId() == id) {
-      selected = i;
-    }
 
-  }
 
-  mCurrentPickedImageId = id;
-  mCurrentPickedImageIndex = selected;
-}
-//------------------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 void CTDosimetry::ImageInfoChanged()
 {
 
-  if (mSlicerManagers.size()) {
-    std::string str = mSlicerManagers.back()->GetId();
+    if (mSlicerManagers.size()) {
+      std::string str = mSlicerManagers.back()->GetId();
 
-    QString ptr;
-    ptr = ptr.fromStdString(str);
+      QString ptr;
+      ptr = ptr.fromStdString(str);
 
-    int index = ptr.toInt();
-    colorMapComboBox->setEnabled(1);
-
-
-    std::vector<double> origin;
-    std::vector<double> inputSpacing;
-    std::vector<int> inputSize;
-    std::vector<double> sizeMM;
-    vtkSmartPointer<vtkMatrix4x4> transformation;
-    int dimension=0;
-    QString pixelType;
-    QString inputSizeInBytes;
-    std::string strou = mSlicerManagers.back()->GetFileName();
-    QString image = QString::fromUtf8(strou.data());
+      int index = ptr.toInt();
+      colorMapComboBox->setEnabled(1);
 
 
+      std::vector<double> origin;
+      std::vector<double> inputSpacing;
+      std::vector<int> inputSize;
+      std::vector<double> sizeMM;
+      vtkSmartPointer<vtkMatrix4x4> transformation;
+      int dimension=0;
+      QString pixelType;
+      QString inputSizeInBytes;
+      std::string strou = mSlicerManagers.back()->GetFileName();
+      QString image = QString::fromUtf8(strou.data());
 
 
-    //read image header
-    int NPixel = 1;
-
-    int tSlice = 0;
-    vvImage::Pointer imageSelected;
-    imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetImage();
-    tSlice = mSlicerManagers[index]->GetSlicer(0)->GetTSlice();
 
 
-    dimension = imageSelected->GetNumberOfDimensions();
-    origin.resize(dimension);
-    inputSpacing.resize(dimension);
-    inputSize.resize(dimension);
-    sizeMM.resize(dimension);
-    pixelType = mSlicerManagers[index]->GetImage()->GetScalarTypeAsITKString().c_str();
-    for (int i = 0; i < dimension; i++) {
-      origin[i] = imageSelected->GetOrigin()[i];
-      inputSpacing[i] = imageSelected->GetSpacing()[i];
-      inputSize[i] = imageSelected->GetSize()[i];
-      sizeMM[i] = inputSize[i]*inputSpacing[i];
-      NPixel *= inputSize[i];
-    }
-    inputSizeInBytes = GetSizeInBytes(imageSelected->GetActualMemorySize());
+      //read image header
+      int NPixel = 1;
 
-    QString dim = QString::number(dimension) + " (";
-    dim += pixelType + ")";
-  if(infoPanel!=nullptr)
-  {
-    infoPanel->setFileName(image);
-    std::string creationImageTimeValue("No creation time");
-    itk::ExposeMetaData< std::string > (*imageSelected->GetFirstMetaDataDictionary(), "creationImageTime", creationImageTimeValue);
-    infoPanel->setImageCreationTime(QString(creationImageTimeValue.c_str()));
-    infoPanel->setDimension(dim);
-    infoPanel->setSizePixel(GetVectorIntAsString(inputSize));
-    infoPanel->setSizeMM(GetVectorDoubleAsString(sizeMM));
-    infoPanel->setOrigin(GetVectorDoubleAsString(origin));
-    infoPanel->setSpacing(GetVectorDoubleAsString(inputSpacing));
-    infoPanel->setNPixel(QString::number(NPixel)+" ("+inputSizeInBytes+")");
-
-    transformation = imageSelected->GetTransform()[tSlice]->GetMatrix();
-    infoPanel->setTransformation(clitk::Get4x4MatrixDoubleAsString(transformation).c_str());
-  }
+      int tSlice = 0;
+      vvImage::Pointer imageSelected;
+      imageSelected = mSlicerManagers[index]->GetSlicer(0)->GetImage();
+      tSlice = mSlicerManagers[index]->GetSlicer(0)->GetTSlice();
 
 
-    for (int i = 0; i < 4; i++) {
-      if (mSlicerManagers.size() > 0 || i == 3) {
-        mSlicerManagers[index]->UpdateInfoOnCursorPosition(i);
-        break;
+      dimension = imageSelected->GetNumberOfDimensions();
+      origin.resize(dimension);
+      inputSpacing.resize(dimension);
+      inputSize.resize(dimension);
+      sizeMM.resize(dimension);
+      pixelType = mSlicerManagers[index]->GetImage()->GetScalarTypeAsITKString().c_str();
+      for (int i = 0; i < dimension; i++) {
+        origin[i] = imageSelected->GetOrigin()[i];
+        inputSpacing[i] = imageSelected->GetSpacing()[i];
+        inputSize[i] = imageSelected->GetSize()[i];
+        sizeMM[i] = inputSize[i]*inputSpacing[i];
+        NPixel *= inputSize[i];
       }
+      inputSizeInBytes = GetSizeInBytes(imageSelected->GetActualMemorySize());
+
+      QString dim = QString::number(dimension) + " (";
+      dim += pixelType + ")";
+    if(infoPanel!=nullptr)
+    {
+      infoPanel->setFileName(image);
+      std::string creationImageTimeValue("No creation time");
+      itk::ExposeMetaData< std::string > (*imageSelected->GetFirstMetaDataDictionary(), "creationImageTime", creationImageTimeValue);
+      infoPanel->setImageCreationTime(QString(creationImageTimeValue.c_str()));
+      infoPanel->setDimension(dim);
+      infoPanel->setSizePixel(GetVectorIntAsString(inputSize));
+      infoPanel->setSizeMM(GetVectorDoubleAsString(sizeMM));
+      infoPanel->setOrigin(GetVectorDoubleAsString(origin));
+      infoPanel->setSpacing(GetVectorDoubleAsString(inputSpacing));
+      infoPanel->setNPixel(QString::number(NPixel)+" ("+inputSizeInBytes+")");
+
+      transformation = imageSelected->GetTransform()[tSlice]->GetMatrix();
+      infoPanel->setTransformation(clitk::Get4x4MatrixDoubleAsString(transformation).c_str());
     }
+
+
+      for (int i = 0; i < 4; i++) {
+        if (mSlicerManagers.size() > 0 || i == 3) {
+          mSlicerManagers[index]->UpdateInfoOnCursorPosition(i);
+          break;
+        }
+      }
 
 
 
@@ -586,6 +606,10 @@ void CTDosimetry::ImageInfoChanged()
 
   }
 }
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+
 //------------------------------------------------------------------------------
 
 
@@ -633,7 +657,7 @@ void CTDosimetry::ChangeViewMode()
   sizes[3].cols[1] = 2;
   sizes[3].cols[2] = 3;
 
-  int slicer = mSlicerManagers[mCurrentPickedImageIndex]->GetSelectedSlicer();
+  int slicer = mSlicerManagers.back()->GetSelectedSlicer();
   if (viewMode == 1) {
     if (slicer >= 0) {
       viewMode = 0;
@@ -714,74 +738,72 @@ QString CTDosimetry::GetVectorIntAsString(std::vector<int> vectorInt)
   }
   return result;
 }
-//------------------------------------------------------------------------------
-
 
 
 void CTDosimetry::InitSlicers()
 {
-  if (mSlicerManagers.size()>0) {
-    mSlicerManagers.back()->GenerateDefaultLookupTable();
-    mSlicerManagers.back()->SetSlicerWindow(0,NOViewWidget->GetRenderWindow());
-    mSlicerManagers.back()->SetSlicerWindow(1,NEViewWidget->GetRenderWindow());
-    mSlicerManagers.back()->SetSlicerWindow(2,SOViewWidget->GetRenderWindow());
-    mSlicerManagers.back()->SetSlicerWindow(3,SEViewWidget->GetRenderWindow());
-#if VTK_MAJOR_VERSION <= 5
-    mSlicerManagers.back()->Render(); // SR: displayed #slice is wrong without this / TB: With VTK6 and multiple images, all slicers are updated, not only the first
-#endif
-  }
+    if (mSlicerManagers.size()>0) {
+      mSlicerManagers.back()->GenerateDefaultLookupTable();
+      mSlicerManagers.back()->SetSlicerWindow(0,NOViewWidget->GetRenderWindow());
+      mSlicerManagers.back()->SetSlicerWindow(1,NEViewWidget->GetRenderWindow());
+      mSlicerManagers.back()->SetSlicerWindow(2,SOViewWidget->GetRenderWindow());
+      mSlicerManagers.back()->SetSlicerWindow(3,SEViewWidget->GetRenderWindow());
+  #if VTK_MAJOR_VERSION <= 5
+      mSlicerManagers.back()->Render(); // SR: displayed #slice is wrong without this / TB: With VTK6 and multiple images, all slicers are updated, not only the first
+  #endif
+    }
 }
 
 //------------------------------------------------------------------------------
 void CTDosimetry::InitDisplay()
 {
-  if (mSlicerManagers.size()>0) {
-    //BE CAREFUL : this is absolutely necessary to set the interactor style
-    //in order to have the same style instanciation for all SlicerManagers in
-    // a same window
-    for (int j = 0; j < 4; j++) {
-      vvInteractorStyleNavigator* style = vvInteractorStyleNavigator::New();
-      style->SetAutoAdjustCameraClippingRange(1);
-      bool AlreadySelected = false;
-      for (int i = 0; i < mSlicerManagers.size(); i++) {
-        mSlicerManagers[i]->SetInteractorStyleNavigator(j,style);
+    if (mSlicerManagers.size()>0) {
+      //BE CAREFUL : this is absolutely necessary to set the interactor style
+      //in order to have the same style instanciation for all SlicerManagers in
+      // a same window
+      for (int j = 0; j < 4; j++) {
+        vvInteractorStyleNavigator* style = vvInteractorStyleNavigator::New();
+        style->SetAutoAdjustCameraClippingRange(1);
+        bool AlreadySelected = false;
+        for (int i = 0; i < mSlicerManagers.size(); i++) {
+          mSlicerManagers[i]->SetInteractorStyleNavigator(j,style);
 
-          mSlicerManagers[i]->UpdateSlicer(j,1);
-          DisplaySliders(i,j);
+            mSlicerManagers[i]->UpdateSlicer(j,1);
+            DisplaySliders(i,j);
 
 
-      style->Delete();
+        style->Delete();
+      }
     }
   }
-}
 }
 
 //------------------------------------------------------------------------------
 void CTDosimetry::DisplaySliders(int slicer, int window)
 {
-  if(!mSlicerManagers[slicer]->GetSlicer(window)->GetRenderer()->GetDraw())
-    return;
+    if(!mSlicerManagers[slicer]->GetSlicer(window)->GetRenderer()->GetDraw())
+      return;
 
-  int range[2];
-  mSlicerManagers[slicer]->GetSlicer(window)->GetSliceRange(range);
-  int position = mSlicerManagers[slicer]->GetSlicer(window)->GetSlice();
-  if (range[1]>0)
-    verticalSliders[window]->show();
-  else
-    verticalSliders[window]->hide();
-  verticalSliders[window]->setRange(range[0],range[1]);
-  verticalSliders[window]->setValue(position);
+    int range[2];
+    mSlicerManagers[slicer]->GetSlicer(window)->GetSliceRange(range);
+    int position = mSlicerManagers[slicer]->GetSlicer(window)->GetSlice();
+    if (range[1]>0)
+      verticalSliders[window]->show();
+    else
+      verticalSliders[window]->hide();
+    verticalSliders[window]->setRange(range[0],range[1]);
+    verticalSliders[window]->setValue(position);
 
-  int tRange[2];
-  tRange[0] = 0;
-  tRange[1] = mSlicerManagers[slicer]->GetSlicer(window)->GetTMax();
-  if (tRange[1]>0)
-    horizontalSliders[window]->show();
-  else
-    horizontalSliders[window]->hide();
-  horizontalSliders[window]->setRange(tRange[0],tRange[1]);
-  int tPosition = mSlicerManagers[slicer]->GetSlicer(window)->GetMaxCurrentTSlice();
-  horizontalSliders[window]->setValue(tPosition);
+    int tRange[2];
+    tRange[0] = 0;
+    tRange[1] = mSlicerManagers[slicer]->GetSlicer(window)->GetTMax();
+    if (tRange[1]>0)
+      horizontalSliders[window]->show();
+    else
+      horizontalSliders[window]->hide();
+    horizontalSliders[window]->setRange(tRange[0],tRange[1]);
+    int tPosition = mSlicerManagers[slicer]->GetSlicer(window)->GetMaxCurrentTSlice();
+    horizontalSliders[window]->setValue(tPosition);
 }
 //------------------------------------------------------------------------------
 
@@ -844,6 +866,13 @@ void CTDosimetry::MousePositionChanged(int visibility,double x, double y, double
 //------------------------------------------------------------------------------
 
 
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 void CTDosimetry::UpdateColorMap()
 {
 
@@ -852,31 +881,42 @@ void CTDosimetry::UpdateColorMap()
     mSlicerManagers[index]->Render();
 
 }
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 
 
 void CTDosimetry::UpdateLinkManager(std::string id, int slicer, double x, double y, double z, int temps)
 {
-  for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
-    if (mSlicerManagers[i]->GetId() == id) {
-      mSlicerManagers[i]->GetSlicer(slicer)->SetCurrentPosition(x,y,z,temps);
-      mSlicerManagers[i]->UpdateViews(0,slicer);
-      break;
+    for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
+      if (mSlicerManagers[i]->GetId() == id) {
+        mSlicerManagers[i]->GetSlicer(slicer)->SetCurrentPosition(x,y,z,temps);
+        mSlicerManagers[i]->UpdateViews(0,slicer);
+        break;
+      }
     }
-  }
+
 }
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 void CTDosimetry::UpdateLinkedNavigation(std::string id, vvSlicerManager * sm, vvSlicer* refSlicer)
 {
-  for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
-    if (id == mSlicerManagers[i]->GetId()) {
-      mSlicerManagers[i]->UpdateLinkedNavigation(refSlicer);
+    for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
+      if (id == mSlicerManagers[i]->GetId()) {
+        mSlicerManagers[i]->UpdateLinkedNavigation(refSlicer);
+      }
     }
-  }
 }
+//------------------------------------------------------------------------------
+
+
+
+//------------------------------------------------------------------------------
 
 
 
@@ -885,8 +925,9 @@ void CTDosimetry::SaveAs()
 {
 
 
-  int index = mSlicerManagers.size()-1;
-  int dimension = mSlicerManagers[index]->GetDimension();
+
+    int index = mSlicerManagers.size()-1;
+    int dimension = mSlicerManagers[index]->GetDimension();
   QStringList OutputListeFormat;
   OutputListeFormat.clear();
   if (dimension == 1) {
@@ -925,13 +966,13 @@ void CTDosimetry::SaveAs()
   }
   QString fileName = QFileDialog::getSaveFileName(this,
     tr("Save As"),
-    mSlicerManagers[index]->GetFileName().c_str(),
-    Extensions);
+     mSlicerManagers[index]->GetFileName().c_str(),
+     Extensions);
   if (!fileName.isEmpty()) {
     std::string fileformat = itksys::SystemTools::GetFilenameLastExtension(fileName.toStdString());
     if (OutputListeFormat.contains(
       fileformat.c_str())) {
-        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+        this->setCursor(Qt::WaitCursor);
         std::string action = "Saving";
         vvProgressDialog progress("Saving "+fileName.toStdString());
         qApp->processEvents();
@@ -945,7 +986,7 @@ void CTDosimetry::SaveAs()
         for(int i=0; i<4; i++)
           for(int j=0; j<4; j++) {
             // TODO SR and BP: check on the list of transforms and not the first only
-            double elt = mSlicerManagers[index]->GetImage()->GetTransform()[0]->GetMatrix()->GetElement(i,j);
+             double elt = mSlicerManagers[index]->GetImage()->GetTransform()[0]->GetMatrix()->GetElement(i,j);
             if(i==j && elt!=1.)
               bId = false;
             if(i!=j && elt!=0.)
@@ -961,7 +1002,7 @@ void CTDosimetry::SaveAs()
           }
 
           writer->Update();
-          QApplication::restoreOverrideCursor();
+          this->setCursor(Qt::ArrowCursor);
           if (writer->GetLastError().size()) {
             QString error = "Saving did not succeed\n";
             error += writer->GetLastError().c_str();
@@ -983,51 +1024,49 @@ void CTDosimetry::SaveAs()
 //------------------------------------------------------------------------------
 void CTDosimetry::ChangeImageWithIndexOffset(vvSlicerManager *sm, int slicer, int offset)
 {
-  if(mSlicerManagers.size()==1)
-    return;
+    if(mSlicerManagers.size()==1)
+      return;
 
-  int index = 0;
-  while(sm != mSlicerManagers[index])
-    index++;
-  index = (index+offset+mSlicerManagers.size()) % mSlicerManagers.size();
+    int index = 0;
+    while(sm != mSlicerManagers[index])
+      index++;
+    index = (index+offset+mSlicerManagers.size()) % mSlicerManagers.size();
 
-
-  CurrentImageChanged(mSlicerManagers[index]->GetId()); //select new image
 
 }
 //------------------------------------------------------------------------------
 void CTDosimetry::HorizontalSliderMoved(int value,int column, int slicer_index)
 {
-  for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
+    for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
 
-      //i is the SlicerManager that is in charge of this slicer.
-      if (mSlicerManagers[i]->IsInvolvedInFusionSequence()) {
-        //if the slicerManager is involved in a fusionSequence as the secondary sequence, then update the slider position in the overlay panel and everything accordingly
-        if (mSlicerManagers[i]->IsSecondarySequenceOfFusionSequence()) {
+        //i is the SlicerManager that is in charge of this slicer.
+        if (mSlicerManagers[i]->IsInvolvedInFusionSequence()) {
+          //if the slicerManager is involved in a fusionSequence as the secondary sequence, then update the slider position in the overlay panel and everything accordingly
+          if (mSlicerManagers[i]->IsSecondarySequenceOfFusionSequence()) {
 
-        }
-        else { //if this is the primary sequence that has been modified
-          if (mSlicerManagers[i]->GetFusionSequenceTemporalSyncFlag()) {
-            //WARNING: for some obscure reason, there are problems when accessing mSlicerManagers[mSlicerManagers[i]->GetFusionSequenceIndexOfLinkedManager()]->GetFusionSequenceFrameIndex();
+          }
+          else { //if this is the primary sequence that has been modified
+            if (mSlicerManagers[i]->GetFusionSequenceTemporalSyncFlag()) {
+              //WARNING: for some obscure reason, there are problems when accessing mSlicerManagers[mSlicerManagers[i]->GetFusionSequenceIndexOfLinkedManager()]->GetFusionSequenceFrameIndex();
 
-            int estimatedValue=0;
-            //estimate a corresponding time index for the secondary (US) sequence, and update it accordingly.
-            estimatedValue = mSlicerManagers[i]->GetFusionSequenceCorrespondances()[ value ];
-            //TODO: at the moment, there is a loop in TSlice modifications
-            //modifying sequence 1 causes seq 2 to update, which in turns update seq1...
-            //I disable control on seq1 at the moment.
-            //overlayPanel->updateFusionSequenceSliderValueFromWindow(estimatedValue, true);
+              int estimatedValue=0;
+              //estimate a corresponding time index for the secondary (US) sequence, and update it accordingly.
+              estimatedValue = mSlicerManagers[i]->GetFusionSequenceCorrespondances()[ value ];
+              //TODO: at the moment, there is a loop in TSlice modifications
+              //modifying sequence 1 causes seq 2 to update, which in turns update seq1...
+              //I disable control on seq1 at the moment.
+              //overlayPanel->updateFusionSequenceSliderValueFromWindow(estimatedValue, true);
+            }
           }
         }
-      }
 
-      for (int j = 0; j < 4; j++) {
-        mSlicerManagers[i]->SetTSliceInSlicer(value,j);
-      }
-      mSlicerManagers[i]->GetSlicer(slicer_index)->Render();
-      break;
+        for (int j = 0; j < 4; j++) {
+          mSlicerManagers[i]->SetTSliceInSlicer(value,j);
+        }
+        mSlicerManagers[i]->GetSlicer(slicer_index)->Render();
+        break;
 
-  }
+    }
 }
 //------------------------------------------------------------------------------
 
@@ -1074,25 +1113,25 @@ void CTDosimetry::SEHorizontalSliderMoved()
 //------------------------------------------------------------------------------
 void CTDosimetry::NOVerticalSliderChanged()
 {
-  static int value=-1;
-  if (value == NOVerticalSlider->value()) return;
-  else value = NOVerticalSlider->value();
-  //  int value = NOVerticalSlider->value();
-  for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
+    static int value=-1;
+    if (value == NOVerticalSlider->value()) return;
+    else value = NOVerticalSlider->value();
+    //  int value = NOVerticalSlider->value();
+    for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
 
-      if (mSlicerManagers[i]->GetSlicer(0)->GetSlice() != value) {
-        mSlicerManagers[i]->GetSlicer(0)->SetSlice(value);
-        mSlicerManagers[i]->VerticalSliderHasChanged(0, value);
+        if (mSlicerManagers[i]->GetSlicer(0)->GetSlice() != value) {
+          mSlicerManagers[i]->GetSlicer(0)->SetSlice(value);
+          mSlicerManagers[i]->VerticalSliderHasChanged(0, value);
 
-        // If nor Update/Render -> slider not work
-        // only render = ok navigation, but for contour Update needed but slower ?
+          // If nor Update/Render -> slider not work
+          // only render = ok navigation, but for contour Update needed but slower ?
 
-        mSlicerManagers[i]->UpdateSlice(0);  // <-- DS add this. Not too much update ? YES. but needed for ImageContour ...
-        //mSlicerManagers[i]->GetSlicer(0)->Render(); // <-- DS add this, needed for contour, seems ok ? not too slow ?
-      }
-      break;
+          mSlicerManagers[i]->UpdateSlice(0);  // <-- DS add this. Not too much update ? YES. but needed for ImageContour ...
+          //mSlicerManagers[i]->GetSlicer(0)->Render(); // <-- DS add this, needed for contour, seems ok ? not too slow ?
+        }
+        break;
 
-  }
+    }
 }
 //------------------------------------------------------------------------------
 
@@ -1100,21 +1139,21 @@ void CTDosimetry::NOVerticalSliderChanged()
 //------------------------------------------------------------------------------
 void CTDosimetry::NEVerticalSliderChanged()
 {
-  static int value=-1;
-  if (value == NEVerticalSlider->value()) return;
-  else value = NEVerticalSlider->value();
-  //  int value = NEVerticalSlider->value();
-  for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
+    static int value=-1;
+    if (value == NEVerticalSlider->value()) return;
+    else value = NEVerticalSlider->value();
+    //  int value = NEVerticalSlider->value();
+    for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
 
-      if (mSlicerManagers[i]->GetSlicer(1)->GetSlice() != value) {
-        mSlicerManagers[i]->GetSlicer(1)->SetSlice(value);
-        mSlicerManagers[i]->VerticalSliderHasChanged(1, value);
-        mSlicerManagers[i]->UpdateSlice(1);
-        //mSlicerManagers[i]->GetSlicer(1)->Render(); // <-- DS add this, needed for contour, seems ok ? not too slow ?
-      }
-      break;
+        if (mSlicerManagers[i]->GetSlicer(1)->GetSlice() != value) {
+          mSlicerManagers[i]->GetSlicer(1)->SetSlice(value);
+          mSlicerManagers[i]->VerticalSliderHasChanged(1, value);
+          mSlicerManagers[i]->UpdateSlice(1);
+          //mSlicerManagers[i]->GetSlicer(1)->Render(); // <-- DS add this, needed for contour, seems ok ? not too slow ?
+        }
+        break;
 
-  }
+    }
 }
 //------------------------------------------------------------------------------
 
@@ -1122,21 +1161,21 @@ void CTDosimetry::NEVerticalSliderChanged()
 //------------------------------------------------------------------------------
 void CTDosimetry::SOVerticalSliderChanged()
 {
-  static int value=-1;
-  if (value == SOVerticalSlider->value()) return;
-  else value = SOVerticalSlider->value();
-  //int value = SOVerticalSlider->value();
-  for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
-      if (mSlicerManagers[i]->GetSlicer(2)->GetSlice() != value) {
-        mSlicerManagers[i]->GetSlicer(2)->SetSlice(value);
-        mSlicerManagers[i]->VerticalSliderHasChanged(2, value);
-        mSlicerManagers[i]->UpdateSlice(2);
-        //mSlicerManagers[i]->GetSlicer(2)->Render(); // <-- DS add this, needed for contour, seems ok ? not too slow ?
-      }
-      // else { DD("avoid SOVerticalSlider slicer update"); }
-      break;
+    static int value=-1;
+    if (value == SOVerticalSlider->value()) return;
+    else value = SOVerticalSlider->value();
+    //int value = SOVerticalSlider->value();
+    for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
+        if (mSlicerManagers[i]->GetSlicer(2)->GetSlice() != value) {
+          mSlicerManagers[i]->GetSlicer(2)->SetSlice(value);
+          mSlicerManagers[i]->VerticalSliderHasChanged(2, value);
+          mSlicerManagers[i]->UpdateSlice(2);
+          //mSlicerManagers[i]->GetSlicer(2)->Render(); // <-- DS add this, needed for contour, seems ok ? not too slow ?
+        }
+        // else { DD("avoid SOVerticalSlider slicer update"); }
+        break;
 
-  }
+    }
 }
 //------------------------------------------------------------------------------
 
@@ -1144,21 +1183,21 @@ void CTDosimetry::SOVerticalSliderChanged()
 //------------------------------------------------------------------------------
 void CTDosimetry::SEVerticalSliderChanged()
 {
-  static int value=-1;
-  if (value == SEVerticalSlider->value()) return;
-  else value = SEVerticalSlider->value();
-  // int value = SEVerticalSlider->value();
-  for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
+    static int value=-1;
+    if (value == SEVerticalSlider->value()) return;
+    else value = SEVerticalSlider->value();
+    // int value = SEVerticalSlider->value();
+    for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
 
-      if (mSlicerManagers[i]->GetSlicer(3)->GetSlice() != value) {
-        mSlicerManagers[i]->GetSlicer(3)->SetSlice(value);
-        mSlicerManagers[i]->VerticalSliderHasChanged(3, value);
-        mSlicerManagers[i]->UpdateSlice(3);
-        //mSlicerManagers[i]->GetSlicer(3)->Render(); // <-- DS add this, needed for contour, seems ok ? not too slow ?
-      }
-      break;
+        if (mSlicerManagers[i]->GetSlicer(3)->GetSlice() != value) {
+          mSlicerManagers[i]->GetSlicer(3)->SetSlice(value);
+          mSlicerManagers[i]->VerticalSliderHasChanged(3, value);
+          mSlicerManagers[i]->UpdateSlice(3);
+          //mSlicerManagers[i]->GetSlicer(3)->Render(); // <-- DS add this, needed for contour, seems ok ? not too slow ?
+        }
+        break;
 
-  }
+    }
 }
 //------------------------------------------------------------------------------
 
@@ -1193,17 +1232,18 @@ void CTDosimetry::UpdateSlice(int slicer, int slice)
 void CTDosimetry::UpdateTSlice(int slicer, int slice, int code)
 {
   //FusionSequence: the slider value should be updated for slicers which show the same sequence as requested
-  bool doUpdate=false;
-  if (code==-1) doUpdate=true;
-  else {
-    for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
+    //FusionSequence: the slider value should be updated for slicers which show the same sequence as requested
+    bool doUpdate=false;
+    if (code==-1) doUpdate=true;
+    else {
+      for (unsigned int i = 0; i < mSlicerManagers.size(); i++) {
 
-        //i is the active SlicerManager
-        if (mSlicerManagers[i]->GetFusionSequenceInvolvmentCode()==code) doUpdate=true;
-        break;
+          //i is the active SlicerManager
+          if (mSlicerManagers[i]->GetFusionSequenceInvolvmentCode()==code) doUpdate=true;
+          break;
 
+      }
     }
-  }
   if (!doUpdate) return;
 
   switch (slicer) {
@@ -1232,7 +1272,7 @@ void CTDosimetry::UpdateTSlice(int slicer, int slice, int code)
 void CTDosimetry::UpdateSliceRange(int slicer, int min, int max, int tmin, int tmax)
 {
   //int position = int((min+max)/2);
-  int position = mSlicerManagers[mCurrentPickedImageIndex]->GetSlicer(slicer)->GetSlice();
+   int position = mSlicerManagers.back()->GetSlicer(slicer)->GetSlice();
   if (slicer == 0) {
     NOVerticalSlider->setRange(min,max);
     NOHorizontalSlider->setRange(tmin,tmax);
@@ -1504,18 +1544,21 @@ void CTDosimetry::SaveScreenshot(QVTKWidget *widget)
     QMessageBox::information(this,tr("Problem saving screenshot !"),tr("Cannot save image.\nPlease set a file extension !!!"));
   }
 }
+//------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------
+
 
 
 
 void CTDosimetry::ShowLastImage()
 {
-  if (mSlicerManagers.size() > 1) {
+    if (mSlicerManagers.size() > 1) {
 
-    CurrentImageChanged(mSlicerManagers.back()->GetId()); //select new image
-
-    //mSlicerManagers[GetSlicerIndexFromItem(item)]->GetSlicer(0)->SetActorVisibility("image", 0, 1); //Set the Last Image visibles
-
-  }
+      mSlicerManagers.back()->GetSlicer(0)->SetActorVisibility("image", 0, 1); //Set the Last Image visibles
+     DisplayChanged(1);
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -1526,152 +1569,340 @@ void CTDosimetry::ShowLastImage()
 //------------------------------------------------------------------------------
 int CTDosimetry::GetImageDuplicateFilenameNumber(std::string filename)
 {
-  int number=0;
-  for(unsigned int l=0; l<mSlicerManagers.size(); l++) {
-    vvSlicerManager * v = mSlicerManagers[l];
-    if (v->GetBaseFileName() ==
-      vtksys::SystemTools::GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(filename))) {
-        number = std::max(number, v->GetBaseFileNameNumber()+1);
+    int number=0;
+    for(unsigned int l=0; l<mSlicerManagers.size(); l++) {
+      vvSlicerManager * v = mSlicerManagers[l];
+      if (v->GetBaseFileName() ==
+        vtksys::SystemTools::GetFilenameName(vtksys::SystemTools::GetFilenameWithoutLastExtension(filename))) {
+          number = std::max(number, v->GetBaseFileNameNumber()+1);
+      }
     }
-  }
-  return number;
+    return number;
 }
 
 void CTDosimetry::UpdateCurrentSlicer()
 {
-  int index = -1;
-  index = mSlicerManagers.size()-1;
-  mSlicerManagerCurrentIndex = index;
+    int index = -1;
+    index = mSlicerManagers.size()-1;
+    mSlicerManagerCurrentIndex = index;
 }
 //------------------------------------------------------------------------------
 
 
-//void CTDosimetry::on_actionCustom_Register_triggered()
-//{
-//    Rotate =new vvToolRigidReg(this);
-//    vvSlicerManager *input;
-//    input =  mSlicerManagers.back();
-//    Rotate->InputIsSelected(mSlicerManagers.back());
-//    Rotate->show();
-
-//}
-
-
-
-void CTDosimetry::on_cB_protocol_currentIndexChanged(int index)
+void CTDosimetry::on_actionCustom_Register_triggered()
 {
-
-
+    Rotate =new vvToolRigidReg(this);
+    vvSlicerManager *input;
+    input =  mSlicerManagers.back();
+    Rotate->InputIsSelected(mSlicerManagers.back());
+    Rotate->show();
 
 }
 
 void CTDosimetry::on_pb_submit_clicked()
 {
-    std::vector<std::string> str;
-    str.push_back("/home/afrodith/Documents/Error_Software/knowledgeDatabase/Phantoms/2XCAT_manual_Segar/Phantom-08_F_14y/Lois_14y.mhd");
-    LoadImages(str,vvImageReader::IMAGE);
+    phantom_matching_algorithm();
+
 }
-
-
-
 
 void CTDosimetry::phantom_matching_algorithm()
 {
 
+QString BMI = LE_BMI->text();
 
-    QString BMI = LE_BMI->text();
-
-    QString Age = LE_age->text();
+QString Age = LE_age->text();
 
 
-    QString gndr = cB_gender->currentText();
+QString gndr = cB_gender->currentText();
 
-    QString height = LE_height->text();
+QString height = LE_height->text();
 
-    QString weight = LE_weight->text();
+QString weight = LE_weight->text();
 
-    //QString activity = LE_activity->text();
+//QString activity = LE_activity->text();
 
-    QString torso_height = LE_height_torso->text();
+QString torso_height = LE_height_torso->text();
 
-    QString lung = LE_lung->text();
+QString lung = LE_lung->text();
 
-    QString Anteroposterior_thick = LE_anteroposterior->text();
+QString Anteroposterior_thick = LE_anteroposterior->text();
 
-    QString LAT = LE_LAT->text();
+QString LAT = LE_LAT->text();
 
-    QString effDiam = LE_effectiveDiam->text();
+QString effDiam = LE_effectiveDiam->text();
+
+QString curr = QDir::currentPath();
+QStringList arg_list;
+//gender,age,weight,height_toTorso,lung,anteroposterior,LAT,effective_diameter
+
+arg_list << "#!/bin/bash \n";
+arg_list << curr+"/Phantom_Matching/LIBRA_MLI/phantomMatching/application/run_phantomMatching.sh  ";
+arg_list << curr+"/Phantom_Matching/MATLAB/MATLAB_Runtime/v901  ";
+arg_list << curr+"/data/Final_ERROR_for_software_v1.xlsx  ";
+arg_list << gndr<< " ";
+arg_list << Age<< " ";
+arg_list << weight<< " ";
+arg_list << torso_height<< " ";
+arg_list << lung<< " ";
+arg_list << Anteroposterior_thick << " ";
+arg_list << LAT<< " ";
+arg_list << effDiam << "  ";
+arg_list << curr+"/data/output.txt";
+
+
+
+//arg_list << activity<< " ";
+
+
+
+
+std::ofstream pM_file("/home/afrodith/Documents/Error-Dosi/scripts/phantom_matching.sh");
+if (!pM_file.is_open()) {
+    std::cerr << "Error opening file '" << "/home/afrodith/Documents/Error-Dosi/scripts/phantom_matching"
+              << "': " << strerror(errno) << std::endl;
+
+}
+else
+{
+    for(int i=0;i<arg_list.count();i++)
+    {
+        std::string str = arg_list.at(i).toStdString();
+
+        pM_file << str;
+
+    }
+
+}
+
+pM_file.close();
+
+
+// pM_algorith = "/home/afrodith/Documents/Error-Dosi/phantom_matching";
+
+sadr = currentDir;
+sadr.append("/data/CT-Dosimetry/"+cB_kev->currentText()+"/"+cB_protocol->currentText()+"/");
+
+
+QString path =  "sh "+QDir::currentPath();
+path.append("/scripts/phantom_matching.sh");
+
+proc->start(path);
+
+connect(proc,SIGNAL(finished(int)),this,SLOT(afterMatching(int)));
+
+pb_submit->setEnabled(false);
+
+if(proc->waitForStarted())
+{
+    this->setCursor(Qt::WaitCursor);
+    compute->SetText("Processing..");
+    compute->show();
+    qApp->processEvents();
+}
+
+//char *system_call = (char *)"/home/afrodith/Documents/Error-Dosi/Phantom_Matching/LIBRA_MLI/phantomMatching/application/run_phantomMatching.sh /home/afrodith/Documents/Error-Dosi/Phantom_Matching/MATLAB/MATLAB_Runtime/v901 /home/afrodith/Documents/Error-Dosi/data/Final_ERROR_for_software_v1.xlsx male 3.7 16.2 28.4 8.7 7.2 9.7 8.357 ./output.csv";
+//int i;
+//i = system(system_call);
+
+
+
+
+}
+
+std::istream& operator>>(std::istream& is, WordDelimitedByCommas& output)
+{
+   std::getline(is, output, ',');
+   return is;
+}
+
+QVector<std::string> GetPhantomNameFromFile(std::ifstream* p_file)
+{
+   std::string line;
+   QVector<std::string> name_vector;
+   uint32_t number_organs = 0, i = 0;
+
+   // Read file and count number of organs
+     std::getline(*p_file, line);
+     // Find first character
+     // Loop over the number of the characters in the line
+     for (size_t j = 0; j < line.size(); ++j) {
+       if (std::isspace(line[j])) i++;
+       else break;
+     }
+
+     // Check if the first is a comment
+
+      std::istringstream iss(line);
+      std::vector<std::string> copy((std::istream_iterator<WordDelimitedByCommas>(iss)),
+                                      std::istream_iterator<WordDelimitedByCommas>());
+
+          for(int i=0;i<copy.size();i++)
+          {
+              if(i!=0)
+              name_vector.push_back(copy.at(i));
+          }
+
+
+     i = 0; // Reinitialize i
+
+
+   // move file position indicator to beginning
+   p_file->clear();
+   p_file->seekg(0);
+
+   return name_vector; // Delete time column
+ }
+
+
+bool CTDosimetry::fileExists(QString path) {
+    QFileInfo check_file(path);
+    // check if path exists and if yes: Is it really a file and no directory?
+    return check_file.exists() && check_file.isFile();
+}
+
+
+
+void CTDosimetry::afterMatching(int)
+{
+
+    compute->close();
+    this->setCursor(Qt::ArrowCursor);
+    qDebug() << sadr;
+
 
     QString curr = QDir::currentPath();
-    QStringList arg_list;
-    //gender,age,weight,height_toTorso,lung,anteroposterior,LAT,effective_diameter
+    QString str_ph=curr+"/data/output.txt";
 
-    arg_list << "#!/bin/bash \n";
-    arg_list << curr+"/Phantom_Matching/LIBRA_MLI/phantomMatching/application/run_phantomMatching.sh  ";
-    arg_list << curr+"/Phantom_Matching/MATLAB/MATLAB_Runtime/v901  ";
-    arg_list << curr+"/data/Final_ERROR_for_software_v1.xlsx  ";
-    arg_list << gndr<< " ";
-    arg_list << Age<< " ";
-    arg_list << weight<< " ";
-    arg_list << torso_height<< " ";
-    arg_list << lung<< " ";
-    arg_list << Anteroposterior_thick << " ";
-    arg_list << LAT<< " ";
-    arg_list << effDiam << "  ";
-    arg_list << curr+"/data/output.txt";
+    QByteArray ba= str_ph.toLocal8Bit();
+    QVector<std::string> phantom_name;
 
-
-
-    //arg_list << activity<< " ";
-
-
-
-
-    std::ofstream pM_file("/home/afrodith/Documents/Error-Dosi/scripts/phantom_matching.sh");
-    if (!pM_file.is_open()) {
-        std::cerr << "Error opening file '" << "/home/afrodith/Documents/Error-Dosi/scripts/phantom_matching"
+    std::ifstream p_output_file(ba.data());
+    if (!p_output_file.is_open()) {
+        std::cerr << "Error opening file '" << ba.data()
                   << "': " << strerror(errno) << std::endl;
 
     }
-    else
+
+    phantom_name = GetPhantomNameFromFile(&p_output_file);
+
+    QString whole_path;
+    QString constructed_str;
+    bool sadr_completed = false;
+
+    for(int i=0;i<phantom_name.count();i++)
     {
-        for(int i=0;i<arg_list.count();i++)
-        {
-            std::string str = arg_list.at(i).toStdString();
 
-            pM_file << str;
+       if(phantom_name[i].size()>1)
+       {
+           constructed_str = "phantom_0"+QString::fromStdString(phantom_name[i])+".txt";
+           QString sadr_copy = sadr;
+           whole_path = sadr_copy.append(constructed_str);
 
-        }
+       }
+       else if (phantom_name[i].size()==1)
+       {
+           constructed_str = "phantom_00"+QString::fromStdString(phantom_name[i])+".txt";
+           QString sadr_copy = sadr;
+           whole_path = sadr_copy.append(constructed_str);
+       }
+
+       if(fileExists(whole_path))
+       {
+           sadr.append(constructed_str);
+           sadr_completed=true;
+           QString phantom_loc = QDir::currentPath()+"/data/Phantoms/";
+           if(constructed_str=="phantom_006.txt")
+           {
+               image_phantom=phantom_loc+"Roberto/roberto_5y.mhd";
+           }
+           else if(constructed_str=="phantom_007.txt")
+           {
+                image_phantom=phantom_loc+"Roberta/Roberta_1.mhd";
+
+
+           }
+           else if(constructed_str=="phantom_008.txt")
+           {
+                image_phantom=phantom_loc+"Thelonious/Thelonious_6y_V6_1mm.mhd";
+
+
+           }
+           else if(constructed_str=="phantom_009.txt")
+           {
+                image_phantom=phantom_loc+"Eartha/Eartha_1.mhd";
+
+
+           }
+           else if(constructed_str=="phantom_010.txt")
+           {
+                image_phantom=phantom_loc+"Dizzy/Dizzy_1.mhd";
+
+
+           }
+           else if(constructed_str=="phantom_011.txt")
+           {
+                image_phantom=phantom_loc+"Billie/Billie_11y_1mm.mhd";
+
+
+           }
+           else if(constructed_str=="phantom_012.txt")
+           {
+                image_phantom=phantom_loc+"Louis/Louis_1.mhd";
+
+
+           }
+           else if(constructed_str=="phantom_013.txt")
+           {
+                image_phantom=phantom_loc+"Lois/Lois_14y.mhd";
+
+
+           }
+           break;
+       }
+
 
     }
 
-    pM_file.close();
+
+
+    if(phantom_match==nullptr)
+        phantom_match=new integradeDose(this,2);
+
+
+if(sadr_completed){
+
+    mAs = LE_mAs->text().toInt();
+    totalEnergy = cB_kev->currentText().toInt();
+    int CTDIvol = LE_CTDi->text().toInt();
 
 
 
+   exportedDoses = phantom_match->compute(sadr,cB_man->currentText(),cB_protocol->currentText(),mAs,CTDIvol,totalEnergy);
 
-    QString path =  "sh "+QDir::currentPath();
-    path.append("/scripts/phantom_matching.sh");
+  //  phantom_match->compute(LE_filename->text(),cB_protocol->currentText());
 
-    proc->start(path);
 
-    connect(proc,SIGNAL(finished(int)),this,SLOT(afterMatching(int)));
-
-    pb_submit->setEnabled(false);
-
-    if(proc->waitForStarted())
+    std::vector<std::string> str;
+    QString imageName_copy = image_phantom;
+    QByteArray ba2= imageName_copy.toLocal8Bit();
+    std::string ptr = ba2.data();
+    str.push_back(ptr);
+    if(firstLoad)
     {
-        this->setCursor(Qt::WaitCursor);
-       // compute->SetText("Processing");
-        qApp->processEvents();
+     LoadImages(ptr,vvImageReader::IMAGE);
+     firstLoad=false;
+    }
+    else {
+       LoadImages(ptr,vvImageReader::IMAGE);
     }
 
-    //char *system_call = (char *)"/home/afrodith/Documents/Error-Dosi/Phantom_Matching/LIBRA_MLI/phantomMatching/application/run_phantomMatching.sh /home/afrodith/Documents/Error-Dosi/Phantom_Matching/MATLAB/MATLAB_Runtime/v901 /home/afrodith/Documents/Error-Dosi/data/Final_ERROR_for_software_v1.xlsx male 3.7 16.2 28.4 8.7 7.2 9.7 8.357 ./output.csv";
-    //int i;
-    //i = system(system_call);
+    sadr.clear();
+    image_phantom.clear();
+    sadr=nullptr;
 
+}
 
-
+    pb_submit->setEnabled(true);
 
 
 
@@ -1680,5 +1911,66 @@ void CTDosimetry::phantom_matching_algorithm()
 
 
 
+void CTDosimetry::on_cB_kev_currentIndexChanged(int index)
+{
+    switch(index)
+    {
+    case 0:
+    {
+
+        LE_filename->clear();
+        LE_filename->setText("CT_"+cB_protocol->currentText()+LE_mAs->text()+"mAs"+"_"+LE_CTDi->text()+"mGy");
 
 
+    }break;
+
+    case 1:
+    {
+
+        LE_filename->clear();
+        LE_filename->setText("CT_"+cB_protocol->currentText()+LE_mAs->text()+"mAs"+"_"+LE_CTDi->text()+"mGy");
+
+
+
+    }break;
+}
+}
+
+void CTDosimetry::on_cB_protocol_currentIndexChanged(int index)
+{
+    switch(index)
+    {
+    case 0:
+    {
+
+        LE_filename->clear();
+        LE_filename->setText("CT_"+cB_protocol->currentText()+LE_mAs->text()+"mAs"+"_"+LE_CTDi->text()+"mGy");
+
+
+
+    }break;
+
+    case 1:
+    {
+
+        LE_filename->clear();
+        LE_filename->setText("CT_"+cB_protocol->currentText()+LE_mAs->text()+"mAs"+"_"+LE_CTDi->text()+"mGy");
+
+
+
+
+    }break;
+
+    case 2:
+    {
+
+        LE_filename->clear();
+        LE_filename->setText("CT_"+cB_protocol->currentText()+LE_mAs->text()+"mAs"+"_"+LE_CTDi->text()+"mGy");
+
+
+
+    }break;
+    }
+
+
+}

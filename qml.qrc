@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/Bebig_Theragenics.qml</file>
+        <file>qml/M-19_HDR.qml</file>
+        <file>qml/Nucletron_mPDR-v2.qml</file>
+    </qresource>
+</RCC>

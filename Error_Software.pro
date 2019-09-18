@@ -9,6 +9,7 @@ QT += widgets
 QT += sql
 QT += network
 QT += printsupport
+QT += quick qml 3dcore 3drender 3dinput 3dlogic 3dextras 3danimation
 QTPLUGIN += qsqlmysql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets

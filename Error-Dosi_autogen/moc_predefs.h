@@ -60,6 +60,7 @@
 #define __UINTMAX_TYPE__ long unsigned int
 #define __linux 1
 #define __DEC32_EPSILON__ 1E-6DF
+#define QT_3DANIMATION_LIB 1
 #define __FLT_EVAL_METHOD_TS_18661_3__ 0
 #define __unix 1
 #define __UINT32_MAX__ 0xffffffffU
@@ -98,6 +99,7 @@
 #define __SIZEOF_LONG__ 8
 #define __STDC_IEC_559__ 1
 #define __STDC_ISO_10646__ 201706L
+#define QT_QUICKWIDGETS_LIB 1
 #define __UINT16_C(c) c
 #define __PTRDIFF_WIDTH__ 64
 #define __DECIMAL_DIG__ 21
@@ -187,11 +189,13 @@
 #define __FLT_MANT_DIG__ 24
 #define __LDBL_DECIMAL_DIG__ 21
 #define __VERSION__ "7.4.0"
+#define QT_3DCORE_LIB 1
 #define __UINT64_C(c) c ## UL
 #define __cpp_unicode_characters 200704
 #define _STDC_PREDEF_H 1
 #define __cpp_decltype_auto 201304
 #define __GCC_ATOMIC_INT_LOCK_FREE 2
+#define QT_QUICK_LIB 1
 #define __FLT128_MAX_EXP__ 16384
 #define __FLT32_MANT_DIG__ 24
 #define __FLOAT_WORD_ORDER__ __ORDER_LITTLE_ENDIAN__
@@ -228,11 +232,14 @@
 #define __GCC_ATOMIC_WCHAR_T_LOCK_FREE 2
 #define __cpp_sized_deallocation 201309
 #define __SIZEOF_PTRDIFF_T__ 8
+#define QT_3DRENDER_LIB 1
+#define QT_GAMEPAD_LIB 1
 #define __FLT32X_MANT_DIG__ 53
 #define __x86_64__ 1
 #define __FLT32X_MIN_EXP__ (-1021)
 #define __DEC32_SUBNORMAL_MIN__ 0.000001E-95DF
 #define __INT_FAST16_MAX__ 0x7fffffffffffffffL
+#define QT_3DLOGIC_LIB 1
 #define __FLT64_DIG__ 15
 #define __UINT_FAST32_MAX__ 0xffffffffffffffffUL
 #define __UINT_LEAST64_TYPE__ long unsigned int
@@ -253,6 +260,7 @@
 #define __INT_LEAST16_MAX__ 0x7fff
 #define __DEC64_MANT_DIG__ 16
 #define __UINT_LEAST32_MAX__ 0xffffffffU
+#define QT_NETWORK_LIB 1
 #define __SEG_GS 1
 #define __FLT32_DENORM_MIN__ 1.40129846432481707092372958328991613e-45F32
 #define __GCC_ATOMIC_LONG_LOCK_FREE 2
@@ -335,6 +343,7 @@
 #define __FXSR__ 1
 #define __DEC_EVAL_METHOD__ 2
 #define __FLT32X_MAX__ 1.79769313486231570814527423731704357e+308F32x
+#define QT_3DEXTRAS_LIB 1
 #define __cpp_runtime_arrays 198712
 #define __UINT64_TYPE__ long unsigned int
 #define __UINT32_C(c) c ## U
@@ -365,6 +374,7 @@
 #define __UINTMAX_MAX__ 0xffffffffffffffffUL
 #define __DEC32_MANT_DIG__ 7
 #define __FLT32X_DENORM_MIN__ 4.94065645841246544176568792868221372e-324F32x
+#define QT_3DINPUT_LIB 1
 #define __DBL_MAX_10_EXP__ 308
 #define __LDBL_DENORM_MIN__ 3.64519953188247460252840593361941982e-4951L
 #define __INT16_C(c) c
@@ -373,6 +383,7 @@
 #define __FLT32X_DIG__ 15
 #define __PTRDIFF_TYPE__ long int
 #define __ATOMIC_SEQ_CST 5
+#define QT_QML_LIB 1
 #define __UINT32_TYPE__ unsigned int
 #define __FLT32X_MIN_10_EXP__ (-307)
 #define __UINTPTR_TYPE__ long unsigned int

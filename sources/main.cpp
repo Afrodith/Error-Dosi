@@ -8,6 +8,7 @@ int main(int argc, char *argv[])
     a.setApplicationName("Error Dosi");
     a.setOrganizationName("Bioemtech");
     a.setWindowIcon(QIcon(":/icons/icons/error.png"));
+    //a.setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
     QFile file(":/StyleSheets/Minimalist/Minimalist.qss");
     file.open(QFile::ReadOnly);
     QString styleSheet = QLatin1String(file.readAll());

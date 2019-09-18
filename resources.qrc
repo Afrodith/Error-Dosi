@@ -62,7 +62,7 @@
         <file>data/Brachytherapy/Amersham_Health_6711.pdf</file>
         <file>data/Brachytherapy/Bebig_Theragenics.pdf</file>
         <file>data/Brachytherapy/M-19_HDR.pdf</file>
-        <file>data/Brachytherapy/Nucletron_mHDR-v1_classic.pdf</file>
+        <file>data/Brachytherapy/Nucletron_mHDR-v1.pdf</file>
         <file>data/Brachytherapy/Nucletron_mPDR-v2.pdf</file>
         <file>data/Brachytherapy/Varian_VS2000.pdf</file>
         <file>data/CT-Dosimetry/100kVp/Abdomen/phantom_001.txt</file>
@@ -180,6 +180,12 @@
         <file>data/NM-Dosimetry/Tc99m_MDP/phantom_012.txt</file>
         <file>data/NM-Dosimetry/Tc99m_MDP/phantom_013.txt</file>
         <file>data/NM-Dosimetry/Tc99m_MDP/time_activity_curves_Tc99m_MDP.txt</file>
+        <file>data/Brachytherapy/stl/bebig.stl</file>
+        <file>data/Brachytherapy/stl/m19.stl</file>
+        <file>data/Brachytherapy/stl/pdr_v2.stl</file>
+        <file>data/Brachytherapy/blender/bebig.blend</file>
+        <file>data/Brachytherapy/blender/m19.blend</file>
+        <file>data/Brachytherapy/blender/pdr_v2.blend</file>
     </qresource>
     <qresource prefix="/icons">
         <file>icons/error.png</file>

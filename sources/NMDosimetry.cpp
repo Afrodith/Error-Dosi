@@ -91,12 +91,11 @@
 #endif
 
 
-class WordDelimitedByCommas : public std::string
+
+class WordDelimiter : public std::string
 {};
 
-std::istream& operator>>(std::istream& is, WordDelimitedByCommas& output);
-QVector<std::string> GetPhantomNameFromFile(std::ifstream* p_file);
-
+std::istream& operator>>(std::istream& is, WordDelimiter& output);
 
 
 NMDosimetry::NMDosimetry(QMainWindow *parent)
@@ -542,6 +541,8 @@ void NMDosimetry::LoadImages(std::string files, vvImageReader::LoadedImageType f
       } else {
 
           mSlicerManagers.push_back(imageManager);
+
+          injectDosesInImage();
 
 
           QFileInfo fileinfo(imageManager->GetFileName().c_str()); //Do not show the path
@@ -1832,13 +1833,17 @@ if(proc->waitForStarted())
 
 }
 
-std::istream& operator>>(std::istream& is, WordDelimitedByCommas& output)
+
+std::istream& operator>>(std::istream& is, WordDelimiter& output)
 {
    std::getline(is, output, ',');
    return is;
-}
+};
 
-QVector<std::string> GetPhantomNameFromFile(std::ifstream* p_file)
+
+
+
+QVector<std::string> NMDosimetry:: GetNMPhantomNameFromFile(std::ifstream* p_file)
 {
    std::string line;
    QVector<std::string> name_vector;
@@ -1856,8 +1861,8 @@ QVector<std::string> GetPhantomNameFromFile(std::ifstream* p_file)
      // Check if the first is a comment
 
       std::istringstream iss(line);
-      std::vector<std::string> copy((std::istream_iterator<WordDelimitedByCommas>(iss)),
-                                      std::istream_iterator<WordDelimitedByCommas>());
+      std::vector<std::string> copy((std::istream_iterator<WordDelimiter>(iss)),
+                                      std::istream_iterator<WordDelimiter>());
 
           for(int i=0;i<copy.size();i++)
           {
@@ -1905,7 +1910,7 @@ void NMDosimetry::afterMatching(int)
 
     }
 
-    phantom_name = GetPhantomNameFromFile(&p_output_file);
+    phantom_name = GetNMPhantomNameFromFile(&p_output_file);
 
     QString whole_path;
     QString constructed_str;
@@ -1988,15 +1993,15 @@ void NMDosimetry::afterMatching(int)
 
 
     if(phantom_match==nullptr)
-        phantom_match=new integradeDose(this);
+        phantom_match=new integradeDose(this,1);
     double activity = LE_activity->text().toDouble();
 
 if(sadr_completed){
     phantom_match->getFileNames(activityCurves,sadr,activity);
 
-    phantom_match->compute(LE_filename->text(),cB_radiopharma->currentText());
+    exportedDoses = phantom_match->compute(LE_filename->text(),cB_radiopharma->currentText()); // export the calculated organ doses and  save them in a vector in order to replace the organ value in the phantom
     activityCurves.clear();
-
+                                                                                               // note that the value that is displayed for each organ in the phantom 3d image is not the organ dose value, is a represantation. See the text file in the phantom folder.
     std::vector<std::string> str;
     QString imageName_copy = image_phantom;
     QByteArray ba2= imageName_copy.toLocal8Bit();
@@ -2025,4 +2030,197 @@ if(sadr_completed){
 
 }
 
+void NMDosimetry :: injectDosesInImage()
+{
 
+   // Open File to read the transformation parameters
+    std::vector<vtkImageData*> Initmatrix =  mSlicerManagers.back()->GetImage()->GetVTKImages();
+    std::vector<vtkImageData*> matrix =  mSlicerManagers.back()->GetImage()->GetVTKImages();//->GetTransform()[0]->GetMatrix();
+
+
+    vtkSmartPointer<vtkMatrix4x4> m = vtkSmartPointer<vtkMatrix4x4>::New();
+
+    m->Identity();
+    for(int j=0; j<4; j++)
+      for(int i=0; i<4; i++)
+        m->SetElement(i,j,mSlicerManagers.back()->GetImage()->GetTransform()[0]->GetMatrix()->GetElement(i,j));
+
+
+     qDebug() << exportedDoses[0];
+
+     // matrix.front()->SetNumberOfScalarComponents(1);
+
+     int* dims = matrix.at(0)->GetDimensions();
+     // int dims[3]; // can't do this
+
+     std::cout << "Dims: " << " x: " << dims[0] << " y: " << dims[1] << " z: " << dims[2] << std::endl;
+
+     std::cout << "Number of points: " << matrix.at(0)->GetNumberOfPoints() << std::endl;
+     std::cout << "Number of cells: " << matrix.at(0)->GetNumberOfCells() << std::endl;
+
+     // Fill every entry of the image data with "2.0"
+     int k=0;
+
+     for (int z = 0; z < dims[2]; z++)
+       {
+       for (int y = 0; y < dims[1]; y++)
+         {
+         for (int x = 0; x < dims[0]; x++)
+           {
+             double* pixel = static_cast<double*>(matrix.at(0)->GetScalarPointer(x,y,z));
+           if(k<exportedDoses.size())
+           {
+
+               pixel[0] = static_cast<double>(exportedDoses[k]);
+               //matrix.at(0)->SetScalarComponentFromDouble(x,y,z,0,static_cast<double>(exportedDoses.at(k)));
+
+           }
+           else
+           {
+               float val = matrix.at(0)->GetScalarComponentAsFloat(x,y,z,0);
+               pixel[0] = static_cast<double>(val);
+
+           }
+           k++;
+
+
+           }
+         }
+       }
+
+     // Retrieve the entries from the image data and print them to the screen
+     for (int z = 0; z < dims[2]; z++)
+       {
+       for (int y = 0; y < dims[1]; y++)
+         {
+         for (int x = 0; x < dims[0]; x++)
+           {
+           double* pixel = static_cast<double*>(matrix.at(0)->GetScalarPointer(x,y,z));
+           // do something with v
+           std::cout << pixel[0] << " ";
+           }
+         std::cout << std::endl;
+         }
+       std::cout << std::endl;
+       }
+
+
+
+   /* int k=0;
+   vtkSmartPointer<vtkMatrix4x4> mInitialMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
+  //  HideInputSelector();
+  //  QTabWidget * tab = dynamic_cast<NMDosimetry*>(mMainWindow)->GetTab();
+  //  move(tab->mapToGlobal(tab->pos()));
+  //  resize(tab->width(), 0);
+
+    //default image rotation center is the center of the image
+    QString xcord,ycord,zcord;
+    std::vector<double> imageorigin;
+    imageorigin=mSlicerManagers.back()->GetImage()->GetOrigin();
+    std::vector<int> imageSize = mSlicerManagers.back()->GetImage()->GetSize();
+    std::vector<double> imageSpacing = mSlicerManagers.back()->GetImage()->GetSpacing();
+     xcord=xcord.setNum(imageorigin[0]+(imageSize[0]-1)*imageSpacing[0]*0.5, 'g', 3);
+     qDebug() << xcord;
+    ycord=ycord.setNum(imageorigin[1]+(imageSize[1]-1)*imageSpacing[1]*0.5, 'g', 3);
+    qDebug() << ycord;
+    zcord=zcord.setNum(imageorigin[2]+(imageSize[2]-1)*imageSpacing[2]*0.5, 'g', 3);
+    qDebug() << zcord;
+
+
+    //backup original matrix
+    for(int j=0; j<4; j++){
+      for(int i=0; i<4; i++)
+      {
+        // TODO SR and BP: check on the list of transforms and not the first only
+        mInitialMatrix->SetElement(i,j, mSlicerManagers.back()->GetImage()->GetTransform()[0]->GetMatrix()->GetElement(i,j));
+        qDebug() << mInitialMatrix.get
+      }
+    }
+    QString origTransformString(clitk::Get4x4MatrixDoubleAsString(mInitialMatrix).c_str(*/
+
+
+//    for(int x=0;x<mSlicerManagers.back()->GetImage()->GetTransform()[0].)
+
+//    mSlicerManagers.back()->GetImage()->GetTransform()[0]->SetMatrix(matrix);
+//    mSlicerManagers.back()->GetImage()->GetTransform()[0]->Update();
+
+//    const int width = 4;
+//    const int height = 4;
+
+//    double cImage[width*height];
+//    double value = 0;
+//    for(unsigned int row = 0; row < height; ++row)
+//    {
+//      for(unsigned int col = 0; col < width; ++col)
+//      {
+//        cImage[row * width + col] = exportedDoses[col];
+//       // value += 10;
+//      }
+//    }
+
+//    // Convert the c-style image to a vtkImageData
+//    vtkSmartPointer<vtkImageImport> imageImport =
+//      vtkSmartPointer<vtkImageImport>::New();
+//    imageImport->SetDataSpacing(2, 2, 2);
+//    imageImport->SetDataOrigin(0, 0, 0);
+//    imageImport->SetWholeExtent(0, width-1, 0, height-1, 0, 0);
+//    imageImport->SetDataExtentToWholeExtent();
+//    imageImport->SetDataScalarTypeToUnsignedChar();
+//    imageImport->SetNumberOfScalarComponents(1);
+//    imageImport->SetImportVoidPointer(cImage);
+//    imageImport->Update();
+
+//    // Create an actor
+//    vtkSmartPointer<vtkImageActor> actor =
+//      vtkSmartPointer<vtkImageActor>::New();
+//    actor->SetInputData(imageImport->GetOutput());
+
+//    // Setup renderer
+//    vtkSmartPointer<vtkRenderer> renderer =
+//      vtkSmartPointer<vtkRenderer>::New();
+//    renderer->AddActor(actor);
+//    renderer->ResetCamera();
+
+//    // Setup render window
+//    vtkSmartPointer<vtkRenderWindow> renderWindow =
+//      vtkSmartPointer<vtkRenderWindow>::New();
+//    renderWindow->AddRenderer(renderer);
+
+//    // Setup render window interactor
+//    vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
+//      vtkSmartPointer<vtkRenderWindowInteractor>::New();
+//    vtkSmartPointer<vtkInteractorStyle> style =
+//      vtkSmartPointer<vtkInteractorStyle>::New();
+
+//    renderWindowInteractor->SetInteractorStyle(style);
+
+//    // Render and start interaction
+//    renderWindowInteractor->SetRenderWindow(renderWindow);
+//    renderWindow->Render();
+//    renderWindowInteractor->Initialize();
+
+//    renderWindowInteractor->Start();
+
+}
+
+void NMDosimetry::on_actionreg_triggered()
+{
+    on_actionCustom_Register_triggered();
+}
+
+void NMDosimetry::on_pb_clear_clicked()
+{
+    LE_BMI->clear();
+    LE_LAT->clear();
+    LE_age->clear();
+    LE_lung->clear();
+    LE_height->clear();
+    LE_weight->clear();
+    LE_activity->clear();
+    LE_filename->clear();
+    LE_height_torso->clear();
+    LE_effectiveDiam->clear();
+    LE_anteroposterior->clear();
+    cB_radiopharma->setCurrentIndex(-1);
+
+}
