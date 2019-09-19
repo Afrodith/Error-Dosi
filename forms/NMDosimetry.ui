@@ -6,238 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1205</width>
-    <height>842</height>
+    <width>1461</width>
+    <height>797</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>NMDosimetry</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QSplitter" name="OSplitter">
-    <property name="geometry">
-     <rect>
-      <x>600</x>
-      <y>70</y>
-      <width>291</width>
-      <height>571</height>
-     </rect>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Vertical</enum>
-    </property>
-    <widget class="QWidget" name="NOWidget" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <layout class="QGridLayout" name="_13">
-      <property name="leftMargin">
-       <number>2</number>
-      </property>
-      <property name="topMargin">
-       <number>2</number>
-      </property>
-      <property name="rightMargin">
-       <number>2</number>
-      </property>
-      <property name="bottomMargin">
-       <number>2</number>
-      </property>
-      <property name="horizontalSpacing">
-       <number>2</number>
-      </property>
-      <item row="0" column="1">
-       <widget class="QSlider" name="NOVerticalSlider">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QSlider" name="NOHorizontalSlider">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QVTKWidget" name="NOViewWidget">
-        <property name="mouseTracking">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QWidget" name="SOWidget" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="focusPolicy">
-      <enum>Qt::NoFocus</enum>
-     </property>
-     <layout class="QGridLayout" name="_14">
-      <property name="leftMargin">
-       <number>2</number>
-      </property>
-      <property name="topMargin">
-       <number>2</number>
-      </property>
-      <property name="rightMargin">
-       <number>2</number>
-      </property>
-      <property name="bottomMargin">
-       <number>2</number>
-      </property>
-      <property name="spacing">
-       <number>2</number>
-      </property>
-      <item row="0" column="0">
-       <widget class="QVTKWidget" name="SOViewWidget">
-        <property name="mouseTracking">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QSlider" name="SOVerticalSlider">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QSlider" name="SOHorizontalSlider">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </widget>
-   <widget class="QSplitter" name="ESplitter">
-    <property name="geometry">
-     <rect>
-      <x>890</x>
-      <y>70</y>
-      <width>271</width>
-      <height>571</height>
-     </rect>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Vertical</enum>
-    </property>
-    <widget class="QWidget" name="NEWidget" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <layout class="QGridLayout" name="_15">
-      <property name="leftMargin">
-       <number>2</number>
-      </property>
-      <property name="topMargin">
-       <number>2</number>
-      </property>
-      <property name="rightMargin">
-       <number>2</number>
-      </property>
-      <property name="bottomMargin">
-       <number>2</number>
-      </property>
-      <property name="spacing">
-       <number>2</number>
-      </property>
-      <item row="0" column="1">
-       <widget class="QSlider" name="NEVerticalSlider">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QSlider" name="NEHorizontalSlider">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QVTKWidget" name="NEViewWidget">
-        <property name="mouseTracking">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QWidget" name="SEWidget" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <layout class="QGridLayout" name="_16">
-      <property name="leftMargin">
-       <number>2</number>
-      </property>
-      <property name="topMargin">
-       <number>2</number>
-      </property>
-      <property name="rightMargin">
-       <number>2</number>
-      </property>
-      <property name="bottomMargin">
-       <number>2</number>
-      </property>
-      <property name="spacing">
-       <number>2</number>
-      </property>
-      <item row="0" column="0">
-       <widget class="QVTKWidget" name="SEViewWidget">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="mouseTracking">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QSlider" name="SEVerticalSlider">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QSlider" name="SEHorizontalSlider">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </widget>
    <widget class="QPushButton" name="pb_submit">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>570</y>
+      <x>210</x>
+      <y>660</y>
       <width>91</width>
       <height>41</height>
      </rect>
@@ -249,8 +30,8 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>760</x>
-      <y>650</y>
+      <x>860</x>
+      <y>710</y>
       <width>251</width>
       <height>17</height>
      </rect>
@@ -259,34 +40,11 @@
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Model Viewer&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>490</x>
-      <y>10</y>
-      <width>211</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;NM Dosimetry&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-   </widget>
-   <widget class="QDial" name="dial">
-    <property name="geometry">
-     <rect>
-      <x>710</x>
-      <y>700</y>
-      <width>50</width>
-      <height>64</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QPushButton" name="pb_info">
     <property name="geometry">
      <rect>
-      <x>530</x>
-      <y>570</y>
+      <x>500</x>
+      <y>670</y>
       <width>31</width>
       <height>31</height>
      </rect>
@@ -308,8 +66,8 @@
    <widget class="QLabel" name="label_15">
     <property name="geometry">
      <rect>
-      <x>600</x>
-      <y>35</y>
+      <x>790</x>
+      <y>25</y>
       <width>81</width>
       <height>31</height>
      </rect>
@@ -321,10 +79,10 @@
    <widget class="QComboBox" name="colorMapComboBox">
     <property name="geometry">
      <rect>
-      <x>690</x>
-      <y>40</y>
-      <width>121</width>
-      <height>25</height>
+      <x>880</x>
+      <y>30</y>
+      <width>111</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="currentText">
@@ -364,8 +122,8 @@
    <widget class="QPushButton" name="viewButton">
     <property name="geometry">
      <rect>
-      <x>360</x>
-      <y>570</y>
+      <x>340</x>
+      <y>660</y>
       <width>101</width>
       <height>41</height>
      </rect>
@@ -377,9 +135,9 @@
    <widget class="QComboBox" name="comboBox">
     <property name="geometry">
      <rect>
-      <x>880</x>
-      <y>40</y>
-      <width>111</width>
+      <x>1020</x>
+      <y>30</y>
+      <width>131</width>
       <height>21</height>
      </rect>
     </property>
@@ -403,9 +161,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>50</y>
-      <width>431</width>
-      <height>471</height>
+      <y>40</y>
+      <width>481</width>
+      <height>581</height>
      </rect>
     </property>
     <property name="title">
@@ -662,8 +420,8 @@
    <widget class="QPushButton" name="pb_clear">
     <property name="geometry">
      <rect>
-      <x>80</x>
-      <y>570</y>
+      <x>60</x>
+      <y>660</y>
       <width>91</width>
       <height>41</height>
      </rect>
@@ -672,26 +430,251 @@
      <string>Clear</string>
     </property>
    </widget>
+   <widget class="QSplitter" name="ESplitter">
+    <property name="geometry">
+     <rect>
+      <x>990</x>
+      <y>60</y>
+      <width>381</width>
+      <height>641</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+    <widget class="QWidget" name="NEWidget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <layout class="QGridLayout" name="_15">
+      <property name="leftMargin">
+       <number>2</number>
+      </property>
+      <property name="topMargin">
+       <number>2</number>
+      </property>
+      <property name="rightMargin">
+       <number>2</number>
+      </property>
+      <property name="bottomMargin">
+       <number>2</number>
+      </property>
+      <property name="spacing">
+       <number>2</number>
+      </property>
+      <item row="0" column="1">
+       <widget class="QSlider" name="NEVerticalSlider">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QSlider" name="NEHorizontalSlider">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QVTKWidget" name="NEViewWidget">
+        <property name="mouseTracking">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="SEWidget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <layout class="QGridLayout" name="_16">
+      <property name="leftMargin">
+       <number>2</number>
+      </property>
+      <property name="topMargin">
+       <number>2</number>
+      </property>
+      <property name="rightMargin">
+       <number>2</number>
+      </property>
+      <property name="bottomMargin">
+       <number>2</number>
+      </property>
+      <property name="spacing">
+       <number>2</number>
+      </property>
+      <item row="0" column="1">
+       <widget class="QSlider" name="SEVerticalSlider">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QSlider" name="SEHorizontalSlider">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QVTKWidget" name="SEViewWidget">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="mouseTracking">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+   <widget class="QSplitter" name="OSplitter">
+    <property name="geometry">
+     <rect>
+      <x>590</x>
+      <y>60</y>
+      <width>401</width>
+      <height>641</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+    <widget class="QWidget" name="NOWidget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <layout class="QGridLayout" name="_13">
+      <property name="leftMargin">
+       <number>2</number>
+      </property>
+      <property name="topMargin">
+       <number>2</number>
+      </property>
+      <property name="rightMargin">
+       <number>2</number>
+      </property>
+      <property name="bottomMargin">
+       <number>2</number>
+      </property>
+      <property name="horizontalSpacing">
+       <number>2</number>
+      </property>
+      <item row="0" column="1">
+       <widget class="QSlider" name="NOVerticalSlider">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QSlider" name="NOHorizontalSlider">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QVTKWidget" name="NOViewWidget">
+        <property name="mouseTracking">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="SOWidget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::NoFocus</enum>
+     </property>
+     <layout class="QGridLayout" name="_14">
+      <property name="leftMargin">
+       <number>2</number>
+      </property>
+      <property name="topMargin">
+       <number>2</number>
+      </property>
+      <property name="rightMargin">
+       <number>2</number>
+      </property>
+      <property name="bottomMargin">
+       <number>2</number>
+      </property>
+      <property name="spacing">
+       <number>2</number>
+      </property>
+      <item row="0" column="1">
+       <widget class="QSlider" name="SOVerticalSlider">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QSlider" name="SOHorizontalSlider">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QVTKWidget" name="SOViewWidget">
+        <property name="mouseTracking">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>560</x>
+      <y>10</y>
+      <width>211</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;NM Dosimetry&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1205</width>
+     <width>1461</width>
      <height>22</height>
     </rect>
    </property>
    <property name="defaultUp">
     <bool>false</bool>
    </property>
-   <widget class="QMenu" name="menuaction">
-    <property name="title">
-     <string>action</string>
-    </property>
-    <addaction name="actionreg"/>
-   </widget>
-   <addaction name="menuaction"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionLoad_images">

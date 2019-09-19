@@ -14,13 +14,11 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QComboBox>
-#include <QtWidgets/QDial>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
-#include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSlider>
@@ -82,32 +80,8 @@ public:
     QAction *actionprp;
     QAction *actionreg;
     QWidget *centralwidget;
-    QSplitter *OSplitter;
-    QWidget *NOWidget;
-    QGridLayout *_13;
-    QSlider *NOVerticalSlider;
-    QSlider *NOHorizontalSlider;
-    QVTKWidget *NOViewWidget;
-    QWidget *SOWidget;
-    QGridLayout *_14;
-    QVTKWidget *SOViewWidget;
-    QSlider *SOVerticalSlider;
-    QSlider *SOHorizontalSlider;
-    QSplitter *ESplitter;
-    QWidget *NEWidget;
-    QGridLayout *_15;
-    QSlider *NEVerticalSlider;
-    QSlider *NEHorizontalSlider;
-    QVTKWidget *NEViewWidget;
-    QWidget *SEWidget;
-    QGridLayout *_16;
-    QVTKWidget *SEViewWidget;
-    QSlider *SEVerticalSlider;
-    QSlider *SEHorizontalSlider;
     QPushButton *pb_submit;
     QLabel *label_2;
-    QLabel *label;
-    QDial *dial;
     QPushButton *pb_info;
     QLabel *label_15;
     QComboBox *colorMapComboBox;
@@ -152,15 +126,37 @@ public:
     QLineEdit *LE_filename;
     QLabel *label_26;
     QPushButton *pb_clear;
+    QSplitter *ESplitter;
+    QWidget *NEWidget;
+    QGridLayout *_15;
+    QSlider *NEVerticalSlider;
+    QSlider *NEHorizontalSlider;
+    QVTKWidget *NEViewWidget;
+    QWidget *SEWidget;
+    QGridLayout *_16;
+    QSlider *SEVerticalSlider;
+    QSlider *SEHorizontalSlider;
+    QVTKWidget *SEViewWidget;
+    QSplitter *OSplitter;
+    QWidget *NOWidget;
+    QGridLayout *_13;
+    QSlider *NOVerticalSlider;
+    QSlider *NOHorizontalSlider;
+    QVTKWidget *NOViewWidget;
+    QWidget *SOWidget;
+    QGridLayout *_14;
+    QSlider *SOVerticalSlider;
+    QSlider *SOHorizontalSlider;
+    QVTKWidget *SOViewWidget;
+    QLabel *label;
     QMenuBar *menubar;
-    QMenu *menuaction;
     QStatusBar *statusbar;
 
     void setupUi(QMainWindow *NMDosimetry)
     {
         if (NMDosimetry->objectName().isEmpty())
             NMDosimetry->setObjectName(QString::fromUtf8("NMDosimetry"));
-        NMDosimetry->resize(1205, 842);
+        NMDosimetry->resize(1461, 797);
         actionLoad_images = new QAction(NMDosimetry);
         actionLoad_images->setObjectName(QString::fromUtf8("actionLoad_images"));
         QIcon icon;
@@ -330,150 +326,22 @@ public:
         actionreg->setObjectName(QString::fromUtf8("actionreg"));
         centralwidget = new QWidget(NMDosimetry);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
-        OSplitter = new QSplitter(centralwidget);
-        OSplitter->setObjectName(QString::fromUtf8("OSplitter"));
-        OSplitter->setGeometry(QRect(600, 70, 291, 571));
-        OSplitter->setOrientation(Qt::Vertical);
-        NOWidget = new QWidget(OSplitter);
-        NOWidget->setObjectName(QString::fromUtf8("NOWidget"));
-        QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(NOWidget->sizePolicy().hasHeightForWidth());
-        NOWidget->setSizePolicy(sizePolicy);
-        _13 = new QGridLayout(NOWidget);
-        _13->setObjectName(QString::fromUtf8("_13"));
-        _13->setHorizontalSpacing(2);
-        _13->setContentsMargins(2, 2, 2, 2);
-        NOVerticalSlider = new QSlider(NOWidget);
-        NOVerticalSlider->setObjectName(QString::fromUtf8("NOVerticalSlider"));
-        NOVerticalSlider->setOrientation(Qt::Vertical);
-
-        _13->addWidget(NOVerticalSlider, 0, 1, 1, 1);
-
-        NOHorizontalSlider = new QSlider(NOWidget);
-        NOHorizontalSlider->setObjectName(QString::fromUtf8("NOHorizontalSlider"));
-        NOHorizontalSlider->setOrientation(Qt::Horizontal);
-
-        _13->addWidget(NOHorizontalSlider, 1, 0, 1, 1);
-
-        NOViewWidget = new QVTKWidget(NOWidget);
-        NOViewWidget->setObjectName(QString::fromUtf8("NOViewWidget"));
-        NOViewWidget->setMouseTracking(true);
-
-        _13->addWidget(NOViewWidget, 0, 0, 1, 1);
-
-        OSplitter->addWidget(NOWidget);
-        SOWidget = new QWidget(OSplitter);
-        SOWidget->setObjectName(QString::fromUtf8("SOWidget"));
-        sizePolicy.setHeightForWidth(SOWidget->sizePolicy().hasHeightForWidth());
-        SOWidget->setSizePolicy(sizePolicy);
-        SOWidget->setFocusPolicy(Qt::NoFocus);
-        _14 = new QGridLayout(SOWidget);
-        _14->setSpacing(2);
-        _14->setObjectName(QString::fromUtf8("_14"));
-        _14->setContentsMargins(2, 2, 2, 2);
-        SOViewWidget = new QVTKWidget(SOWidget);
-        SOViewWidget->setObjectName(QString::fromUtf8("SOViewWidget"));
-        SOViewWidget->setMouseTracking(true);
-
-        _14->addWidget(SOViewWidget, 0, 0, 1, 1);
-
-        SOVerticalSlider = new QSlider(SOWidget);
-        SOVerticalSlider->setObjectName(QString::fromUtf8("SOVerticalSlider"));
-        SOVerticalSlider->setOrientation(Qt::Vertical);
-
-        _14->addWidget(SOVerticalSlider, 0, 1, 1, 1);
-
-        SOHorizontalSlider = new QSlider(SOWidget);
-        SOHorizontalSlider->setObjectName(QString::fromUtf8("SOHorizontalSlider"));
-        SOHorizontalSlider->setOrientation(Qt::Horizontal);
-
-        _14->addWidget(SOHorizontalSlider, 1, 0, 1, 1);
-
-        OSplitter->addWidget(SOWidget);
-        ESplitter = new QSplitter(centralwidget);
-        ESplitter->setObjectName(QString::fromUtf8("ESplitter"));
-        ESplitter->setGeometry(QRect(890, 70, 271, 571));
-        ESplitter->setOrientation(Qt::Vertical);
-        NEWidget = new QWidget(ESplitter);
-        NEWidget->setObjectName(QString::fromUtf8("NEWidget"));
-        sizePolicy.setHeightForWidth(NEWidget->sizePolicy().hasHeightForWidth());
-        NEWidget->setSizePolicy(sizePolicy);
-        _15 = new QGridLayout(NEWidget);
-        _15->setSpacing(2);
-        _15->setObjectName(QString::fromUtf8("_15"));
-        _15->setContentsMargins(2, 2, 2, 2);
-        NEVerticalSlider = new QSlider(NEWidget);
-        NEVerticalSlider->setObjectName(QString::fromUtf8("NEVerticalSlider"));
-        NEVerticalSlider->setOrientation(Qt::Vertical);
-
-        _15->addWidget(NEVerticalSlider, 0, 1, 1, 1);
-
-        NEHorizontalSlider = new QSlider(NEWidget);
-        NEHorizontalSlider->setObjectName(QString::fromUtf8("NEHorizontalSlider"));
-        NEHorizontalSlider->setOrientation(Qt::Horizontal);
-
-        _15->addWidget(NEHorizontalSlider, 1, 0, 1, 1);
-
-        NEViewWidget = new QVTKWidget(NEWidget);
-        NEViewWidget->setObjectName(QString::fromUtf8("NEViewWidget"));
-        NEViewWidget->setMouseTracking(true);
-
-        _15->addWidget(NEViewWidget, 0, 0, 1, 1);
-
-        ESplitter->addWidget(NEWidget);
-        SEWidget = new QWidget(ESplitter);
-        SEWidget->setObjectName(QString::fromUtf8("SEWidget"));
-        sizePolicy.setHeightForWidth(SEWidget->sizePolicy().hasHeightForWidth());
-        SEWidget->setSizePolicy(sizePolicy);
-        _16 = new QGridLayout(SEWidget);
-        _16->setSpacing(2);
-        _16->setObjectName(QString::fromUtf8("_16"));
-        _16->setContentsMargins(2, 2, 2, 2);
-        SEViewWidget = new QVTKWidget(SEWidget);
-        SEViewWidget->setObjectName(QString::fromUtf8("SEViewWidget"));
-        sizePolicy.setHeightForWidth(SEViewWidget->sizePolicy().hasHeightForWidth());
-        SEViewWidget->setSizePolicy(sizePolicy);
-        SEViewWidget->setMouseTracking(true);
-
-        _16->addWidget(SEViewWidget, 0, 0, 1, 1);
-
-        SEVerticalSlider = new QSlider(SEWidget);
-        SEVerticalSlider->setObjectName(QString::fromUtf8("SEVerticalSlider"));
-        SEVerticalSlider->setOrientation(Qt::Vertical);
-
-        _16->addWidget(SEVerticalSlider, 0, 1, 1, 1);
-
-        SEHorizontalSlider = new QSlider(SEWidget);
-        SEHorizontalSlider->setObjectName(QString::fromUtf8("SEHorizontalSlider"));
-        SEHorizontalSlider->setOrientation(Qt::Horizontal);
-
-        _16->addWidget(SEHorizontalSlider, 1, 0, 1, 1);
-
-        ESplitter->addWidget(SEWidget);
         pb_submit = new QPushButton(centralwidget);
         pb_submit->setObjectName(QString::fromUtf8("pb_submit"));
-        pb_submit->setGeometry(QRect(200, 570, 91, 41));
+        pb_submit->setGeometry(QRect(210, 660, 91, 41));
         label_2 = new QLabel(centralwidget);
         label_2->setObjectName(QString::fromUtf8("label_2"));
-        label_2->setGeometry(QRect(760, 650, 251, 17));
-        label = new QLabel(centralwidget);
-        label->setObjectName(QString::fromUtf8("label"));
-        label->setGeometry(QRect(490, 10, 211, 17));
-        dial = new QDial(centralwidget);
-        dial->setObjectName(QString::fromUtf8("dial"));
-        dial->setGeometry(QRect(710, 700, 50, 64));
+        label_2->setGeometry(QRect(860, 710, 251, 17));
         pb_info = new QPushButton(centralwidget);
         pb_info->setObjectName(QString::fromUtf8("pb_info"));
-        pb_info->setGeometry(QRect(530, 570, 31, 31));
+        pb_info->setGeometry(QRect(500, 670, 31, 31));
         QIcon icon12;
         icon12.addFile(QString::fromUtf8(":/icons/icons/icons8-about-26.png"), QSize(), QIcon::Normal, QIcon::Off);
         pb_info->setIcon(icon12);
         pb_info->setIconSize(QSize(25, 25));
         label_15 = new QLabel(centralwidget);
         label_15->setObjectName(QString::fromUtf8("label_15"));
-        label_15->setGeometry(QRect(600, 35, 81, 31));
+        label_15->setGeometry(QRect(790, 25, 81, 31));
         colorMapComboBox = new QComboBox(centralwidget);
         colorMapComboBox->addItem(QString());
         colorMapComboBox->addItem(QString());
@@ -482,19 +350,19 @@ public:
         colorMapComboBox->addItem(QString());
         colorMapComboBox->addItem(QString());
         colorMapComboBox->setObjectName(QString::fromUtf8("colorMapComboBox"));
-        colorMapComboBox->setGeometry(QRect(690, 40, 121, 25));
+        colorMapComboBox->setGeometry(QRect(880, 30, 111, 21));
         viewButton = new QPushButton(centralwidget);
         viewButton->setObjectName(QString::fromUtf8("viewButton"));
-        viewButton->setGeometry(QRect(360, 570, 101, 41));
+        viewButton->setGeometry(QRect(340, 660, 101, 41));
         comboBox = new QComboBox(centralwidget);
         comboBox->addItem(QString());
         comboBox->addItem(QString());
         comboBox->addItem(QString());
         comboBox->setObjectName(QString::fromUtf8("comboBox"));
-        comboBox->setGeometry(QRect(880, 40, 111, 21));
+        comboBox->setGeometry(QRect(1020, 30, 131, 21));
         groupBox = new QGroupBox(centralwidget);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
-        groupBox->setGeometry(QRect(10, 50, 431, 471));
+        groupBox->setGeometry(QRect(10, 40, 481, 581));
         gridLayout = new QGridLayout(groupBox);
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
         label_8 = new QLabel(groupBox);
@@ -687,21 +555,141 @@ public:
 
         pb_clear = new QPushButton(centralwidget);
         pb_clear->setObjectName(QString::fromUtf8("pb_clear"));
-        pb_clear->setGeometry(QRect(80, 570, 91, 41));
+        pb_clear->setGeometry(QRect(60, 660, 91, 41));
+        ESplitter = new QSplitter(centralwidget);
+        ESplitter->setObjectName(QString::fromUtf8("ESplitter"));
+        ESplitter->setGeometry(QRect(990, 60, 381, 641));
+        ESplitter->setOrientation(Qt::Vertical);
+        NEWidget = new QWidget(ESplitter);
+        NEWidget->setObjectName(QString::fromUtf8("NEWidget"));
+        QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(NEWidget->sizePolicy().hasHeightForWidth());
+        NEWidget->setSizePolicy(sizePolicy);
+        _15 = new QGridLayout(NEWidget);
+        _15->setSpacing(2);
+        _15->setObjectName(QString::fromUtf8("_15"));
+        _15->setContentsMargins(2, 2, 2, 2);
+        NEVerticalSlider = new QSlider(NEWidget);
+        NEVerticalSlider->setObjectName(QString::fromUtf8("NEVerticalSlider"));
+        NEVerticalSlider->setOrientation(Qt::Vertical);
+
+        _15->addWidget(NEVerticalSlider, 0, 1, 1, 1);
+
+        NEHorizontalSlider = new QSlider(NEWidget);
+        NEHorizontalSlider->setObjectName(QString::fromUtf8("NEHorizontalSlider"));
+        NEHorizontalSlider->setOrientation(Qt::Horizontal);
+
+        _15->addWidget(NEHorizontalSlider, 1, 0, 1, 1);
+
+        NEViewWidget = new QVTKWidget(NEWidget);
+        NEViewWidget->setObjectName(QString::fromUtf8("NEViewWidget"));
+        NEViewWidget->setMouseTracking(true);
+
+        _15->addWidget(NEViewWidget, 0, 0, 1, 1);
+
+        ESplitter->addWidget(NEWidget);
+        SEWidget = new QWidget(ESplitter);
+        SEWidget->setObjectName(QString::fromUtf8("SEWidget"));
+        sizePolicy.setHeightForWidth(SEWidget->sizePolicy().hasHeightForWidth());
+        SEWidget->setSizePolicy(sizePolicy);
+        _16 = new QGridLayout(SEWidget);
+        _16->setSpacing(2);
+        _16->setObjectName(QString::fromUtf8("_16"));
+        _16->setContentsMargins(2, 2, 2, 2);
+        SEVerticalSlider = new QSlider(SEWidget);
+        SEVerticalSlider->setObjectName(QString::fromUtf8("SEVerticalSlider"));
+        SEVerticalSlider->setOrientation(Qt::Vertical);
+
+        _16->addWidget(SEVerticalSlider, 0, 1, 1, 1);
+
+        SEHorizontalSlider = new QSlider(SEWidget);
+        SEHorizontalSlider->setObjectName(QString::fromUtf8("SEHorizontalSlider"));
+        SEHorizontalSlider->setOrientation(Qt::Horizontal);
+
+        _16->addWidget(SEHorizontalSlider, 1, 0, 1, 1);
+
+        SEViewWidget = new QVTKWidget(SEWidget);
+        SEViewWidget->setObjectName(QString::fromUtf8("SEViewWidget"));
+        sizePolicy.setHeightForWidth(SEViewWidget->sizePolicy().hasHeightForWidth());
+        SEViewWidget->setSizePolicy(sizePolicy);
+        SEViewWidget->setMouseTracking(true);
+
+        _16->addWidget(SEViewWidget, 0, 0, 1, 1);
+
+        ESplitter->addWidget(SEWidget);
+        OSplitter = new QSplitter(centralwidget);
+        OSplitter->setObjectName(QString::fromUtf8("OSplitter"));
+        OSplitter->setGeometry(QRect(590, 60, 401, 641));
+        OSplitter->setOrientation(Qt::Vertical);
+        NOWidget = new QWidget(OSplitter);
+        NOWidget->setObjectName(QString::fromUtf8("NOWidget"));
+        sizePolicy.setHeightForWidth(NOWidget->sizePolicy().hasHeightForWidth());
+        NOWidget->setSizePolicy(sizePolicy);
+        _13 = new QGridLayout(NOWidget);
+        _13->setObjectName(QString::fromUtf8("_13"));
+        _13->setHorizontalSpacing(2);
+        _13->setContentsMargins(2, 2, 2, 2);
+        NOVerticalSlider = new QSlider(NOWidget);
+        NOVerticalSlider->setObjectName(QString::fromUtf8("NOVerticalSlider"));
+        NOVerticalSlider->setOrientation(Qt::Vertical);
+
+        _13->addWidget(NOVerticalSlider, 0, 1, 1, 1);
+
+        NOHorizontalSlider = new QSlider(NOWidget);
+        NOHorizontalSlider->setObjectName(QString::fromUtf8("NOHorizontalSlider"));
+        NOHorizontalSlider->setOrientation(Qt::Horizontal);
+
+        _13->addWidget(NOHorizontalSlider, 1, 0, 1, 1);
+
+        NOViewWidget = new QVTKWidget(NOWidget);
+        NOViewWidget->setObjectName(QString::fromUtf8("NOViewWidget"));
+        NOViewWidget->setMouseTracking(true);
+
+        _13->addWidget(NOViewWidget, 0, 0, 1, 1);
+
+        OSplitter->addWidget(NOWidget);
+        SOWidget = new QWidget(OSplitter);
+        SOWidget->setObjectName(QString::fromUtf8("SOWidget"));
+        sizePolicy.setHeightForWidth(SOWidget->sizePolicy().hasHeightForWidth());
+        SOWidget->setSizePolicy(sizePolicy);
+        SOWidget->setFocusPolicy(Qt::NoFocus);
+        _14 = new QGridLayout(SOWidget);
+        _14->setSpacing(2);
+        _14->setObjectName(QString::fromUtf8("_14"));
+        _14->setContentsMargins(2, 2, 2, 2);
+        SOVerticalSlider = new QSlider(SOWidget);
+        SOVerticalSlider->setObjectName(QString::fromUtf8("SOVerticalSlider"));
+        SOVerticalSlider->setOrientation(Qt::Vertical);
+
+        _14->addWidget(SOVerticalSlider, 0, 1, 1, 1);
+
+        SOHorizontalSlider = new QSlider(SOWidget);
+        SOHorizontalSlider->setObjectName(QString::fromUtf8("SOHorizontalSlider"));
+        SOHorizontalSlider->setOrientation(Qt::Horizontal);
+
+        _14->addWidget(SOHorizontalSlider, 1, 0, 1, 1);
+
+        SOViewWidget = new QVTKWidget(SOWidget);
+        SOViewWidget->setObjectName(QString::fromUtf8("SOViewWidget"));
+        SOViewWidget->setMouseTracking(true);
+
+        _14->addWidget(SOViewWidget, 0, 0, 1, 1);
+
+        OSplitter->addWidget(SOWidget);
+        label = new QLabel(centralwidget);
+        label->setObjectName(QString::fromUtf8("label"));
+        label->setGeometry(QRect(560, 10, 211, 17));
         NMDosimetry->setCentralWidget(centralwidget);
         menubar = new QMenuBar(NMDosimetry);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 1205, 22));
+        menubar->setGeometry(QRect(0, 0, 1461, 22));
         menubar->setDefaultUp(false);
-        menuaction = new QMenu(menubar);
-        menuaction->setObjectName(QString::fromUtf8("menuaction"));
         NMDosimetry->setMenuBar(menubar);
         statusbar = new QStatusBar(NMDosimetry);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
         NMDosimetry->setStatusBar(statusbar);
-
-        menubar->addAction(menuaction->menuAction());
-        menuaction->addAction(actionreg);
 
         retranslateUi(NMDosimetry);
 
@@ -772,7 +760,6 @@ public:
         actionreg->setText(QApplication::translate("NMDosimetry", "reg", nullptr));
         pb_submit->setText(QApplication::translate("NMDosimetry", "Submit", nullptr));
         label_2->setText(QApplication::translate("NMDosimetry", "<html><head/><body><p align=\"center\">Model Viewer</p></body></html>", nullptr));
-        label->setText(QApplication::translate("NMDosimetry", "<html><head/><body><p align=\"center\">NM Dosimetry</p></body></html>", nullptr));
         pb_info->setText(QString());
         label_15->setText(QApplication::translate("NMDosimetry", "Colormap :", nullptr));
         colorMapComboBox->setItemText(0, QApplication::translate("NMDosimetry", "GrayScale", nullptr));
@@ -823,7 +810,7 @@ public:
         label_3->setText(QApplication::translate("NMDosimetry", "MBq", nullptr));
         label_26->setText(QApplication::translate("NMDosimetry", ".pdf", nullptr));
         pb_clear->setText(QApplication::translate("NMDosimetry", "Clear", nullptr));
-        menuaction->setTitle(QApplication::translate("NMDosimetry", "action", nullptr));
+        label->setText(QApplication::translate("NMDosimetry", "<html><head/><body><p align=\"center\">NM Dosimetry</p></body></html>", nullptr));
     } // retranslateUi
 
 };

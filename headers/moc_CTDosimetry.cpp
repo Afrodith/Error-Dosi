@@ -22,7 +22,7 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_CTDosimetry_t {
     QByteArrayData data[66];
-    char stringdata0[931];
+    char stringdata0[916];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -90,13 +90,13 @@ QT_MOC_LITERAL(55, 693, 16), // "SaveSOScreenshot"
 QT_MOC_LITERAL(56, 710, 23), // "SaveScreenshotAllSlices"
 QT_MOC_LITERAL(57, 734, 17), // "UpdateMemoryUsage"
 QT_MOC_LITERAL(58, 752, 13), // "afterMatching"
-QT_MOC_LITERAL(59, 766, 34), // "on_actionCustom_Register_trig..."
-QT_MOC_LITERAL(60, 801, 20), // "on_pb_submit_clicked"
-QT_MOC_LITERAL(61, 822, 26), // "phantom_matching_algorithm"
-QT_MOC_LITERAL(62, 849, 10), // "fileExists"
-QT_MOC_LITERAL(63, 860, 29), // "on_cB_kev_currentIndexChanged"
-QT_MOC_LITERAL(64, 890, 5), // "index"
-QT_MOC_LITERAL(65, 896, 34) // "on_cB_protocol_currentIndexCh..."
+QT_MOC_LITERAL(59, 766, 20), // "on_pb_submit_clicked"
+QT_MOC_LITERAL(60, 787, 26), // "phantom_matching_algorithm"
+QT_MOC_LITERAL(61, 814, 10), // "fileExists"
+QT_MOC_LITERAL(62, 825, 29), // "on_cB_kev_currentIndexChanged"
+QT_MOC_LITERAL(63, 855, 5), // "index"
+QT_MOC_LITERAL(64, 861, 34), // "on_cB_protocol_currentIndexCh..."
+QT_MOC_LITERAL(65, 896, 19) // "on_pb_clear_pressed"
 
     },
     "CTDosimetry\0AnImageIsBeingClosed\0\0"
@@ -119,10 +119,11 @@ QT_MOC_LITERAL(65, 896, 34) // "on_cB_protocol_currentIndexCh..."
     "SaveNEScreenshot\0SaveNOScreenshot\0"
     "SaveSEScreenshot\0SaveSOScreenshot\0"
     "SaveScreenshotAllSlices\0UpdateMemoryUsage\0"
-    "afterMatching\0on_actionCustom_Register_triggered\0"
-    "on_pb_submit_clicked\0phantom_matching_algorithm\0"
-    "fileExists\0on_cB_kev_currentIndexChanged\0"
-    "index\0on_cB_protocol_currentIndexChanged"
+    "afterMatching\0on_pb_submit_clicked\0"
+    "phantom_matching_algorithm\0fileExists\0"
+    "on_cB_kev_currentIndexChanged\0index\0"
+    "on_cB_protocol_currentIndexChanged\0"
+    "on_pb_clear_pressed"
 };
 #undef QT_MOC_LITERAL
 
@@ -177,10 +178,10 @@ static const uint qt_meta_data_CTDosimetry[] = {
       58,    1,  315,    2, 0x0a /* Public */,
       59,    0,  318,    2, 0x08 /* Private */,
       60,    0,  319,    2, 0x08 /* Private */,
-      61,    0,  320,    2, 0x08 /* Private */,
-      62,    1,  321,    2, 0x08 /* Private */,
-      63,    1,  324,    2, 0x08 /* Private */,
-      65,    1,  327,    2, 0x08 /* Private */,
+      61,    1,  320,    2, 0x08 /* Private */,
+      62,    1,  323,    2, 0x08 /* Private */,
+      64,    1,  326,    2, 0x08 /* Private */,
+      65,    0,  329,    2, 0x08 /* Private */,
 
  // signals: parameters
     QMetaType::Void, 0x80000000 | 3,    2,
@@ -220,10 +221,10 @@ static const uint qt_meta_data_CTDosimetry[] = {
     QMetaType::Void, QMetaType::Int,    2,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void,
     QMetaType::Bool, QMetaType::QString,    2,
-    QMetaType::Void, QMetaType::Int,   64,
-    QMetaType::Void, QMetaType::Int,   64,
+    QMetaType::Void, QMetaType::Int,   63,
+    QMetaType::Void, QMetaType::Int,   63,
+    QMetaType::Void,
 
        0        // eod
 };
@@ -267,13 +268,13 @@ void CTDosimetry::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id,
         case 30: _t->SaveScreenshotAllSlices(); break;
         case 31: _t->UpdateMemoryUsage(); break;
         case 32: _t->afterMatching((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 33: _t->on_actionCustom_Register_triggered(); break;
-        case 34: _t->on_pb_submit_clicked(); break;
-        case 35: _t->phantom_matching_algorithm(); break;
-        case 36: { bool _r = _t->fileExists((*reinterpret_cast< QString(*)>(_a[1])));
+        case 33: _t->on_pb_submit_clicked(); break;
+        case 34: _t->phantom_matching_algorithm(); break;
+        case 35: { bool _r = _t->fileExists((*reinterpret_cast< QString(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< bool*>(_a[0]) = std::move(_r); }  break;
-        case 37: _t->on_cB_kev_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 38: _t->on_cB_protocol_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 36: _t->on_cB_kev_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 37: _t->on_cB_protocol_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 38: _t->on_pb_clear_pressed(); break;
         default: ;
         }
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {

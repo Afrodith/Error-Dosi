@@ -18,7 +18,10 @@ double const* p_fa, double const* p_fb, double const* p_f );
 uint32_t GetNumberDosePointFromFile(std::ifstream* p_file);
 uint32_t GetNumberOrgansFromFile(std::ifstream* p_file);
 void LoadTimeAndActivityFraction(std::ifstream* p_file, double* p_time,double** p_activity_fraction, uint32_t* p_n_organs);
-void LoadSADRs(std::ifstream* p_file, double** p_sadrs, uint32_t* p_n_organs_to_study);
+
+void LoadSADRs(std::ifstream* p_file, double** p_sadrs, uint32_t* p_n_organs_to_study);//polymorphism
+void LoadSADRs(std::ifstream* p_file, double* p_sadrs,uint32_t* p_n_organs_to_study);
+
 QVector<std::string> GetOrgansNameFromFile(std::ifstream* p_file);
 
 
@@ -241,6 +244,40 @@ QVector<std::string> GetOrgansNameFromFile(std::ifstream* p_file)
    p_file->seekg(0);
  }
 
+ void LoadSADRs(std::ifstream* p_file, double* p_sadrs,
+   uint32_t* p_n_organs_to_study)
+ {
+   std::string line, ignored_time;
+   uint32_t  i = 0;
+
+   // Read file and count number line without comment
+   while (std::getline(*p_file, line)) {
+     // Find first caracter
+     // Loop over the number of the caracters in the line
+     for (size_t j = 0; j < line.size(); ++j) {
+       if (std::isspace(line[j])) i++;
+       else break;
+     }
+
+     // Check if the first is a comment
+     if (line[i] == '#') continue;
+     else {
+       std::istringstream iss(line);
+       iss >> ignored_time;
+
+       for (uint32_t k = 0; k < *p_n_organs_to_study; ++k) {
+         iss >> p_sadrs[k];
+       }
+     }
+
+     i = 0; // Reinitialize i
+   }
+
+   // move file position indicator to beginning
+   p_file->clear();
+   p_file->seekg(0);
+ }
+
 QVector<double> integradeDose::compute(QString fname,QString test)
  {
 
@@ -255,7 +292,7 @@ QVector<double> integradeDose::compute(QString fname,QString test)
 
 #ifdef Q_OS_LINUX
      //linux code goes here
-     path =path.append("/Error-Dosi_Documents/Exports");
+     path =path.append("/Error-Dosi_Documents/Exports/NMDosimetry");
      QDir d(path);
 
      if(!d.exists())
@@ -616,7 +653,7 @@ QVector<double> integradeDose::compute(QString fname,QString manuf,QString proto
 
 #ifdef Q_OS_LINUX
      //linux code goes here
-     path =path.append("/Error-Dosi_Documents/Exports");
+     path =path.append("/Error-Dosi_Documents/Exports/CTDosimetry");
      QDir d(path);
 
      if(!d.exists())
@@ -644,68 +681,17 @@ QVector<double> integradeDose::compute(QString fname,QString manuf,QString proto
 
      if (is_verbose&&!filename.isEmpty()) {
 
-
-
-             uint32_t n_step;
-             double bin_min, bin_medium, bin_max;
-             double sadrs_min, sadrs_medium, sadrs_max;
-             double act_frac_min, act_frac_medium, act_frac_max;
-             double i_simpson = 0.0; /* in MBq */
-             double step = 0.1; /* the step of integration */
              double total_dose = 0;
              QVector<double> exportedDoses;
 
-
-             // Declaring all pointers
-
-             // Loop while there is an ardouble total_activity = 110;gument
              int32_t c = 0;
 
-
-             // Checking the activity
-             if (total_activity == 0.0) {
-                 std::cerr << "Activity has to be set!!!" << std::endl;
-                 //exit(EXIT_FAILURE);
-             }
-
-             // Checking the time activity curves file
-             if (ba.data() == nullptr) {
-                 std::cerr << "A time activity curves file has to be set!!!" << std::endl;
-                 //exit(EXIT_FAILURE);
-             }
 
              // Checking the SADRs file
              if (ba2.data() == nullptr) {
                  std::cerr << "A SADRs file has to be set!!!" << std::endl;
                  //exit(EXIT_FAILURE);
              }
-
-
-             // Opening the time activity curve file
-             std::ifstream p_time_activity_curves_file(ba.data());
-             if (!p_time_activity_curves_file.is_open()) {
-                 std::cerr << "Error opening file '" << ba.data()
-                           << "': " << strerror(errno) << std::endl;
-                 // exit(EXIT_FAILURE);
-             }
-
-             // From the time activity curve file, the number of dose point is deduced
-             uint32_t n_dose_points = GetNumberDosePointFromFile(
-                         &p_time_activity_curves_file);
-
-             // From the time activity curve file, the number of organs is deduced
-             uint32_t n_organs = GetNumberOrgansFromFile(&p_time_activity_curves_file);
-
-             // Allocating memory storing time and activity fraction
-             double* p_time = new double[n_dose_points];
-             double** p_activity_fraction = new double*[n_organs];
-             for (uint32_t t = 0; t < n_organs; ++t) {
-                 p_activity_fraction[t] = new double[n_dose_points];
-             }
-
-             // Filling time and activity fraction buffer with the activity curve file
-             LoadTimeAndActivityFraction(&p_time_activity_curves_file, p_time,
-                                         p_activity_fraction, &n_organs);
 
 
              // Opening the SADRs file
@@ -722,10 +708,8 @@ QVector<double> integradeDose::compute(QString fname,QString manuf,QString proto
              QVector<std::string> OrganNames = GetOrgansNameFromFile(&p_sadrs_file);
 
              // Allocating memory storing the SADRs for each organ
-             double** p_sadrs = new double*[n_organs_to_study];
-             for (uint32_t t = 0; t < n_organs_to_study; ++t) {
-                 p_sadrs[t] = new double[n_dose_points];
-             }
+             double* p_sadrs = new double[n_organs_to_study];
+
 
              // Filling SADRs values
              LoadSADRs(&p_sadrs_file, p_sadrs, &n_organs_to_study);
@@ -780,7 +764,7 @@ QVector<double> integradeDose::compute(QString fname,QString manuf,QString proto
              for (uint32_t t = 0; t < n_organs_to_study; ++t) {
 
 
-
+                 total_dose = p_sadrs[t]*mAS/(CDTIVol*1000);
                  if(t<OrganNames.count())
                  {
                      std::string str = OrganNames[t];

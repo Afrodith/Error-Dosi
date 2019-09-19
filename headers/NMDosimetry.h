@@ -178,19 +178,12 @@ private slots:
 
     void on_cB_radiopharma_currentIndexChanged(int index);
 
-
-
-    void on_actionCustom_Register_triggered();
-
     void on_pb_submit_clicked();
     void phantom_matching_algorithm();
     bool fileExists(QString);
 
 
    void injectDosesInImage();
-
-
-    void on_actionreg_triggered();
 
     void on_pb_clear_clicked();
 

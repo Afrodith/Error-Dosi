@@ -1589,15 +1589,7 @@ void CTDosimetry::UpdateCurrentSlicer()
 //------------------------------------------------------------------------------
 
 
-void CTDosimetry::on_actionCustom_Register_triggered()
-{
-    Rotate =new vvToolRigidReg(this);
-    vvSlicerManager *input;
-    input =  mSlicerManagers.back();
-    Rotate->InputIsSelected(mSlicerManagers.back());
-    Rotate->show();
 
-}
 
 void CTDosimetry::on_pb_submit_clicked()
 {
@@ -1680,7 +1672,7 @@ pM_file.close();
 // pM_algorith = "/home/afrodith/Documents/Error-Dosi/phantom_matching";
 
 sadr = currentDir;
-sadr.append("/data/CT-Dosimetry/"+cB_kev->currentText()+"/"+cB_protocol->currentText()+"/");
+sadr.append("/data/CT-Dosimetry/"+cB_kev->currentText()+"kVp/"+cB_protocol->currentText()+"/");
 
 
 QString path =  "sh "+QDir::currentPath();
@@ -1973,4 +1965,22 @@ void CTDosimetry::on_cB_protocol_currentIndexChanged(int index)
     }
 
 
+}
+
+void CTDosimetry::on_pb_clear_pressed()
+{
+    LE_BMI->clear();
+    LE_LAT->clear();
+    LE_age->clear();
+    LE_lung->clear();
+    LE_height->clear();
+    LE_weight->clear();
+    LE_CTDi->clear();
+    LE_mAs->clear();
+    LE_filename->clear();
+    LE_height_torso->clear();
+    LE_effectiveDiam->clear();
+    LE_anteroposterior->clear();
+    cB_kev->setCurrentIndex(-1);
+    cB_protocol->setCurrentIndex(-1);
 }

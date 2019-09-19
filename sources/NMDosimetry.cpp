@@ -142,11 +142,6 @@ NMDosimetry::NMDosimetry(QMainWindow *parent)
 
     viewMode = 1;
 
-    dial->hide();
-
-
-
-
 
 
 
@@ -542,7 +537,7 @@ void NMDosimetry::LoadImages(std::string files, vvImageReader::LoadedImageType f
 
           mSlicerManagers.push_back(imageManager);
 
-          injectDosesInImage();
+         // injectDosesInImage(); attempt to set the exported doses into the 3DImage.
 
 
           QFileInfo fileinfo(imageManager->GetFileName().c_str()); //Do not show the path
@@ -1717,15 +1712,7 @@ void NMDosimetry::UpdateCurrentSlicer()
 //------------------------------------------------------------------------------
 
 
-void NMDosimetry::on_actionCustom_Register_triggered()
-{
-    Rotate =new vvToolRigidReg(this);
-    vvSlicerManager *input;
-    input =  mSlicerManagers.back();
-    Rotate->InputIsSelected(mSlicerManagers.back());
-    Rotate->show();
 
-}
 
 void NMDosimetry::on_pb_submit_clicked()
 {
@@ -2030,183 +2017,91 @@ if(sadr_completed){
 
 }
 
-void NMDosimetry :: injectDosesInImage()
+void NMDosimetry :: injectDosesInImage() // it is close but not there yet, this the way you manipulate the 3d images data. Can't get it to  work thought
 {
 
-   // Open File to read the transformation parameters
+
     std::vector<vtkImageData*> Initmatrix =  mSlicerManagers.back()->GetImage()->GetVTKImages();
-    std::vector<vtkImageData*> matrix =  mSlicerManagers.back()->GetImage()->GetVTKImages();//->GetTransform()[0]->GetMatrix();
+    std::vector<vtkImageData*> matrix =  mSlicerManagers.back()->GetImage()->GetVTKImages();
 
 
-    vtkSmartPointer<vtkMatrix4x4> m = vtkSmartPointer<vtkMatrix4x4>::New();
 
-    m->Identity();
-    for(int j=0; j<4; j++)
-      for(int i=0; i<4; i++)
-        m->SetElement(i,j,mSlicerManagers.back()->GetImage()->GetTransform()[0]->GetMatrix()->GetElement(i,j));
+    vtkSmartPointer<vtkImageData> grid =  mSlicerManagers.back()->GetImage()->GetFirstVTKImageData();
+
+   #if VTK_MAJOR_VERSION <= 5
+     grid->SetNumberOfScalarComponents(1);
+     grid->SetScalarTypeToDouble();
+   #else
+     Initmatrix[0]->AllocateScalars(VTK_DOUBLE,1);
+     grid->AllocateScalars(VTK_DOUBLE,1);
+   #endif
 
 
      qDebug() << exportedDoses[0];
 
-     // matrix.front()->SetNumberOfScalarComponents(1);
 
-     int* dims = matrix.at(0)->GetDimensions();
-     // int dims[3]; // can't do this
+     int* dims = grid->GetDimensions();
+
 
      std::cout << "Dims: " << " x: " << dims[0] << " y: " << dims[1] << " z: " << dims[2] << std::endl;
 
-     std::cout << "Number of points: " << matrix.at(0)->GetNumberOfPoints() << std::endl;
-     std::cout << "Number of cells: " << matrix.at(0)->GetNumberOfCells() << std::endl;
+     std::cout << "Number of points: " << grid->GetNumberOfPoints() << std::endl;
+     std::cout << "Number of cells: " << grid->GetNumberOfCells() << std::endl;
 
      // Fill every entry of the image data with "2.0"
      int k=0;
-
+     double* pixel;
      for (int z = 0; z < dims[2]; z++)
-       {
-       for (int y = 0; y < dims[1]; y++)
+     {
+         for (int y = 0; y < dims[1]; y++)
          {
-         for (int x = 0; x < dims[0]; x++)
-           {
-             double* pixel = static_cast<double*>(matrix.at(0)->GetScalarPointer(x,y,z));
-           if(k<exportedDoses.size())
-           {
+             for (int x = 0; x < dims[0]; x++)
+             {
+                pixel = static_cast<double*>(grid->GetScalarPointer(x,y,z));
+                 if(k<exportedDoses.size())
+                 {
 
-               pixel[0] = static_cast<double>(exportedDoses[k]);
-               //matrix.at(0)->SetScalarComponentFromDouble(x,y,z,0,static_cast<double>(exportedDoses.at(k)));
-
-           }
-           else
-           {
-               float val = matrix.at(0)->GetScalarComponentAsFloat(x,y,z,0);
-               pixel[0] = static_cast<double>(val);
-
-           }
-           k++;
+                     pixel[0] = exportedDoses[k];
 
 
-           }
+
+                 }
+                 else
+                 {
+
+
+                     pixel[0] = static_cast<double>(grid->GetScalarComponentAsDouble(x,y,z,0)); //always puts 0 instead  of the value;
+
+                 }
+                  k++;
+
+
+
+             }
          }
-       }
+     }
 
-     // Retrieve the entries from the image data and print them to the screen
-     for (int z = 0; z < dims[2]; z++)
-       {
-       for (int y = 0; y < dims[1]; y++)
-         {
-         for (int x = 0; x < dims[0]; x++)
-           {
-           double* pixel = static_cast<double*>(matrix.at(0)->GetScalarPointer(x,y,z));
-           // do something with v
-           std::cout << pixel[0] << " ";
-           }
-         std::cout << std::endl;
-         }
-       std::cout << std::endl;
-       }
+//     // Retrieve the entries from the image data and print them to the screen
+//     for (int z = 0; z < dims[2]; z++)
+//       {
+//       for (int y = 0; y < dims[1]; y++)
+//         {
+//         for (int x = 0; x < dims[0]; x++)
+//           {
+//           double* pixel = static_cast<double*>(grid->GetScalarPointer(x,y,z));
 
-
-
-   /* int k=0;
-   vtkSmartPointer<vtkMatrix4x4> mInitialMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
-  //  HideInputSelector();
-  //  QTabWidget * tab = dynamic_cast<NMDosimetry*>(mMainWindow)->GetTab();
-  //  move(tab->mapToGlobal(tab->pos()));
-  //  resize(tab->width(), 0);
-
-    //default image rotation center is the center of the image
-    QString xcord,ycord,zcord;
-    std::vector<double> imageorigin;
-    imageorigin=mSlicerManagers.back()->GetImage()->GetOrigin();
-    std::vector<int> imageSize = mSlicerManagers.back()->GetImage()->GetSize();
-    std::vector<double> imageSpacing = mSlicerManagers.back()->GetImage()->GetSpacing();
-     xcord=xcord.setNum(imageorigin[0]+(imageSize[0]-1)*imageSpacing[0]*0.5, 'g', 3);
-     qDebug() << xcord;
-    ycord=ycord.setNum(imageorigin[1]+(imageSize[1]-1)*imageSpacing[1]*0.5, 'g', 3);
-    qDebug() << ycord;
-    zcord=zcord.setNum(imageorigin[2]+(imageSize[2]-1)*imageSpacing[2]*0.5, 'g', 3);
-    qDebug() << zcord;
+//            // std::cout << pixel[0] << " ";
+//           }
+//       //  std::cout << std::endl;
+//         }
+//       //std::cout << std::endl;
+//       }
 
 
-    //backup original matrix
-    for(int j=0; j<4; j++){
-      for(int i=0; i<4; i++)
-      {
-        // TODO SR and BP: check on the list of transforms and not the first only
-        mInitialMatrix->SetElement(i,j, mSlicerManagers.back()->GetImage()->GetTransform()[0]->GetMatrix()->GetElement(i,j));
-        qDebug() << mInitialMatrix.get
-      }
-    }
-    QString origTransformString(clitk::Get4x4MatrixDoubleAsString(mInitialMatrix).c_str(*/
-
-
-//    for(int x=0;x<mSlicerManagers.back()->GetImage()->GetTransform()[0].)
-
-//    mSlicerManagers.back()->GetImage()->GetTransform()[0]->SetMatrix(matrix);
-//    mSlicerManagers.back()->GetImage()->GetTransform()[0]->Update();
-
-//    const int width = 4;
-//    const int height = 4;
-
-//    double cImage[width*height];
-//    double value = 0;
-//    for(unsigned int row = 0; row < height; ++row)
-//    {
-//      for(unsigned int col = 0; col < width; ++col)
-//      {
-//        cImage[row * width + col] = exportedDoses[col];
-//       // value += 10;
-//      }
-//    }
-
-//    // Convert the c-style image to a vtkImageData
-//    vtkSmartPointer<vtkImageImport> imageImport =
-//      vtkSmartPointer<vtkImageImport>::New();
-//    imageImport->SetDataSpacing(2, 2, 2);
-//    imageImport->SetDataOrigin(0, 0, 0);
-//    imageImport->SetWholeExtent(0, width-1, 0, height-1, 0, 0);
-//    imageImport->SetDataExtentToWholeExtent();
-//    imageImport->SetDataScalarTypeToUnsignedChar();
-//    imageImport->SetNumberOfScalarComponents(1);
-//    imageImport->SetImportVoidPointer(cImage);
-//    imageImport->Update();
-
-//    // Create an actor
-//    vtkSmartPointer<vtkImageActor> actor =
-//      vtkSmartPointer<vtkImageActor>::New();
-//    actor->SetInputData(imageImport->GetOutput());
-
-//    // Setup renderer
-//    vtkSmartPointer<vtkRenderer> renderer =
-//      vtkSmartPointer<vtkRenderer>::New();
-//    renderer->AddActor(actor);
-//    renderer->ResetCamera();
-
-//    // Setup render window
-//    vtkSmartPointer<vtkRenderWindow> renderWindow =
-//      vtkSmartPointer<vtkRenderWindow>::New();
-//    renderWindow->AddRenderer(renderer);
-
-//    // Setup render window interactor
-//    vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
-//      vtkSmartPointer<vtkRenderWindowInteractor>::New();
-//    vtkSmartPointer<vtkInteractorStyle> style =
-//      vtkSmartPointer<vtkInteractorStyle>::New();
-
-//    renderWindowInteractor->SetInteractorStyle(style);
-
-//    // Render and start interaction
-//    renderWindowInteractor->SetRenderWindow(renderWindow);
-//    renderWindow->Render();
-//    renderWindowInteractor->Initialize();
-
-//    renderWindowInteractor->Start();
 
 }
 
-void NMDosimetry::on_actionreg_triggered()
-{
-    on_actionCustom_Register_triggered();
-}
+
 
 void NMDosimetry::on_pb_clear_clicked()
 {

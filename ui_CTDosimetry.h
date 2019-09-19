@@ -83,6 +83,7 @@ public:
     QComboBox *cB_gender;
     QLabel *label_8;
     QLabel *label_10;
+    QPushButton *pb_clear;
     QSplitter *OSplitter;
     QWidget *NOWidget;
     QGridLayout *_19;
@@ -96,12 +97,12 @@ public:
     QSlider *SOHorizontalSlider;
     QSplitter *ESplitter;
     QWidget *NEWidget;
-    QGridLayout *_17;
+    QGridLayout *_23;
     QVTKWidget *NEViewWidget;
     QSlider *NEVerticalSlider;
     QSlider *NEHorizontalSlider;
     QWidget *SEWidget;
-    QGridLayout *_18;
+    QGridLayout *_24;
     QVTKWidget *SEViewWidget;
     QSlider *SEVerticalSlider;
     QSlider *SEHorizontalSlider;
@@ -112,58 +113,58 @@ public:
     {
         if (CTDosimetry->objectName().isEmpty())
             CTDosimetry->setObjectName(QString::fromUtf8("CTDosimetry"));
-        CTDosimetry->resize(1280, 832);
+        CTDosimetry->resize(1463, 819);
         centralwidget = new QWidget(CTDosimetry);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         label_7 = new QLabel(centralwidget);
         label_7->setObjectName(QString::fromUtf8("label_7"));
-        label_7->setGeometry(QRect(410, 500, 67, 17));
+        label_7->setGeometry(QRect(410, 550, 67, 17));
         pb_submit = new QPushButton(centralwidget);
         pb_submit->setObjectName(QString::fromUtf8("pb_submit"));
         pb_submit->setEnabled(true);
-        pb_submit->setGeometry(QRect(140, 600, 91, 41));
+        pb_submit->setGeometry(QRect(210, 680, 91, 41));
         comboBox = new QComboBox(centralwidget);
         comboBox->addItem(QString());
         comboBox->addItem(QString());
         comboBox->addItem(QString());
         comboBox->setObjectName(QString::fromUtf8("comboBox"));
-        comboBox->setGeometry(QRect(880, 40, 111, 21));
+        comboBox->setGeometry(QRect(1050, 40, 111, 21));
         label_15 = new QLabel(centralwidget);
         label_15->setObjectName(QString::fromUtf8("label_15"));
-        label_15->setGeometry(QRect(590, 40, 81, 21));
+        label_15->setGeometry(QRect(760, 40, 81, 21));
         label_5 = new QLabel(centralwidget);
         label_5->setObjectName(QString::fromUtf8("label_5"));
-        label_5->setGeometry(QRect(20, 500, 171, 17));
+        label_5->setGeometry(QRect(20, 550, 171, 17));
         label = new QLabel(centralwidget);
         label->setObjectName(QString::fromUtf8("label"));
-        label->setGeometry(QRect(400, 10, 211, 17));
+        label->setGeometry(QRect(530, 10, 211, 17));
         cB_kev = new QComboBox(centralwidget);
         cB_kev->addItem(QString());
         cB_kev->addItem(QString());
         cB_kev->setObjectName(QString::fromUtf8("cB_kev"));
-        cB_kev->setGeometry(QRect(410, 520, 125, 25));
+        cB_kev->setGeometry(QRect(410, 570, 125, 25));
         label_6 = new QLabel(centralwidget);
         label_6->setObjectName(QString::fromUtf8("label_6"));
-        label_6->setGeometry(QRect(240, 500, 121, 17));
+        label_6->setGeometry(QRect(240, 550, 121, 17));
         cB_protocol = new QComboBox(centralwidget);
         cB_protocol->addItem(QString());
         cB_protocol->addItem(QString());
         cB_protocol->addItem(QString());
         cB_protocol->setObjectName(QString::fromUtf8("cB_protocol"));
-        cB_protocol->setGeometry(QRect(240, 520, 125, 25));
+        cB_protocol->setGeometry(QRect(240, 570, 125, 25));
         pb_info = new QPushButton(centralwidget);
         pb_info->setObjectName(QString::fromUtf8("pb_info"));
-        pb_info->setGeometry(QRect(430, 610, 31, 31));
+        pb_info->setGeometry(QRect(550, 690, 31, 31));
         QIcon icon;
         icon.addFile(QString::fromUtf8(":/icons/icons/icons8-about-26.png"), QSize(), QIcon::Normal, QIcon::Off);
         pb_info->setIcon(icon);
         pb_info->setIconSize(QSize(25, 25));
         label_2 = new QLabel(centralwidget);
         label_2->setObjectName(QString::fromUtf8("label_2"));
-        label_2->setGeometry(QRect(680, 620, 401, 20));
+        label_2->setGeometry(QRect(790, 740, 401, 20));
         viewButton = new QPushButton(centralwidget);
         viewButton->setObjectName(QString::fromUtf8("viewButton"));
-        viewButton->setGeometry(QRect(280, 600, 101, 41));
+        viewButton->setGeometry(QRect(340, 680, 101, 41));
         colorMapComboBox = new QComboBox(centralwidget);
         colorMapComboBox->addItem(QString());
         colorMapComboBox->addItem(QString());
@@ -173,14 +174,14 @@ public:
         colorMapComboBox->addItem(QString());
         colorMapComboBox->addItem(QString());
         colorMapComboBox->setObjectName(QString::fromUtf8("colorMapComboBox"));
-        colorMapComboBox->setGeometry(QRect(680, 40, 111, 21));
+        colorMapComboBox->setGeometry(QRect(850, 40, 111, 21));
         cB_man = new QComboBox(centralwidget);
         cB_man->addItem(QString());
         cB_man->setObjectName(QString::fromUtf8("cB_man"));
-        cB_man->setGeometry(QRect(20, 520, 151, 25));
+        cB_man->setGeometry(QRect(20, 570, 151, 25));
         groupBox = new QGroupBox(centralwidget);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
-        groupBox->setGeometry(QRect(20, 60, 421, 421));
+        groupBox->setGeometry(QRect(20, 60, 491, 481));
         gridLayout_2 = new QGridLayout(groupBox);
         gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
         label_42 = new QLabel(groupBox);
@@ -360,9 +361,12 @@ public:
 
         gridLayout_2->addWidget(label_10, 14, 4, 1, 1);
 
+        pb_clear = new QPushButton(centralwidget);
+        pb_clear->setObjectName(QString::fromUtf8("pb_clear"));
+        pb_clear->setGeometry(QRect(90, 680, 91, 41));
         OSplitter = new QSplitter(centralwidget);
         OSplitter->setObjectName(QString::fromUtf8("OSplitter"));
-        OSplitter->setGeometry(QRect(590, 70, 291, 521));
+        OSplitter->setGeometry(QRect(590, 80, 401, 641));
         OSplitter->setOrientation(Qt::Vertical);
         NOWidget = new QWidget(OSplitter);
         NOWidget->setObjectName(QString::fromUtf8("NOWidget"));
@@ -424,68 +428,68 @@ public:
         OSplitter->addWidget(SOWidget);
         ESplitter = new QSplitter(centralwidget);
         ESplitter->setObjectName(QString::fromUtf8("ESplitter"));
-        ESplitter->setGeometry(QRect(880, 70, 291, 521));
+        ESplitter->setGeometry(QRect(990, 80, 401, 641));
         ESplitter->setOrientation(Qt::Vertical);
         NEWidget = new QWidget(ESplitter);
         NEWidget->setObjectName(QString::fromUtf8("NEWidget"));
         sizePolicy.setHeightForWidth(NEWidget->sizePolicy().hasHeightForWidth());
         NEWidget->setSizePolicy(sizePolicy);
-        _17 = new QGridLayout(NEWidget);
-        _17->setSpacing(2);
-        _17->setObjectName(QString::fromUtf8("_17"));
-        _17->setContentsMargins(2, 2, 2, 2);
+        _23 = new QGridLayout(NEWidget);
+        _23->setSpacing(2);
+        _23->setObjectName(QString::fromUtf8("_23"));
+        _23->setContentsMargins(2, 2, 2, 2);
         NEViewWidget = new QVTKWidget(NEWidget);
         NEViewWidget->setObjectName(QString::fromUtf8("NEViewWidget"));
         NEViewWidget->setMouseTracking(true);
 
-        _17->addWidget(NEViewWidget, 0, 0, 1, 1);
+        _23->addWidget(NEViewWidget, 0, 0, 1, 1);
 
         NEVerticalSlider = new QSlider(NEWidget);
         NEVerticalSlider->setObjectName(QString::fromUtf8("NEVerticalSlider"));
         NEVerticalSlider->setOrientation(Qt::Vertical);
 
-        _17->addWidget(NEVerticalSlider, 0, 1, 1, 1);
+        _23->addWidget(NEVerticalSlider, 0, 1, 1, 1);
 
         NEHorizontalSlider = new QSlider(NEWidget);
         NEHorizontalSlider->setObjectName(QString::fromUtf8("NEHorizontalSlider"));
         NEHorizontalSlider->setOrientation(Qt::Horizontal);
 
-        _17->addWidget(NEHorizontalSlider, 1, 0, 1, 1);
+        _23->addWidget(NEHorizontalSlider, 1, 0, 1, 1);
 
         ESplitter->addWidget(NEWidget);
         SEWidget = new QWidget(ESplitter);
         SEWidget->setObjectName(QString::fromUtf8("SEWidget"));
         sizePolicy.setHeightForWidth(SEWidget->sizePolicy().hasHeightForWidth());
         SEWidget->setSizePolicy(sizePolicy);
-        _18 = new QGridLayout(SEWidget);
-        _18->setSpacing(2);
-        _18->setObjectName(QString::fromUtf8("_18"));
-        _18->setContentsMargins(2, 2, 2, 2);
+        _24 = new QGridLayout(SEWidget);
+        _24->setSpacing(2);
+        _24->setObjectName(QString::fromUtf8("_24"));
+        _24->setContentsMargins(2, 2, 2, 2);
         SEViewWidget = new QVTKWidget(SEWidget);
         SEViewWidget->setObjectName(QString::fromUtf8("SEViewWidget"));
         sizePolicy.setHeightForWidth(SEViewWidget->sizePolicy().hasHeightForWidth());
         SEViewWidget->setSizePolicy(sizePolicy);
         SEViewWidget->setMouseTracking(true);
 
-        _18->addWidget(SEViewWidget, 0, 0, 1, 1);
+        _24->addWidget(SEViewWidget, 0, 0, 1, 1);
 
         SEVerticalSlider = new QSlider(SEWidget);
         SEVerticalSlider->setObjectName(QString::fromUtf8("SEVerticalSlider"));
         SEVerticalSlider->setOrientation(Qt::Vertical);
 
-        _18->addWidget(SEVerticalSlider, 0, 1, 1, 1);
+        _24->addWidget(SEVerticalSlider, 0, 1, 1, 1);
 
         SEHorizontalSlider = new QSlider(SEWidget);
         SEHorizontalSlider->setObjectName(QString::fromUtf8("SEHorizontalSlider"));
         SEHorizontalSlider->setOrientation(Qt::Horizontal);
 
-        _18->addWidget(SEHorizontalSlider, 1, 0, 1, 1);
+        _24->addWidget(SEHorizontalSlider, 1, 0, 1, 1);
 
         ESplitter->addWidget(SEWidget);
         CTDosimetry->setCentralWidget(centralwidget);
         menubar = new QMenuBar(CTDosimetry);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 1280, 22));
+        menubar->setGeometry(QRect(0, 0, 1463, 22));
         CTDosimetry->setMenuBar(menubar);
         statusbar = new QStatusBar(CTDosimetry);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
@@ -560,6 +564,7 @@ public:
 
         label_8->setText(QApplication::translate("CTDosimetry", "Anteroposterior Thickness:", nullptr));
         label_10->setText(QApplication::translate("CTDosimetry", ".pdf", nullptr));
+        pb_clear->setText(QApplication::translate("CTDosimetry", "Clear", nullptr));
     } // retranslateUi
 
 };
