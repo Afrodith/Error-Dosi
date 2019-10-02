@@ -1,2 +1,2 @@
 #!/bin/bash 
-/home/afrodith/Documents/Error-Dosi/Phantom_Matching/LIBRA_MLI/phantomMatching/application/run_phantomMatching.sh  /home/afrodith/Documents/Error-Dosi/Phantom_Matching/MATLAB/MATLAB_Runtime/v901  /home/afrodith/Documents/Error-Dosi/data/Final_ERROR_for_software_v1.xlsx  Male 1 1 12 3 12 1 2  /home/afrodith/Documents/Error-Dosi/data/output.txt
+/home/afrodith/Documents/Error-Dosi/Phantom_Matching/LIBRA_MLI/phantomMatching/application/run_phantomMatching.sh  /home/afrodith/Documents/Error-Dosi/Phantom_Matching/MATLAB/MATLAB_Runtime/v901  /home/afrodith/Documents/Error-Dosi/data/Final_ERROR_for_software_v1.xlsx  Female 5 10.8 51 11.8 11.6 17 14  /home/afrodith/Documents/Error-Dosi/data/output.txt

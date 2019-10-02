@@ -154,7 +154,7 @@ public:
         cB_protocol->setGeometry(QRect(240, 570, 125, 25));
         pb_info = new QPushButton(centralwidget);
         pb_info->setObjectName(QString::fromUtf8("pb_info"));
-        pb_info->setGeometry(QRect(550, 690, 31, 31));
+        pb_info->setGeometry(QRect(510, 690, 31, 31));
         QIcon icon;
         icon.addFile(QString::fromUtf8(":/icons/icons/icons8-about-26.png"), QSize(), QIcon::Normal, QIcon::Off);
         pb_info->setIcon(icon);

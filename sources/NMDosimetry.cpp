@@ -1853,12 +1853,9 @@ QVector<std::string> NMDosimetry:: GetNMPhantomNameFromFile(std::ifstream* p_fil
 
           for(int i=0;i<copy.size();i++)
           {
-              if(i!=0)
               name_vector.push_back(copy.at(i));
           }
 
-
-     i = 0; // Reinitialize i
 
 
    // move file position indicator to beginning

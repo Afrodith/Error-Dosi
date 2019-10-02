@@ -690,7 +690,7 @@ QVector<double> integradeDose::compute(QString fname,QString manuf,QString proto
              // Checking the SADRs file
              if (ba2.data() == nullptr) {
                  std::cerr << "A SADRs file has to be set!!!" << std::endl;
-                 //exit(EXIT_FAILURE);
+                 exit(EXIT_FAILURE);
              }
 
 
@@ -699,7 +699,7 @@ QVector<double> integradeDose::compute(QString fname,QString manuf,QString proto
              if (!p_sadrs_file.is_open()) {
                  std::cerr << "Error opening file '" << ba2.data()
                            << "': " << strerror(errno) << std::endl;
-                 exit(EXIT_FAILURE);
+
              }
 
              // Determine the number of organs to compute the total dose

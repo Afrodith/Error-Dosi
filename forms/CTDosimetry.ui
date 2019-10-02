@@ -174,7 +174,7 @@
    <widget class="QPushButton" name="pb_info">
     <property name="geometry">
      <rect>
-      <x>550</x>
+      <x>510</x>
       <y>690</y>
       <width>31</width>
       <height>31</height>

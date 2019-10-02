@@ -1730,12 +1730,12 @@ QVector<std::string> GetPhantomNameFromFile(std::ifstream* p_file)
 
           for(int i=0;i<copy.size();i++)
           {
-              if(i!=0)
+
               name_vector.push_back(copy.at(i));
           }
 
 
-     i = 0; // Reinitialize i
+
 
 
    // move file position indicator to beginning
@@ -1759,23 +1759,22 @@ void CTDosimetry::afterMatching(int)
 
     compute->close();
     this->setCursor(Qt::ArrowCursor);
-    qDebug() << sadr;
 
 
-    QString curr = QDir::currentPath();
-    QString str_ph=curr+"/data/output.txt";
+    QString curr2 = QDir::currentPath();
+    QString str_ph2=curr2+"/data/output.txt";
 
-    QByteArray ba= str_ph.toLocal8Bit();
+    QByteArray ba2= str_ph2.toLocal8Bit();
     QVector<std::string> phantom_name;
 
-    std::ifstream p_output_file(ba.data());
-    if (!p_output_file.is_open()) {
-        std::cerr << "Error opening file '" << ba.data()
+    std::ifstream output_file(ba2.data());
+    if (!output_file.is_open()) {
+        std::cerr << "Error opening file '" << ba2.data()
                   << "': " << strerror(errno) << std::endl;
 
     }
 
-    phantom_name = GetPhantomNameFromFile(&p_output_file);
+    phantom_name = GetPhantomNameFromFile(&output_file);
 
     QString whole_path;
     QString constructed_str;
@@ -1800,6 +1799,7 @@ void CTDosimetry::afterMatching(int)
 
        if(fileExists(whole_path))
        {
+
            sadr.append(constructed_str);
            sadr_completed=true;
            QString phantom_loc = QDir::currentPath()+"/data/Phantoms/";
@@ -1855,21 +1855,21 @@ void CTDosimetry::afterMatching(int)
 
     }
 
-
+qDebug() << image_phantom;
 
     if(phantom_match==nullptr)
         phantom_match=new integradeDose(this,2);
 
 
 if(sadr_completed){
-
+    phantom_match->getFileNames(sadr);
     mAs = LE_mAs->text().toInt();
     totalEnergy = cB_kev->currentText().toInt();
     int CTDIvol = LE_CTDi->text().toInt();
 
 
 
-   exportedDoses = phantom_match->compute(sadr,cB_man->currentText(),cB_protocol->currentText(),mAs,CTDIvol,totalEnergy);
+   exportedDoses = phantom_match->compute(LE_filename->text(),cB_man->currentText(),cB_protocol->currentText(),mAs,CTDIvol,totalEnergy);
 
   //  phantom_match->compute(LE_filename->text(),cB_protocol->currentText());
 
